@@ -37,29 +37,29 @@ private:
 
     WSADATA data;
     WORD version = MAKEWORD(2, 2);
-    int bytesIn;
+    tUINT32 bytesIn;
 
-    int iOptVal = 0x200000; //2мб
-    int iOptLen = sizeof (int);
+    tUINT32 iOptVal = 0x200000; //2мб
+    tUINT32 iOptLen = sizeof (tUINT32);
 
     //Инициализирует запуск winsock, возввращает ноль если запуск прошел успешно
-    int winsockStatus;
+    tUINT32 winsockStatus;
 
     SOCKET socketIn;
     MainWindow *mainWindow;
     //Клиент
     sockaddr_in serverHint;
     sockaddr_in client;
-    static const int clientListSize = 12;
+    static const tUINT32 clientListSize = 12;
     ClientData clientsList[clientListSize];
     PacketHandler *packetHandler;
 
-    int clientLength = sizeof(client);
-    char* ipClient;
-    int portClient;
+    tUINT32 clientLength = sizeof(client);
+    tUINT8* ipClient;
+    tUINT32 portClient;
 
     //Буффер пакета
-    char packetBuffer[65280]; //65280 - максимальный размер входящих даных
+    tUINT8 packetBuffer[65280]; //65280 - максимальный размер входящих даных
 
 public:
     void run();

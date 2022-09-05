@@ -66,7 +66,7 @@ bool Launcher::InitSocket()
 void Launcher::SocketListener()
 {
     //Принимаем пакет
-    bytesIn = recvfrom(socketIn, packetBuffer, sizeof(packetBuffer), 0, (sockaddr*)&client, &clientLength);
+    bytesIn = recvfrom(socketIn, (tINT8*)packetBuffer, sizeof(packetBuffer), 0, (sockaddr*)&client, (tINT32*)&clientLength);
     if(bytesIn==SOCKET_ERROR)
     {
         std::cout<<"Launcher:: recvfrom failed, error: "<<WSAGetLastError()<<std::endl;
@@ -109,6 +109,7 @@ bool Launcher::FindClientInArray()
             clientsList[i].clientIp = client;
             PacketHandler *packetHandler = new PacketHandler(client);
             packetHandler->AppendQueue(packetBuffer,bytesIn);
+            packetHandler->setSocketIn(socketIn);
             clientsList[i].connectionThread = packetHandler;
 
             clientsList[i].connectionThread->start();
