@@ -1,12 +1,9 @@
 #ifndef PACKETHANDLER_H
 #define PACKETHANDLER_H
-#include <QThread>
-#include <queue>
-#include <QMutex>
 #pragma comment (lib, "ws2_32.lib")
 #include <winsock2.h>
-#include <iostream>
 #include "PCRC32.h"
+#include "chunkhandler.h"
 
 #define CRC_OFFSET (4)
 #define UDP_HEAD_OFFSET (14)
@@ -105,9 +102,10 @@ private:
     tUINT32 bytesLeft;
     tUINT32 chunkSize = 0;
 
-    std::queue<BufferData> packetQueue;
+
     std::vector<char> bufferVector;
 
+    ChunkHandler chunkHandler;
     BufferData dataFromQueue;
     sH_Packet_Header packetHeader;
     sH_Client_Hello packetHello;
@@ -128,6 +126,8 @@ private:
     tUINT32 GetPacketType(sH_Packet_Header pckHdr);
 
 public:
+    std::queue<std::vector<tINT8>> packetQueue;
+    std::vector<tINT8> tempVector;
     PacketHandler();
 
     sockaddr_in client;

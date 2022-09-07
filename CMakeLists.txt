@@ -23,6 +23,8 @@ set(PROJECT_SOURCES
         includes/launcher.cpp
         includes/packethandler.h
         includes/packethandler.cpp
+        includes/chunkhandler.h
+        includes/chunkhandler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

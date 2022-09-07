@@ -12,7 +12,7 @@
 #include <iostream>
 #include <QVector>
 #include <QMap>
-
+#include <QMutex>
 //std::vector<char> vectorChunk;
 //std::queue<std::vector<char>> queueChunks;
 struct ClientData
@@ -26,15 +26,10 @@ struct ClientData
 class Launcher:public QThread
 {
     Q_OBJECT
-public:
-    Launcher()
-    {
-
-    }
 private:
     //UDP Protocol
     bool socketStarted = false;
-
+    QMutex mutex;
     WSADATA data;
     WORD version = MAKEWORD(2, 2);
     tUINT32 bytesIn;
@@ -62,6 +57,10 @@ private:
     tUINT8 packetBuffer[65280]; //65280 - максимальный размер входящих даных
 
 public:
+    Launcher()
+    {
+
+    }
     void run();
     bool FindClientInArray();
     bool InitSocket();

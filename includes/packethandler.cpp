@@ -4,9 +4,14 @@
 
 void PacketHandler::run()
 {
-StartPacketHandling:
+    //Нам надо один раз запустить и запомнить поток обработки чанков, это мы сделаем здесь
+
+    chunkHandler.start();
+
+
     while(true)
     {
+
         //Туду: здесь должен быть обработчик пакетов. Нужно брать из очереди буфер и обрабатывать его так же, как это было в варианте с одним соединением
         //Берем из очереди буфер
         GetPacketFromQueue();
@@ -14,7 +19,7 @@ StartPacketHandling:
         if(!PacketProcessing())
         {
             std::cout<<"Getting next packet" <<std::endl;
-            goto StartPacketHandling;
+            continue;
         }
     }
 }
@@ -23,7 +28,11 @@ void PacketHandler::AppendQueue(tUINT8* bufferPointer, tUINT32 bufferSize){
     //Дополняем очередь packetBuffer-а
     mutex.tryLock(-1);
     BufferData bufferData{bufferPointer,bufferSize};
-    packetQueue.push(bufferData);
+    std::vector<tINT8> tempVector;
+    tempVector.resize(bufferSize);
+    tINT8* tempPointer = tempVector.data();
+    memcpy(tempPointer,bufferPointer,bufferSize);
+    packetQueue.push(tempVector);
     mutex.unlock();
 }
 
@@ -40,16 +49,24 @@ void PacketHandler::GetPacketFromQueue()
         continue;
     }
 
+    //Ебливый компилятор кто тебе сука разрешал лезть в ячейки памяти которые записаны в очереди
+    //СУКАААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААА
+    //ЕБАНЫЙ В РОТ
+    //ТРИ ЧАСА НА СМАРКУ ЧТОБЫ ПОНЯТЬ
+    //ЧТО ПРОЦЕСС МОЖЕТ ПЕРЕЗАПИСЫВАТЬ ЯЧЕЙКИ ПО СВОЕЙ ХОТЕЛКЕ
+    //ДАЖЕ ЕСЛИ ЯЧЕЙКА НЕ ПУСТАЯ
+    //ЕБАТЬ
+
     //Сюда пришли если очередь не пуста, откусываем и начинаем обработку
     mutex.tryLock(-1);
-    dataFromQueue = packetQueue.front();
+    tempVector = packetQueue.front();
     packetQueue.pop();
     mutex.unlock();
     //передаем в локальные переменные чтобы не мучатьь себе голову на протяжении всего кода из-за структуры
-    packetBuffer = dataFromQueue.packetPointer;
+    packetSize = tempVector.size();
+    packetBuffer = (tUINT8*)malloc(packetSize);
+    memcpy(packetBuffer,tempVector.data(),packetSize);
     packetCursor = packetBuffer;
-
-    packetSize = dataFromQueue.sizeBuffer;
 
 }
 
@@ -57,7 +74,8 @@ bool PacketHandler::PacketProcessing()
 {
     //Читаем заголовок пакета и перескакиваем его
     memcpy(&packetHeader,packetCursor,sizeof(sH_Packet_Header));
-    packetCursor+=sizeof(sH_Packet_Header);
+    packetSize = packetHeader.wSize;
+    packetCursor+=14;
 
     packetType = GetPacketType(packetHeader);
     lastPacket = packetHeader.dwID;
@@ -102,7 +120,6 @@ bool PacketHandler::PacketProcessing()
     }
     case ETPT_CLIENT_BYE:
     {
-
         break;
     }
     default:
@@ -111,6 +128,7 @@ bool PacketHandler::PacketProcessing()
         return false;
         break;
     }
+        return true;
     }
     return true;
 }
@@ -125,6 +143,7 @@ ReadingPacket:
     {
         memcpy(&chunkSize,packetCursor,sizeof(tUINT32));
         chunkSize = GET_USER_HEADER_SIZE(chunkSize);
+        std::cout<<chunkSize<<std::endl;
         //генерируем временный вектор для чанков, выходящих за рамки пакетов
         tempBuffer = (tINT8*)malloc(chunkSize);
         //Делаем ресайз вектора, присваиваем буфер вектору
@@ -154,7 +173,8 @@ ReadingPacket:
         //Добиваем недозаполненный кусок в вектор
         memcpy(p_chunkPointer,packetCursor,chunkSize-bytesTransfered);
         //Передаем в очередь наш вектор
-        BufferToQueue();
+        chunkHandler.AppendChunksQueue(bufferVector);
+        bufferVector.clear();//На всякий случай
         //Меняем значение bytesLeft на то, которое остается после транспортировки в буфер
         bytesLeft-=chunkSize-bytesTransfered;
         //Двигаем курсор пакета на начало нового буфера
@@ -172,7 +192,8 @@ ReadingPacket:
         memcpy(p_chunkPointer,packetCursor,chunkSize);
         bytesLeft-=chunkSize; //Отнимаем прочитанный кусок от суммы пакета
         packetCursor+=chunkSize; //Перемещаем пакет по курсору, чтобы пропустить считанный чанк
-        BufferToQueue();
+        chunkHandler.AppendChunksQueue(bufferVector);
+        bufferVector.clear();//На всякий случай
         chunkSize=0;
     }
 
@@ -205,13 +226,7 @@ ReadingPacket:
 
 }
 
-void PacketHandler::BufferToQueue()
-{
-    mutex.tryLock(-1);
-    //bufferQueue.push(bufferVector);
-    mutex.unlock();
-    bufferVector.clear();
-}
+
 
 tUINT32 PacketHandler::GetPacketType(sH_Packet_Header pckHdr)
 {
