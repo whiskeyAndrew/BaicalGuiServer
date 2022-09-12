@@ -141,9 +141,10 @@ ReadingPacket:
     //Копируем размер чанка, если он у нас не существует
     if(chunkSize==0)
     {
+
         memcpy(&chunkSize,packetCursor,sizeof(tUINT32));
         chunkSize = GET_USER_HEADER_SIZE(chunkSize);
-        std::cout<<chunkSize<<std::endl;
+        //std::cout<<chunkSize<<std::endl;
         //генерируем временный вектор для чанков, выходящих за рамки пакетов
         tempBuffer = (tINT8*)malloc(chunkSize);
         //Делаем ресайз вектора, присваиваем буфер вектору
@@ -182,6 +183,12 @@ ReadingPacket:
         //Обнуляем все, что нужно для чтения пакетиков
         chunkSize=0;
         bytesTransfered=0;
+
+        if(packetCursor==packetBuffer+packetSize)
+        {
+            //Хз почему не обрабатываю этот вариант, вариант при котором конец чанка находится в конце пакета
+            return true;
+        }
         goto ReadingPacket;
     }
 
@@ -201,7 +208,7 @@ ReadingPacket:
     else if(chunkSize>bytesLeft)
     {
         //А хули я все время не копировал прямо в вектор?
-        //Потому что говно получается и вылезаю из-за этого скорее всего ошибки. Исправляем
+        //Потому что говно получается и вылезают из-за этого скорее всего ошибки. Исправляем
         memcpy(p_chunkPointer,packetCursor,bytesLeft);
         //Скопировали в вектор, переместили курсор по нему
         p_chunkPointer+=bytesLeft;

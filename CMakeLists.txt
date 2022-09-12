@@ -19,12 +19,11 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        includes/launcher.h
-        includes/launcher.cpp
-        includes/packethandler.h
-        includes/packethandler.cpp
-        includes/chunkhandler.h
-        includes/chunkhandler.cpp
+        includes/launcher.h includes/launcher.cpp
+        includes/packethandler.h includes/packethandler.cpp
+        includes/chunkhandler.h includes/chunkhandler.cpp
+        includes/Trace.h includes/Trace.cpp
+        includes/tracewindow.h includes/tracewindow.cpp includes/tracewindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

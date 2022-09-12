@@ -105,7 +105,7 @@ private:
 
     std::vector<char> bufferVector;
 
-    ChunkHandler chunkHandler;
+
     BufferData dataFromQueue;
     sH_Packet_Header packetHeader;
     sH_Client_Hello packetHello;
@@ -126,6 +126,7 @@ private:
     tUINT32 GetPacketType(sH_Packet_Header pckHdr);
 
 public:
+    ChunkHandler chunkHandler;
     std::queue<std::vector<tINT8>> packetQueue;
     std::vector<tINT8> tempVector;
     PacketHandler();

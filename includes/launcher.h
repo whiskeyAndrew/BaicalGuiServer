@@ -46,7 +46,7 @@ private:
     sockaddr_in serverHint;
     sockaddr_in client;
     static const tUINT32 clientListSize = 12;
-    ClientData clientsList[clientListSize];
+
     PacketHandler *packetHandler;
 
     tUINT32 clientLength = sizeof(client);
@@ -57,6 +57,7 @@ private:
     tUINT8 packetBuffer[65280]; //65280 - максимальный размер входящих даных
 
 public:
+    ClientData clientsList[clientListSize];
     Launcher()
     {
 
