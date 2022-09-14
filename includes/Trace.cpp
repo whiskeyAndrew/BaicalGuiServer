@@ -10,15 +10,15 @@ TraceLineData Trace::setTraceData(tINT8* chunkCursor)
     //Читаем его структуру и записываем в TraceLineData
     memcpy(&traceData,chunkCursor,sizeof(sP7Trace_Data));
     traceDataPerLine = uniqueTrace.value(traceData.wID);
-    traceDataPerLine.dwSequence = traceData.dwSequence;
+    traceDataPerLine.traceData = traceData;
     chunkCursor+=sizeof(sP7Trace_Data);
 
     //Теперь надо прочитать аргументы и записать сюда
     //Кидаем поинтер на начало вектора структур, как только прочли нужное - перемещаем поинтер дальше
-    traceDataPerLine.traceLineReadyToOutput = traceDataPerLine.traceLineData;
-    if(traceDataPerLine.argsLen!=0)
+    traceDataPerLine.traceLineToGUI = traceDataPerLine.traceLineData;
+    if(traceDataPerLine.traceFormat.args_Len!=0)
     {
-        for(int i =0; i<traceFormat.args_Len;i++)
+        for(int i =0; i<traceDataPerLine.traceFormat.args_Len;i++)
         {
             memcpy(&argument,chunkCursor,traceDataPerLine.argsID[i].argSize);
             //Читаем аргументы, их размер и ID нам известен
@@ -28,6 +28,7 @@ TraceLineData Trace::setTraceData(tINT8* chunkCursor)
 
         traceDataPerLine = ReplaceArguments(traceDataPerLine);
     }
+    traceToShow.insert(traceDataPerLine.traceData.dwSequence,traceDataPerLine);
     return traceDataPerLine;
 }
 
@@ -38,7 +39,6 @@ void Trace::setTraceFormat(tINT8* chunkCursor)
     //Уникальный трейс
     memcpy(&traceFormat,chunkCursor,sizeof(sP7Trace_Format));
     chunkCursor+=sizeof(sP7Trace_Format);
-    traceDataPerLine.argsLen = traceFormat.args_Len;
 
     if(traceFormat.args_Len!=0)
     {
@@ -51,8 +51,10 @@ void Trace::setTraceFormat(tINT8* chunkCursor)
         }
     }
     chunkCursor = ReadTraceText(chunkCursor, &traceDataPerLine);
+
+    traceDataPerLine.traceFormat = traceFormat;
     uniqueTrace.insert(traceFormat.wID,traceDataPerLine);
-    traceToShow.insert(traceData.dwSequence,traceDataPerLine);
+
 }
 
 void Trace::setTraceUTC(tINT8* chunkCursor)
@@ -72,12 +74,25 @@ void Trace::setTraceThreadStop(tINT8* chunkCursor)
 void Trace::setTraceModule(tINT8* chunkCursor)
 {
     memcpy(&traceModule,chunkCursor,sizeof(sP7Trace_Module));
+    modules.insert(traceModule.wModuleId,traceModule);
 }
 
 
 void Trace::setTraceInfo(tINT8* chunkCursor)
 {
     memcpy(&traceInfo,chunkCursor,sizeof(sP7Trace_Info));
+}
+
+QString Trace::getModule(tUINT32 moduleID)
+{
+    sP7Trace_Module module = modules.value(moduleID);
+    return QString(module.pName);
+}
+
+TraceLineData Trace::GetTraceDataToGui(tUINT32 sequence)
+{
+    TraceLineData traceToGUI = traceToShow.value(sequence);
+    return traceToGUI;
 }
 
 tINT8* Trace::ReadTraceText(tINT8* tempChunkCursor, TraceLineData *trace)
@@ -105,7 +120,8 @@ tINT8* Trace::ReadTraceText(tINT8* tempChunkCursor, TraceLineData *trace)
     return tempChunkCursor;
 }
 
-//переделать
+//катастрофической говнокод, надо переделать
+//ЕЩЕ И НЕ РАБОТАЕТ СУКА
 TraceLineData Trace::ReplaceArguments(TraceLineData trace)
 {
     tUINT32 argNumber = 0;
@@ -115,14 +131,14 @@ TraceLineData Trace::ReplaceArguments(TraceLineData trace)
 
 startFindingArgs:
 
-    for(int lineIterator =0;lineIterator!=trace.traceLineReadyToOutput.length();lineIterator++)
+    for(int lineIterator =0;lineIterator<trace.traceLineToGUI.length();lineIterator++)
     {
-        if(argNumber==trace.argsLen)
+        if(argNumber==trace.traceFormat.args_Len)
             return trace;
 
-        if(trace.traceLineReadyToOutput[lineIterator]=='%')
+        if(trace.traceLineToGUI[lineIterator]=='%')
         {
-            if(trace.traceLineReadyToOutput[lineIterator+1]=='%' || lineIterator==rememberPos)
+            if(trace.traceLineToGUI[lineIterator+1]=='%' || lineIterator==rememberPos)
             {
                 rememberPos = lineIterator;
                 lineIterator+=1;
@@ -133,14 +149,19 @@ startFindingArgs:
             QString tempArgString;
             //Аргумент мы записываем в временный string
             for(tUINT32 argIterator = 0;argIterator<6;argIterator++){
-                tempArgString.push_back(trace.traceLineReadyToOutput[lineIterator]);
+                tempArgString.push_back(trace.traceLineToGUI[lineIterator]);
                 lineIterator++;
                 //Находим конец аргумента по уникальным буквам typeSpecifier
                 for(int it = 0; it<8;it++)
                 {
                     if(tempArgString [argIterator] == typeSpecifier[it])
                     {
-                        trace.traceLineReadyToOutput.replace(startPos,argIterator+1,QString::number(trace.argsValue[argNumber]));
+                        //Надо продумать как правильно все реализовать вокруг поинтеров
+                        //Есть идея писать очередь указателей на ячейки памяти с элементами, чтобы мы их побайтово хранили
+                        //И потом как-то доставать по айдишнику что ли
+                        //Пока хз, надо обдумать
+                        //Сейчас бы егэ по готовым решениям с стрингами в С
+                        trace.traceLineToGUI.replace(startPos,argIterator+1,QString::number(trace.argsValue[argNumber]));
                         argNumber++;
                         goto startFindingArgs;
                     }
@@ -148,23 +169,26 @@ startFindingArgs:
             }
         }
     }
+    return trace;
 }
+
+
 
 //TraceLineData Trace::ReplaceArguments(TraceLineData trace)
 //{
 //    std::vector<QChar> argType = {'d','b','i','o','u','x','X','s','c'};
 //    tINT32 argNumber = 0;
 //    tINT32 replaceStart = -1;
-//    trace.traceLineReadyToOutput = trace.traceLineData;
+//    trace.traceLineToGUI = trace.traceLineData;
 
-//    for(int i = 0; i<trace.traceLineReadyToOutput.length();i++)
+//    for(int i = 0; i<trace.traceLineToGUI.length();i++)
 //    {
 //        if(argNumber==trace.argsLen)
 //            break;
 
-//        if(trace.traceLineReadyToOutput[i]=="%")
+//        if(trace.traceLineToGUI[i]=="%")
 //        {
-//            if(trace.traceLineReadyToOutput[i+1]=="%")
+//            if(trace.traceLineToGUI[i+1]=="%")
 //            {
 //                i++;
 //                continue;
@@ -173,10 +197,10 @@ startFindingArgs:
 //                i++;
 //            for(int j = 0;j<6;j++)
 //            {
-//                if (std::find(argType.begin(),argType.end(), trace.traceLineReadyToOutput[i]) != argType.end())
+//                if (std::find(argType.begin(),argType.end(), trace.traceLineToGUI[i]) != argType.end())
 //                {
 //                    //Нашли конец аргумента
-//                    trace.traceLineReadyToOutput.replace(replaceStart,i,QString::number(trace.argsValue[argNumber]));
+//                    trace.traceLineToGUI.replace(replaceStart,i,QString::number(trace.argsValue[argNumber]));
 //                    argNumber++;
 //                    break;
 //                }

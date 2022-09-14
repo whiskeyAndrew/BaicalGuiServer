@@ -102,9 +102,9 @@ private:
     tUINT32 bytesLeft;
     tUINT32 chunkSize = 0;
 
-
+    std::vector<char>dataVector;
     std::vector<char> bufferVector;
-
+    bool chunkSizeReady = false;
 
     BufferData dataFromQueue;
     sH_Packet_Header packetHeader;

@@ -23,6 +23,10 @@ void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
             traceWindow, &TraceWindow::GetTrace);
     connect(this, &ChunkHandler::SendQueueSize,
             traceWindow, &TraceWindow::GetQueueSize);
+    connect(this,&ChunkHandler::SendTraceAsObject,traceWindow,&TraceWindow::SetTraceAsObject);
+    emit SendTraceAsObject(&trace);
+    //Дайте окну прогрузиться пожалуйста
+    Sleep(200);
     windowOpened = true;
 
 }
@@ -56,7 +60,7 @@ bool ChunkHandler::ProcessChunk()
             case EP7TEL_TYPE_INFO:
             {
                 chunkCursor+=structSize;
-                std::cout<<"V2 EP7TEL_TYPE_INFO skipped"<<std::endl;
+                //std::cout<<"V2 EP7TEL_TYPE_INFO skipped"<<std::endl;
                 break;
             }
 
@@ -64,7 +68,7 @@ bool ChunkHandler::ProcessChunk()
             case EP7TEL_TYPE_COUNTER:
             {
                 chunkCursor+=structSize;
-                std::cout<<"V2 EP7TEL_TYPE_COUNTER skipped"<<std::endl;
+                //std::cout<<"V2 EP7TEL_TYPE_COUNTER skipped"<<std::endl;
                 break;
             }
 
@@ -72,7 +76,7 @@ bool ChunkHandler::ProcessChunk()
             case EP7TEL_TYPE_VALUE:
             {
                 chunkCursor+=structSize;
-                std::cout<<"V2 EP7TEL_TYPE_VALUE skipped"<<std::endl;
+                //std::cout<<"V2 EP7TEL_TYPE_VALUE skipped"<<std::endl;
                 break;
             }
 
@@ -80,7 +84,7 @@ bool ChunkHandler::ProcessChunk()
             case EP7TEL_TYPE_ENABLE:
             {
                 chunkCursor+=structSize;
-                std::cout<<"V2 EP7TEL_TYPE_ENABLE skipped"<<std::endl;
+                //std::cout<<"V2 EP7TEL_TYPE_ENABLE skipped"<<std::endl;
                 break;
             }
 
@@ -88,7 +92,7 @@ bool ChunkHandler::ProcessChunk()
             case EP7TEL_TYPE_CLOSE:
             {
                 chunkCursor+=structSize; //вроде как оно просто Ext_Raw прокидывает
-                std::cout<<"V2 EP7TEL_TYPE_CLOSE skipped"<<std::endl;
+                //std::cout<<"V2 EP7TEL_TYPE_CLOSE skipped"<<std::endl;
                 break;
             }
 
@@ -96,7 +100,7 @@ bool ChunkHandler::ProcessChunk()
             case EP7TEL_TYPE_DELETE:
             {
                 chunkCursor+=structSize; //вроде как оно просто ExT_
-                std::cout<<"V2 EP7TEL_TYPE_DELETE skipped"<<std::endl;
+                //std::cout<<"V2 EP7TEL_TYPE_DELETE skipped"<<std::endl;
                 break;
             }
 
@@ -104,12 +108,12 @@ bool ChunkHandler::ProcessChunk()
             case EP7TEL_TYPE_UTC_OFFS:
             {
                 chunkCursor+=structSize;
-                std::cout<<"V2 EP7TEL_TYPE_UTC_OFFS skipped"<<std::endl;
+                //std::cout<<"V2 EP7TEL_TYPE_UTC_OFFS skipped"<<std::endl;
                 break;
             }
             default:
             {
-                std::cout<<"V2 Tele default enter, Ext_Raw: "<<Ext_Raw<<std::endl;
+                //std::cout<<"V2 Tele default enter, Ext_Raw: "<<Ext_Raw<<std::endl;
                 break;
             }
 
@@ -119,6 +123,7 @@ bool ChunkHandler::ProcessChunk()
 
         case EP7USER_TYPE_TRACE:
         {
+            std::cout<<"I could be a tracer"<<std::endl;
             switch(structSubtype){
             case EP7TRACE_TYPE_DATA:
             {

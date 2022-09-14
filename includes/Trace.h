@@ -76,12 +76,12 @@ struct sP7Trace_Data
 
 struct TraceLineData
 {
+    sP7Trace_Format traceFormat;
+    sP7Trace_Data traceData;
     QString traceLineData;
-    QString traceLineReadyToOutput;
+    QString traceLineToGUI;
     QString fileDest;
     QString functionName;
-    tUINT32 dwSequence;
-    tINT32 argsLen;
     std::vector<Args_ID> argsID;
     std::vector<tUINT64> argsValue;
 };
@@ -100,8 +100,12 @@ private:
 
     QMap<tUINT32,TraceLineData> uniqueTrace;
     QMap<tUINT32,TraceLineData> traceToShow;
+    QMap<tUINT32,sP7Trace_Module> modules;
+
+    void test( char const * const format, ... );
 public:
     //TraceLineData traceDataPerLine;
+    TraceLineData GetTraceDataToGui(tUINT32 sequence);
     void setTraceInfo(tINT8* chunkPointer);
     void setTraceUTC(tINT8* chunkCursor);
     void setTraceThreadStart(tINT8* chunkCursor);
@@ -112,5 +116,6 @@ public:
     TraceLineData setTraceData(tINT8* chunkCursor);
     tINT8* ReadTraceText(tINT8* chunkCursor, TraceLineData *trace);
 
+    QString getModule(tUINT32 moduleID);
 };
 #endif // TRACE_H

@@ -18,7 +18,7 @@ void PacketHandler::run()
         //Обрабатываем
         if(!PacketProcessing())
         {
-            std::cout<<"Getting next packet" <<std::endl;
+            //std::cout<<"Getting next packet" <<std::endl;
             continue;
         }
     }
@@ -93,14 +93,7 @@ bool PacketHandler::PacketProcessing()
 
         break;
     }
-    case ETPT_CLIENT_HELLO:
-    {
-        if(!HandleHelloPacket())
-        {
-            return false;
-        }
-        break;
-    }
+
 
     case ETPT_CLIENT_DATA_REPORT:
     {
@@ -113,6 +106,14 @@ bool PacketHandler::PacketProcessing()
     case ETPT_CLIENT_PING:
     {
         if(!HandlePingPacket())
+        {
+            return false;
+        }
+        break;
+    }
+    case ETPT_CLIENT_HELLO:
+    {
+        if(!HandleHelloPacket())
         {
             return false;
         }
@@ -137,101 +138,141 @@ bool PacketHandler::InitData()
 {
     bytesLeft = packetSize-UDP_HEAD_OFFSET;
 
-ReadingPacket:
-    //Копируем размер чанка, если он у нас не существует
+    for(int i = 0;i<bytesLeft;i++)
+    {
+        dataVector.push_back(*packetCursor);
+        packetCursor++;
+    }
+
+newChunk:
     if(chunkSize==0)
     {
-
-        memcpy(&chunkSize,packetCursor,sizeof(tUINT32));
+        memcpy(&chunkSize,dataVector.data(),sizeof(tUINT32));
         chunkSize = GET_USER_HEADER_SIZE(chunkSize);
-        //std::cout<<chunkSize<<std::endl;
-        //генерируем временный вектор для чанков, выходящих за рамки пакетов
-        tempBuffer = (tINT8*)malloc(chunkSize);
-        //Делаем ресайз вектора, присваиваем буфер вектору
-        bufferVector.resize(chunkSize);
-        chunkBuffer = bufferVector.data();
-        //Присваеиваем курсор вектору
-        p_chunkPointer = chunkBuffer;
     }
-
-    //Мы переместили 50к байт, нам приходит еще 50к байт,
-    //Это меньше, чем 110к байт, поэтому нам нужно добрать еще
-    else if(bytesTransfered+bytesLeft<chunkSize)
-    {
-        //Копируем в конец вектора наш недостающий кусок
-        memcpy(p_chunkPointer,packetCursor,bytesLeft);
-        //Дополняем переданное количество байтов
-        bytesTransfered+=bytesLeft;
-        //Двигаем курсор по чанку внутри вектора
-        p_chunkPointer+=bytesLeft;
+    if(bytesLeft-chunkSize<0)
         return false;
-    }
 
-    //Мы переместили 100кбайт, нам пришло еще 50кбайт
-    //Это больше, чем 110к байт, поэтому заканчиваем буфер
-    else if(bytesTransfered+bytesLeft>=chunkSize)
+    bytesLeft-=chunkSize;
+    std::cout<<chunkSize<<std::endl;
+    while(chunkSize<dataVector.size())
     {
-        //Добиваем недозаполненный кусок в вектор
-        memcpy(p_chunkPointer,packetCursor,chunkSize-bytesTransfered);
+        for(int i =0;i<chunkSize;i++)
+        {
+            bufferVector.push_back(*dataVector.data());
+            dataVector.erase(dataVector.begin());
+        }
+
         //Передаем в очередь наш вектор
         chunkHandler.AppendChunksQueue(bufferVector);
         bufferVector.clear();//На всякий случай
-        //Меняем значение bytesLeft на то, которое остается после транспортировки в буфер
-        bytesLeft-=chunkSize-bytesTransfered;
-        //Двигаем курсор пакета на начало нового буфера
-        packetCursor+=chunkSize-bytesTransfered;
-        //Обнуляем все, что нужно для чтения пакетиков
         chunkSize=0;
-        bytesTransfered=0;
 
-        if(packetCursor==packetBuffer+packetSize)
-        {
-            //Хз почему не обрабатываю этот вариант, вариант при котором конец чанка находится в конце пакета
+        if(bytesLeft==0)
             return true;
-        }
-        goto ReadingPacket;
+        goto newChunk;
     }
-
-    //-----------Обработка внутри одного пакета------------------//
-    //Смотрим на пакеты внутри буфера
-    if(chunkSize<=bytesLeft)
-    {
-        memcpy(p_chunkPointer,packetCursor,chunkSize);
-        bytesLeft-=chunkSize; //Отнимаем прочитанный кусок от суммы пакета
-        packetCursor+=chunkSize; //Перемещаем пакет по курсору, чтобы пропустить считанный чанк
-        chunkHandler.AppendChunksQueue(bufferVector);
-        bufferVector.clear();//На всякий случай
-        chunkSize=0;
-    }
-
-    //Если у нас размер чанка больше, чем остаток внутри пакета
-    else if(chunkSize>bytesLeft)
-    {
-        //А хули я все время не копировал прямо в вектор?
-        //Потому что говно получается и вылезают из-за этого скорее всего ошибки. Исправляем
-        memcpy(p_chunkPointer,packetCursor,bytesLeft);
-        //Скопировали в вектор, переместили курсор по нему
-        p_chunkPointer+=bytesLeft;
-        //bytesTransfered = сколько мы байтов перекинули в вектор,
-        //по нему будем смотреть сколько нам не хватает для дозаполнения
-        bytesTransfered = bytesLeft;
-        bytesLeft = 0;
-        return false;
-    }
-
-    //Если пакет прочитан не полностью - продолжаем его читать
-    if(bytesLeft!=0)
-    {
-        chunkSize=0;
-        goto ReadingPacket;
-    }//Если пакет прочитан полностью - выходим из метода
-    else
-    {
-        chunkSize=0;
-        return true;
-    }
-
+    return false;
 }
+//bool PacketHandler::InitData()
+//{
+//    bytesLeft = packetSize-UDP_HEAD_OFFSET;
+
+//ReadingPacket:
+//    //Копируем размер чанка, если он у нас не существует
+//    if(chunkSize==0)
+//    {
+
+//        memcpy(&chunkSize,packetCursor,sizeof(tUINT32));
+//        chunkSize = GET_USER_HEADER_SIZE(chunkSize);
+//        //std::cout<<chunkSize<<std::endl;
+//        //генерируем временный вектор для чанков, выходящих за рамки пакетов
+//        tempBuffer = (tINT8*)malloc(chunkSize);
+//        //Делаем ресайз вектора, присваиваем буфер вектору
+//        bufferVector.resize(chunkSize);
+//        chunkBuffer = bufferVector.data();
+//        //Присваеиваем курсор вектору
+//        p_chunkPointer = chunkBuffer;
+//    }
+
+//    //Мы переместили 50к байт, нам приходит еще 50к байт,
+//    //Это меньше, чем 110к байт, поэтому нам нужно добрать еще
+//    else if(bytesTransfered+bytesLeft<chunkSize)
+//    {
+//        //Копируем в конец вектора наш недостающий кусок
+//        memcpy(p_chunkPointer,packetCursor,bytesLeft);
+//        //Дополняем переданное количество байтов
+//        bytesTransfered+=bytesLeft;
+//        //Двигаем курсор по чанку внутри вектора
+//        p_chunkPointer+=bytesLeft;
+//        return false;
+//    }
+
+//    //Мы переместили 100кбайт, нам пришло еще 50кбайт
+//    //Это больше, чем 110к байт, поэтому заканчиваем буфер
+//    else if(bytesTransfered+bytesLeft>=chunkSize)
+//    {
+//        //Добиваем недозаполненный кусок в вектор
+//        memcpy(p_chunkPointer,packetCursor,chunkSize-bytesTransfered);
+//        //Передаем в очередь наш вектор
+//        chunkHandler.AppendChunksQueue(bufferVector);
+//        bufferVector.clear();//На всякий случай
+//        //Меняем значение bytesLeft на то, которое остается после транспортировки в буфер
+//        bytesLeft-=chunkSize-bytesTransfered;
+//        //Двигаем курсор пакета на начало нового буфера
+//        packetCursor+=chunkSize-bytesTransfered;
+//        //Обнуляем все, что нужно для чтения пакетиков
+//        chunkSize=0;
+//        bytesTransfered=0;
+
+//        if(packetCursor==packetBuffer+packetSize)
+//        {
+//            //Хз почему не обрабатываю этот вариант, вариант при котором конец чанка находится в конце пакета
+//            return true;
+//        }
+//        goto ReadingPacket;
+//    }
+
+//    //-----------Обработка внутри одного пакета------------------//
+//    //Смотрим на пакеты внутри буфера
+//    if(chunkSize<=bytesLeft)
+//    {
+//        memcpy(p_chunkPointer,packetCursor,chunkSize);
+//        bytesLeft-=chunkSize; //Отнимаем прочитанный кусок от суммы пакета
+//        packetCursor+=chunkSize; //Перемещаем пакет по курсору, чтобы пропустить считанный чанк
+//        chunkHandler.AppendChunksQueue(bufferVector);
+//        bufferVector.clear();//На всякий случай
+//        chunkSize=0;
+//    }
+
+//    //Если у нас размер чанка больше, чем остаток внутри пакета
+//    else if(chunkSize>bytesLeft)
+//    {
+//        //А хули я все время не копировал прямо в вектор?
+//        //Потому что говно получается и вылезают из-за этого скорее всего ошибки. Исправляем
+//        memcpy(p_chunkPointer,packetCursor,bytesLeft);
+//        //Скопировали в вектор, переместили курсор по нему
+//        p_chunkPointer+=bytesLeft;
+//        //bytesTransfered = сколько мы байтов перекинули в вектор,
+//        //по нему будем смотреть сколько нам не хватает для дозаполнения
+//        bytesTransfered = bytesLeft;
+//        bytesLeft = 0;
+//        return false;
+//    }
+
+//    //Если пакет прочитан не полностью - продолжаем его читать
+//    if(bytesLeft!=0)
+//    {
+//        chunkSize=0;
+//        goto ReadingPacket;
+//    }//Если пакет прочитан полностью - выходим из метода
+//    else
+//    {
+//        chunkSize=0;
+//        return true;
+//    }
+
+//}
 
 
 

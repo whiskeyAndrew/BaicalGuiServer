@@ -21,7 +21,7 @@ public:
     ~MainWindow();
     Launcher* launcher;
 private:
-
+    QString comboBoxText;
     Ui::MainWindow *ui;
 public slots:
     void GetNewConnection(sockaddr_in client);

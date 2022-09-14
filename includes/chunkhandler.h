@@ -97,6 +97,7 @@ public:
 
 signals:
     void SendTrace(TraceLineData trace);
+    void SendTraceAsObject(Trace* trace);
     void SendQueueSize(tUINT32 size);
 };
 
