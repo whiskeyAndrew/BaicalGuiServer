@@ -5,14 +5,10 @@
 void PacketHandler::run()
 {
     //Нам надо один раз запустить и запомнить поток обработки чанков, это мы сделаем здесь
-
     chunkHandler.start();
-
 
     while(true)
     {
-
-        //Туду: здесь должен быть обработчик пакетов. Нужно брать из очереди буфер и обрабатывать его так же, как это было в варианте с одним соединением
         //Берем из очереди буфер
         GetPacketFromQueue();
         //Обрабатываем
@@ -48,14 +44,6 @@ void PacketHandler::GetPacketFromQueue()
     {
         continue;
     }
-
-    //Ебливый компилятор кто тебе сука разрешал лезть в ячейки памяти которые записаны в очереди
-    //СУКАААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААА
-    //ЕБАНЫЙ В РОТ
-    //ТРИ ЧАСА НА СМАРКУ ЧТОБЫ ПОНЯТЬ
-    //ЧТО ПРОЦЕСС МОЖЕТ ПЕРЕЗАПИСЫВАТЬ ЯЧЕЙКИ ПО СВОЕЙ ХОТЕЛКЕ
-    //ДАЖЕ ЕСЛИ ЯЧЕЙКА НЕ ПУСТАЯ
-    //ЕБАТЬ
 
     //Сюда пришли если очередь не пуста, откусываем и начинаем обработку
     mutex.tryLock(-1);
@@ -174,6 +162,11 @@ newChunk:
     }
     return false;
 }
+
+//Пока оставим на всякий случай
+//Старая вариация сбора чанков из разных пакетов
+//Верхнее вроде работает безотказно, но в этом мире никому нельзя верить
+
 //bool PacketHandler::InitData()
 //{
 //    bytesLeft = packetSize-UDP_HEAD_OFFSET;
@@ -332,7 +325,7 @@ bool PacketHandler::HandleHelloPacket()
 bool PacketHandler::HandleReportPacket()
 {
     counterPacketsFromServer++;
-    // хз не помню почему такие ответы должны быть, если должны быть, значит зачем-то должны быть
+    // Надо разобрать как генерируется ответ клиенту чтобы он не был статический, будем разбираться
     sH_Packet_Header reportAnswer = {0,counterPacketsFromServer,9,20,0};
     short serverStatus = 1;
     tINT8*bufferReportAnswer = (tINT8*)malloc(20);
@@ -357,7 +350,7 @@ bool PacketHandler::HandleReportPacket()
 bool PacketHandler::HandlePingPacket()
 {
     counterPacketsFromServer++;
-    // хз не помню почему такие ответы должны быть, если должны быть, значит зачем-то должны быть
+    // Надо разобрать как генерируется ответ клиенту чтобы он не был статический, будем разбираться
     sH_Packet_Header reportAnswer = {0,counterPacketsFromServer,9,20,0};
     short serverStatus = 1;
     tINT8*bufferReportAnswer = (tINT8*)malloc(20);

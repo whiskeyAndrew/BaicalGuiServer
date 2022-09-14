@@ -121,11 +121,10 @@ tINT8* Trace::ReadTraceText(tINT8* tempChunkCursor, TraceLineData *trace)
 }
 
 //катастрофической говнокод, надо переделать
-//ЕЩЕ И НЕ РАБОТАЕТ СУКА
 TraceLineData Trace::ReplaceArguments(TraceLineData trace)
 {
     tUINT32 argNumber = 0;
-    std::vector<QChar> typeSpecifier = {'d','b','i','o','u','x','X','s','c'};
+    std::vector<QChar> typeSpecifier = {'d','b','i','o','u','x','X','s','c','f'};
     tUINT32 rememberPos = -1;
 
 
@@ -171,47 +170,3 @@ startFindingArgs:
     }
     return trace;
 }
-
-
-
-//TraceLineData Trace::ReplaceArguments(TraceLineData trace)
-//{
-//    std::vector<QChar> argType = {'d','b','i','o','u','x','X','s','c'};
-//    tINT32 argNumber = 0;
-//    tINT32 replaceStart = -1;
-//    trace.traceLineToGUI = trace.traceLineData;
-
-//    for(int i = 0; i<trace.traceLineToGUI.length();i++)
-//    {
-//        if(argNumber==trace.argsLen)
-//            break;
-
-//        if(trace.traceLineToGUI[i]=="%")
-//        {
-//            if(trace.traceLineToGUI[i+1]=="%")
-//            {
-//                i++;
-//                continue;
-//            }
-//            replaceStart = i;
-//                i++;
-//            for(int j = 0;j<6;j++)
-//            {
-//                if (std::find(argType.begin(),argType.end(), trace.traceLineToGUI[i]) != argType.end())
-//                {
-//                    //Нашли конец аргумента
-//                    trace.traceLineToGUI.replace(replaceStart,i,QString::number(trace.argsValue[argNumber]));
-//                    argNumber++;
-//                    break;
-//                }
-//                else
-//                {
-//                    //Не нашли конец аргумента
-//                    i++;
-//                }
-//            }
-//            continue;
-//        }
-//    }
-//    return trace;
-//}

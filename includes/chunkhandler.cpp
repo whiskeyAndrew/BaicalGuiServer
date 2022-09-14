@@ -37,12 +37,13 @@ bool ChunkHandler::AppendChunksQueue(std::vector<tINT8> newVector)
     mutex.tryLock(-1);
     chunks.push(newVector);
     mutex.unlock();
-    //std::cout<<chunks.size()<<std::endl;
 }
 
 bool ChunkHandler::ProcessChunk()
 {
-    chunkCursor+=sizeof(tUINT32); //скипаем размер чанка
+    //В метод мы передаем буфер с 4 байтами в самом начале, которые являются размером чанка. На всякий случай
+    //Поэтому скипаем их
+    chunkCursor+=sizeof(tUINT32);
     while(chunkCursor<chunkEnd)
     {
         memcpy(&Ext_Raw,chunkCursor,sizeof(tUINT32));
@@ -54,6 +55,12 @@ bool ChunkHandler::ProcessChunk()
         {
         case EP7USER_TYPE_TELEMETRY_V2:
         {
+            //Делаем еще быстрее - просто скипаем чанк если знаем что у него внутри телеметрия, т.к. в чанке с телеметрией
+            //не будет трейса
+            //Получается я сделал ОПТИМИЗАЦИЮ?
+            return 0;
+
+            //весь код ниже - на случай если с телеметрией надо будет что-то делать, а не просто скипать ее
             switch(structSubtype)
             {
             //sP7Tel_Info
