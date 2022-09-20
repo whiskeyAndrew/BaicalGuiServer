@@ -23,7 +23,7 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection)
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     comboBoxText = inet_ntoa(newConnection.sin_addr);
     comboBoxText.push_back(":"+QString::number(ntohs(newConnection.sin_port)));
-   // ui->comboBox->addItem(QString::number(ntohs(newConnection.sin_port)));
+    // ui->comboBox->addItem(QString::number(ntohs(newConnection.sin_port)));
     ui->comboBox->addItem(comboBoxText);
 }
 
@@ -41,11 +41,25 @@ void MainWindow::on_pushButton_clicked()
         if(tempComboBoxText==QString::number(ntohs(launcher->clientsList[i].clientIp.sin_port)))
         {
             traceWindow = new TraceWindow();
-//            //Так делать нельзя, надо будет переделать
+            //            //Так делать нельзя, надо будет переделать
             launcher->clientsList[i].connectionThread->chunkHandler.setTraceWindow(traceWindow);
             traceWindow->show();
         }
     }
+
+}
+
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    fileReader = new FileReader();
+    QString fileName = QFileDialog::getOpenFileName(this);
+    traceWindow = new TraceWindow();
+    traceWindow->show();
+    fileReader->setFileName(fileName);
+    fileReader->setTraceWindow(traceWindow);
+    fileReader->start();
+
 
 }
 

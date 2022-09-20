@@ -79,6 +79,7 @@ private:
     tINT8* chunkEnd;
     tINT8* objectEnd; //нужен для определения конца читаемой структурки
 
+    bool fileEnded = false; //прочтен ли файл до конца
     tUINT32 Ext_Raw;
     tUINT32 structType;
     tUINT32 structSubtype;
@@ -94,6 +95,8 @@ public:
 
     void setTraceWindow(TraceWindow *newTraceWindow);
     bool getWindowOpened() const;
+
+    void setFileEnded(bool newFileEnded);
 
 signals:
     void SendTrace(TraceLineData trace);

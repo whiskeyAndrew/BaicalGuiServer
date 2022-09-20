@@ -5,7 +5,8 @@
 #include "winsock2.h"
 #include <iostream>
 #include "includes/tracewindow.h"
-
+#include <QFileDialog>
+#include "includes/filereader.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -23,9 +24,11 @@ public:
 private:
     QString comboBoxText;
     Ui::MainWindow *ui;
+    FileReader *fileReader;
 public slots:
     void GetNewConnection(sockaddr_in client);
 private slots:
     void on_pushButton_clicked();
+    void on_pushButton_2_clicked();
 };
 #endif // MAINWINDOW_H

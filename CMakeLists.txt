@@ -24,6 +24,7 @@ set(PROJECT_SOURCES
         includes/chunkhandler.h includes/chunkhandler.cpp
         includes/Trace.h includes/Trace.cpp
         includes/tracewindow.h includes/tracewindow.cpp includes/tracewindow.ui
+        includes/filereader.h includes/filereader.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -83,7 +83,7 @@ struct TraceLineData
     QString fileDest;
     QString functionName;
     std::vector<Args_ID> argsID;
-    std::vector<tUINT64> argsValue;
+    std::vector<int> argsValue;
 };
 #pragma pack(pop)
 

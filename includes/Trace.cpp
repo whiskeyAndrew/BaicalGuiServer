@@ -1,5 +1,27 @@
 #include "Trace.h"
 #include "tracewindow.h"
+#include <sstream>
+
+#include <stdarg.h>  // For va_start, etc.
+#include <memory>    // For std::unique_ptr
+
+std::string string_format(const std::string fmt_str, ...) {
+    int final_n, n = ((int)fmt_str.size()) * 2; /* Reserve two times as much as the length of the fmt_str */
+    std::unique_ptr<char[]> formatted;
+    va_list ap;
+    while(1) {
+        formatted.reset(new char[n]); /* Wrap the plain char array into the unique_ptr */
+        strcpy(&formatted[0], fmt_str.c_str());
+        va_start(ap, fmt_str);
+        final_n = vsnprintf(&formatted[0], n, fmt_str.c_str(), ap);
+        va_end(ap);
+        if (final_n < 0 || final_n >= n)
+            n += abs(final_n - n + 1);
+        else
+            break;
+    }
+    return std::string(formatted.get());
+}
 
 TraceLineData Trace::setTraceData(tINT8* chunkCursor)
 {
@@ -18,6 +40,7 @@ TraceLineData Trace::setTraceData(tINT8* chunkCursor)
     traceDataPerLine.traceLineToGUI = traceDataPerLine.traceLineData;
     if(traceDataPerLine.traceFormat.args_Len!=0)
     {
+        std::string tempString;
         for(int i =0; i<traceDataPerLine.traceFormat.args_Len;i++)
         {
             memcpy(&argument,chunkCursor,traceDataPerLine.argsID[i].argSize);
@@ -26,7 +49,12 @@ TraceLineData Trace::setTraceData(tINT8* chunkCursor)
             chunkCursor+=traceDataPerLine.argsID[i].argSize;
         }
 
-        traceDataPerLine = ReplaceArguments(traceDataPerLine);
+        for(int i=0;i<traceDataPerLine.traceFormat.args_Len;i++)
+        {
+            tempString = string_format(traceDataPerLine.traceLineData.toStdString(),traceDataPerLine.argsValue[i]);
+        }
+        traceDataPerLine.traceLineToGUI = QString::fromStdString(tempString);
+        //traceDataPerLine = ReplaceArguments(traceDataPerLine);
     }
     traceToShow.insert(traceDataPerLine.traceData.dwSequence,traceDataPerLine);
     return traceDataPerLine;
@@ -120,53 +148,3 @@ tINT8* Trace::ReadTraceText(tINT8* tempChunkCursor, TraceLineData *trace)
     return tempChunkCursor;
 }
 
-//катастрофической говнокод, надо переделать
-TraceLineData Trace::ReplaceArguments(TraceLineData trace)
-{
-    tUINT32 argNumber = 0;
-    std::vector<QChar> typeSpecifier = {'d','b','i','o','u','x','X','s','c','f'};
-    tUINT32 rememberPos = -1;
-
-
-startFindingArgs:
-
-    for(int lineIterator =0;lineIterator<trace.traceLineToGUI.length();lineIterator++)
-    {
-        if(argNumber==trace.traceFormat.args_Len)
-            return trace;
-
-        if(trace.traceLineToGUI[lineIterator]=='%')
-        {
-            if(trace.traceLineToGUI[lineIterator+1]=='%' || lineIterator==rememberPos)
-            {
-                rememberPos = lineIterator;
-                lineIterator+=1;
-                continue;
-            }
-
-            tUINT32 startPos = lineIterator;
-            QString tempArgString;
-            //Аргумент мы записываем в временный string
-            for(tUINT32 argIterator = 0;argIterator<6;argIterator++){
-                tempArgString.push_back(trace.traceLineToGUI[lineIterator]);
-                lineIterator++;
-                //Находим конец аргумента по уникальным буквам typeSpecifier
-                for(int it = 0; it<8;it++)
-                {
-                    if(tempArgString [argIterator] == typeSpecifier[it])
-                    {
-                        //Надо продумать как правильно все реализовать вокруг поинтеров
-                        //Есть идея писать очередь указателей на ячейки памяти с элементами, чтобы мы их побайтово хранили
-                        //И потом как-то доставать по айдишнику что ли
-                        //Пока хз, надо обдумать
-                        //Сейчас бы егэ по готовым решениям с стрингами в С
-                        trace.traceLineToGUI.replace(startPos,argIterator+1,QString::number(trace.argsValue[argNumber]));
-                        argNumber++;
-                        goto startFindingArgs;
-                    }
-                }
-            }
-        }
-    }
-    return trace;
-}

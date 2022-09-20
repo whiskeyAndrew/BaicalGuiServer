@@ -7,13 +7,18 @@ bool ChunkHandler::getWindowOpened() const
 
 void ChunkHandler::run()
 {
-
-    while(true)
+    while((!chunks.empty()) || (fileEnded == false))
     {
         GetChunkFromQueue();
 
         ProcessChunk();
     }
+    this->quit();
+}
+
+void ChunkHandler::setFileEnded(bool newFileEnded)
+{
+    fileEnded = newFileEnded;
 }
 
 void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
@@ -130,7 +135,7 @@ bool ChunkHandler::ProcessChunk()
 
         case EP7USER_TYPE_TRACE:
         {
-            std::cout<<"I could be a tracer"<<std::endl;
+            //std::cout<<"I could be a tracer"<<std::endl;
             switch(structSubtype){
             case EP7TRACE_TYPE_DATA:
             {
@@ -204,6 +209,7 @@ bool ChunkHandler::ProcessChunk()
         }
 
     }
+    return 1;
 }
 
 ChunkHandler::ChunkHandler()
@@ -213,6 +219,11 @@ ChunkHandler::ChunkHandler()
 
 void ChunkHandler::GetChunkFromQueue()
 {
+    if(fileEnded==true && chunks.empty())
+    {
+        return;
+    }
+
     while(chunks.empty())
     {
         continue;
