@@ -7,6 +7,7 @@
 #include <vector>
 #include <QFile>
 #pragma pack(push,2)
+
 struct sP7File_Header
 {
     tUINT64 qwMarker; //- 0x45D2AC71ECF32CA6ULL, 8 байт. Возможно, является маркером для байкал-сервера, чтобы по нему сервер распознавал, правильного ли формата он пытается открыть файл или нет.

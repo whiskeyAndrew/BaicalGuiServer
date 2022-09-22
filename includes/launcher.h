@@ -21,8 +21,6 @@ struct ClientData
     PacketHandler *connectionThread;
 };
 
-
-
 class Launcher:public QThread
 {
     Q_OBJECT

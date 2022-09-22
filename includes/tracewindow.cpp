@@ -11,7 +11,6 @@ TraceWindow::TraceWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->tableWidget->setColumnCount(2);
     ui->tableWidget->setColumnWidth(0,50);
-    //    ui->tableWidget->setColumnWidth(1,this->width()-50);
 
     ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("#"));
     ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Text"));
@@ -69,6 +68,7 @@ void TraceWindow::GetTrace(TraceLineData trace)
         break;
     }
     }
+
     //ui->tableWidget->item(countNumber,1)->setData(Qt::UserRole,QVariant::fromValue(trace));
     ui->tableWidget->resizeRowToContents(countNumber);
     //ui->tableWidget->scrollToItem(ui->tableWidget->item(countNumber,0),QHeaderView::PositionAtBottom);
@@ -113,7 +113,6 @@ void TraceWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 void TraceWindow::SetTraceAsObject(Trace *trace)
 {
     traceThread = trace;
-
 }
 
 

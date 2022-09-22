@@ -55,7 +55,6 @@ void PacketHandler::GetPacketFromQueue()
     packetBuffer = (tUINT8*)malloc(packetSize);
     memcpy(packetBuffer,tempVector.data(),packetSize);
     packetCursor = packetBuffer;
-
 }
 
 bool PacketHandler::PacketProcessing()
@@ -78,7 +77,6 @@ bool PacketHandler::PacketProcessing()
         {
             return false;
         }
-
         break;
     }
 

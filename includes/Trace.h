@@ -6,6 +6,8 @@
 #include <QString>
 #include <QMap>
 
+#define SIZE_OF_ARG_END 4
+
 class TraceWindow;
 #pragma pack(push,2)
 struct sP7Trace_Info
@@ -103,7 +105,7 @@ private:
     QMap<tUINT32,sP7Trace_Module> modules;
 
     QString formatVector(TraceLineData trace);
-    void test( char const * const format, ... );
+    tINT8* ReadTraceText(tINT8* chunkCursor, TraceLineData *trace);
 public:
     //TraceLineData traceDataPerLine;
     TraceLineData GetTraceDataToGui(tUINT32 sequence);
@@ -113,9 +115,8 @@ public:
     void setTraceModule(tINT8* chunkCursor);
     void setTraceThreadStop(tINT8* chunkCursor);
     void setTraceFormat(tINT8* chunkCursor);
-    TraceLineData ReplaceArguments(TraceLineData trace);
+
     TraceLineData setTraceData(tINT8* chunkCursor);
-    tINT8* ReadTraceText(tINT8* chunkCursor, TraceLineData *trace);
 
     QString getModule(tUINT32 moduleID);
 };
