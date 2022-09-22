@@ -25,6 +25,7 @@ private:
     QString comboBoxText;
     Ui::MainWindow *ui;
     FileReader *fileReader;
+    void InitTraceWindow();
 public slots:
     void GetNewConnection(sockaddr_in client);
 private slots:

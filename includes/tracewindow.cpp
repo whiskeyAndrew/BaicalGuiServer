@@ -22,9 +22,6 @@ TraceWindow::TraceWindow(QWidget *parent) :
     ui->tableWidget->hideRow(0);
 
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
-
-
-
 }
 
 
@@ -42,9 +39,42 @@ void TraceWindow::GetTrace(TraceLineData trace)
     ui->tableWidget->item(countNumber,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     ui->tableWidget->setItem(countNumber, 1, new QTableWidgetItem(trace.traceLineToGUI));
     ui->tableWidget->item(countNumber,1)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    ui->tableWidget->item(countNumber,1)->setData(Qt::UserRole,QVariant::fromValue(trace));
+
+    switch(trace.traceData.bLevel)
+    {
+    case EP7TRACE_LEVEL_TRACE:{
+        break;
+    }
+
+    case EP7TRACE_LEVEL_INFO: {
+        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(176,224,230,70)));
+        break;
+    }
+
+    case EP7TRACE_LEVEL_ERROR:
+    {
+        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,70,70,70)));
+        break;
+    }
+
+    case EP7TRACE_LEVEL_CRITICAL:
+    {
+        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,0,0,70)));
+        break;
+    }
+
+    case EP7TRACE_LEVEL_DEBUG:
+    {
+        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,255,165,70)));
+        break;
+    }
+    }
+    //ui->tableWidget->item(countNumber,1)->setData(Qt::UserRole,QVariant::fromValue(trace));
     ui->tableWidget->resizeRowToContents(countNumber);
     //ui->tableWidget->scrollToItem(ui->tableWidget->item(countNumber,0),QHeaderView::PositionAtBottom);
+
+
+
 }
 
 void TraceWindow::GetQueueSize(tUINT32 size)

@@ -83,7 +83,7 @@ struct TraceLineData
     QString fileDest;
     QString functionName;
     std::vector<Args_ID> argsID;
-    std::vector<int> argsValue;
+    std::vector<tUINT64> argsValue;
 };
 #pragma pack(pop)
 
@@ -102,6 +102,7 @@ private:
     QMap<tUINT32,TraceLineData> traceToShow;
     QMap<tUINT32,sP7Trace_Module> modules;
 
+    QString formatVector(TraceLineData trace);
     void test( char const * const format, ... );
 public:
     //TraceLineData traceDataPerLine;

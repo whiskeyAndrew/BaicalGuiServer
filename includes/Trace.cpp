@@ -5,8 +5,10 @@
 #include <stdarg.h>  // For va_start, etc.
 #include <memory>    // For std::unique_ptr
 
+
+
 std::string string_format(const std::string fmt_str, ...) {
-    int final_n, n = ((int)fmt_str.size()) * 2; /* Reserve two times as much as the length of the fmt_str */
+    int final_n, n = ((int)fmt_str.size()) * 2; // Reserve two times as much as the length of the fmt_str
     std::unique_ptr<char[]> formatted;
     va_list ap;
     while(1) {
@@ -49,11 +51,13 @@ TraceLineData Trace::setTraceData(tINT8* chunkCursor)
             chunkCursor+=traceDataPerLine.argsID[i].argSize;
         }
 
-        for(int i=0;i<traceDataPerLine.traceFormat.args_Len;i++)
-        {
-            tempString = string_format(traceDataPerLine.traceLineData.toStdString(),traceDataPerLine.argsValue[i]);
-        }
-        traceDataPerLine.traceLineToGUI = QString::fromStdString(tempString);
+        traceDataPerLine.traceLineToGUI = formatVector(traceDataPerLine);
+        //        for(int i=0;i<traceDataPerLine.traceFormat.args_Len;i++)
+        //        {
+        //            tempString = string_format(traceDataPerLine.traceLineData.toStdString(),traceDataPerLine.argsValue[i]);
+        //        }
+
+        //        traceDataPerLine.traceLineToGUI = QString::fromStdString(tempString);
         //traceDataPerLine = ReplaceArguments(traceDataPerLine);
     }
     traceToShow.insert(traceDataPerLine.traceData.dwSequence,traceDataPerLine);
@@ -83,6 +87,47 @@ void Trace::setTraceFormat(tINT8* chunkCursor)
     traceDataPerLine.traceFormat = traceFormat;
     uniqueTrace.insert(traceFormat.wID,traceDataPerLine);
 
+}
+
+QString Trace::formatVector(TraceLineData trace)
+{
+#define SIZE_OF_ARG_END 4
+    char argEnd[] = {'i','d','u','f'};
+    int counter = 1;
+    int index1;
+    int index2;
+
+
+    for(int i =0;i<trace.traceFormat.args_Len;i++)
+    {
+        bool found = false;
+        index1 = trace.traceLineToGUI.indexOf('%');
+        while(trace.traceLineToGUI[index1+1]=='%')
+        {
+            index1 = trace.traceLineToGUI.indexOf('%',index1+2);
+        }
+
+        for(int j =index1+1;j<index1+10;j++)
+        {
+            for(int k = 0;k<SIZE_OF_ARG_END;k++)
+            {
+                if(trace.traceLineToGUI[j]==argEnd[k])
+                {
+                    index2 = j+1;
+                    trace.traceLineToGUI.replace(index1,index2-index1,QString::number(trace.argsValue[i]));
+                    found = true;
+                    break;
+                }
+            }
+
+            if(found==true)
+            {
+                found = false;
+                break;
+            }
+        }
+    }
+    return trace.traceLineToGUI;
 }
 
 void Trace::setTraceUTC(tINT8* chunkCursor)

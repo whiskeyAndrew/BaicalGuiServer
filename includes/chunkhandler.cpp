@@ -7,6 +7,10 @@ bool ChunkHandler::getWindowOpened() const
 
 void ChunkHandler::run()
 {
+    //временный костыль для того, чтобы AutoOpen успевал первые пакеты прогрузить внутри окна.
+    //Нужно удалить из кода когда запилю чтение из мапы при открытии окна
+    Sleep(200);
+
     while((!chunks.empty()) || (fileEnded == false))
     {
         GetChunkFromQueue();
@@ -31,7 +35,7 @@ void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
     connect(this,&ChunkHandler::SendTraceAsObject,traceWindow,&TraceWindow::SetTraceAsObject);
     emit SendTraceAsObject(&trace);
     //Дайте окну прогрузиться пожалуйста
-    Sleep(200);
+
     windowOpened = true;
 
 }
@@ -48,6 +52,8 @@ bool ChunkHandler::ProcessChunk()
 {
     //В метод мы передаем буфер с 4 байтами в самом начале, которые являются размером чанка. На всякий случай
     //Поэтому скипаем их
+
+
     chunkCursor+=sizeof(tUINT32);
     while(chunkCursor<chunkEnd)
     {

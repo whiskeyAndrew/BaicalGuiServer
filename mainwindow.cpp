@@ -25,9 +25,33 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection)
     comboBoxText.push_back(":"+QString::number(ntohs(newConnection.sin_port)));
     // ui->comboBox->addItem(QString::number(ntohs(newConnection.sin_port)));
     ui->comboBox->addItem(comboBoxText);
+    bool checkBoxState = ui->checkBox->isChecked();
+    if(checkBoxState==true)
+    {
+        InitTraceWindow();
+    }
 }
 
 void MainWindow::on_pushButton_clicked()
+{
+    InitTraceWindow();
+}
+
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    fileReader = new FileReader();
+    QString fileName = QFileDialog::getOpenFileName(this);
+    traceWindow = new TraceWindow();
+    traceWindow->show();
+    fileReader->setFileName(fileName);
+    fileReader->setTraceWindow(traceWindow);
+    fileReader->start();
+
+
+}
+
+void MainWindow::InitTraceWindow()
 {
     //Говнокод, пофиксить надо потом
     QString tempComboBoxText = ui->comboBox->currentText();
@@ -46,20 +70,4 @@ void MainWindow::on_pushButton_clicked()
             traceWindow->show();
         }
     }
-
 }
-
-
-void MainWindow::on_pushButton_2_clicked()
-{
-    fileReader = new FileReader();
-    QString fileName = QFileDialog::getOpenFileName(this);
-    traceWindow = new TraceWindow();
-    traceWindow->show();
-    fileReader->setFileName(fileName);
-    fileReader->setTraceWindow(traceWindow);
-    fileReader->start();
-
-
-}
-

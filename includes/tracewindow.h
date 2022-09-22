@@ -4,12 +4,22 @@
 #include "Trace.h"
 #include <QWidget>
 #include <QTableWidgetItem>
+
+enum eP7Trace_Level
+{
+    EP7TRACE_LEVEL_TRACE        = 0,
+    EP7TRACE_LEVEL_DEBUG           ,
+    EP7TRACE_LEVEL_INFO            ,
+    EP7TRACE_LEVEL_WARNING         ,
+    EP7TRACE_LEVEL_ERROR           ,
+    EP7TRACE_LEVEL_CRITICAL        ,
+
+    EP7TRACE_LEVEL_COUNT
+};
+
 namespace Ui {
 class TraceWindow;
 }
-
-
-
 class TraceWindow : public QWidget
 {
     Q_OBJECT
