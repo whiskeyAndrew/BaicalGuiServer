@@ -6,7 +6,17 @@
 #include <QString>
 #include <QMap>
 
-#define SIZE_OF_ARG_END 4
+#include <stdio.h>
+#include <memory>
+#include <string>
+#include <stdexcept>
+
+#include <utility>
+#include <iostream>
+#include <string>
+#include <string_view>
+
+#define SIZE_OF_ARG_END 5
 
 class TraceWindow;
 #pragma pack(push,2)
@@ -104,7 +114,7 @@ private:
     QMap<tUINT32,TraceLineData> traceToShow;
     QMap<tUINT32,sP7Trace_Module> modules;
 
-    QString formatVector(TraceLineData trace);
+    QString formatVector(QString str, int argsCount, std::vector<tUINT64> args);
     tINT8* ReadTraceText(tINT8* chunkCursor, TraceLineData *trace);
 public:
     //TraceLineData traceDataPerLine;

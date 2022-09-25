@@ -28,7 +28,7 @@ TraceLineData Trace::setTraceData(tINT8* chunkCursor)
             chunkCursor+=traceDataPerLine.argsID[i].argSize;
         }
 
-        traceDataPerLine.traceLineToGUI = formatVector(traceDataPerLine);
+        traceDataPerLine.traceLineToGUI = formatVector(traceDataPerLine.traceLineToGUI,traceDataPerLine.traceFormat.args_Len,traceDataPerLine.argsValue);
     }
     traceToShow.insert(traceDataPerLine.traceData.dwSequence,traceDataPerLine);
     return traceDataPerLine;
@@ -52,13 +52,73 @@ void Trace::setTraceFormat(tINT8* chunkCursor)
             chunkCursor+=sizeof(tUINT16);
         }
     }
+    QString test = "%d %d %d %d %d %d";
+    QVector vector1 = {0,2,3,4,5};
+    QString test2;
+    for(int i =0; i<5;i++)
+    {
+        test2 = test.arg(vector1[i]);
+    }
     chunkCursor = ReadTraceText(chunkCursor, &traceDataPerLine);
 
     traceDataPerLine.traceFormat = traceFormat;
     uniqueTrace.insert(traceFormat.wID,traceDataPerLine);
 }
 
-QString Trace::formatVector(TraceLineData trace)
+template<typename ... Args>
+std::string string_format( const std::string& format, Args ... args )
+{
+    int size_s = std::snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
+    if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
+    auto size = static_cast<size_t>( size_s );
+    std::unique_ptr<char[]> buf( new char[ size ] );
+    std::snprintf( buf.get(), size, format.c_str(), args ... );
+    return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
+}
+
+//Переписать когда пройдет тильт
+QString Trace::formatVector(QString str, int argsCount, std::vector<tUINT64> args)
+{
+    char argEnd[] = {'i','d','u','f','X'};
+    int index1;
+    int index2;
+    QString tempString;
+    std::string tempStringSTD;
+    bool found = false;
+    std::string toOutput;
+
+    for(int i =0;i<argsCount;i++){
+        int index1 = str.indexOf('%');
+
+        for(int j =index1+1;j<index1+10;j++)
+        {
+            for(int k = 0;k<SIZE_OF_ARG_END;k++)
+            {
+                if(str[j]==argEnd[k])
+                {
+                    index2 = j+1;
+                    tempString = str.left(index2);
+                    str.remove(0,index2);
+                    tempStringSTD = tempString.toStdString();
+                    tempStringSTD = string_format(tempStringSTD,args[i]);
+                    toOutput+=tempStringSTD;
+                    found = true;
+                    break;
+                }
+            }
+
+            if(found==true)
+            {
+                found = false;
+                break;
+            }
+        }
+    }
+    toOutput+=str.toStdString();
+    return QString::fromStdString(toOutput);
+}
+
+/*QString Trace::formatVector(TraceLineData trace)
 {
     char argEnd[] = {'i','d','u','f'};
     int counter = 1;
@@ -96,6 +156,7 @@ QString Trace::formatVector(TraceLineData trace)
     }
     return trace.traceLineToGUI;
 }
+*/
 
 void Trace::setTraceUTC(tINT8* chunkCursor)
 {
