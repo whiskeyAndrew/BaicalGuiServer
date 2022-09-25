@@ -1,7 +1,6 @@
 #include "chunkhandler.h"
 
-bool ChunkHandler::getWindowOpened() const
-{
+bool ChunkHandler::getWindowOpened(){
     return windowOpened;
 }
 
@@ -14,15 +13,14 @@ void ChunkHandler::run()
     while((!chunks.empty()) || (fileEnded == false))
     {
         GetChunkFromQueue();
-
         ProcessChunk();
     }
     this->quit();
 }
 
-void ChunkHandler::setFileEnded(bool newFileEnded)
+void ChunkHandler::setFileEnded(bool fileEnded)
 {
-    fileEnded = newFileEnded;
+    this->fileEnded = fileEnded;
 }
 
 void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
@@ -141,16 +139,14 @@ bool ChunkHandler::ProcessChunk()
 
         case EP7USER_TYPE_TRACE:
         {
-            //std::cout<<"I could be a tracer"<<std::endl;
             switch(structSubtype){
             case EP7TRACE_TYPE_DATA:
             {
                 //Не уникальный трейс
-                traceData = trace.setTraceData(chunkCursor);
+                traceToGUI = trace.setTraceData(chunkCursor);
                 if(getWindowOpened())
                 {
-                    //traceWindow->GetTrace(traceData);
-                    emit SendTrace(traceData);
+                    emit SendTrace(traceToGUI);
                 }
                 chunkCursor = chunkCursor+structSize;
                 break;

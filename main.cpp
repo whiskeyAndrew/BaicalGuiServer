@@ -14,8 +14,8 @@
 int main(int argc, char *argv[])
 {
     qRegisterMetaType<sockaddr_in>("sockaddr_in");
-    qRegisterMetaType<TraceLineData>("TraceLineData");
     qRegisterMetaType<tUINT32>("tUINT32");
+    qRegisterMetaType<TraceToGUI>("TraceToGUI");
 
     QApplication a(argc, argv);
 

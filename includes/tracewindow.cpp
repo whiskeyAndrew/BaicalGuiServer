@@ -1,7 +1,6 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 
-Q_DECLARE_METATYPE(TraceLineData)
 
 TraceWindow::TraceWindow(QWidget *parent) :
     QWidget(parent),
@@ -29,17 +28,18 @@ TraceWindow::~TraceWindow()
     delete ui;
 }
 
-void TraceWindow::GetTrace(TraceLineData trace)
+void TraceWindow::GetTrace(TraceToGUI trace)
 {
     int countNumber = ui->tableWidget->rowCount();
+    sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
 
     ui->tableWidget->insertRow(countNumber);
-    ui->tableWidget->setItem(countNumber, 0, new QTableWidgetItem(QString::number(trace.traceData.dwSequence)));
+    ui->tableWidget->setItem(countNumber, 0, new QTableWidgetItem(QString::number(trace.sequence)));
     ui->tableWidget->item(countNumber,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    ui->tableWidget->setItem(countNumber, 1, new QTableWidgetItem(trace.traceLineToGUI));
+    ui->tableWidget->setItem(countNumber, 1, new QTableWidgetItem(trace.trace));
     ui->tableWidget->item(countNumber,1)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-    switch(trace.traceData.bLevel)
+    switch(traceData.bLevel)
     {
     case EP7TRACE_LEVEL_TRACE:{
         break;
@@ -86,28 +86,29 @@ void TraceWindow::GetQueueSize(tUINT32 size)
 void TraceWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 {
     item = ui->tableWidget->item(item->row(),0);
-    TraceLineData traceInfo = traceThread->GetTraceDataToGui(item->text().toInt());
+    sP7Trace_Data traceData = traceThread->GetTraceData(item->text().toInt());
+    UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
 
-    if(traceInfo.traceFormat.moduleID!=0)
+    if(traceFormat.traceFormat.moduleID!=0)
     {
-        QString moduleName = traceThread->getModule(traceInfo.traceFormat.moduleID);
-        ui->moduleID->setText(QString::number(traceInfo.traceFormat.moduleID) + " " + moduleName);
+        QString moduleName = traceThread->getModule(traceFormat.traceFormat.moduleID);
+        ui->moduleID->setText(QString::number(traceFormat.traceFormat.moduleID) + " " + moduleName);
     }
 
-    ui->wID->setText(QString::number(traceInfo.traceFormat.wID));
-    ui->line->setText(QString::number(traceInfo.traceFormat.line));
+    ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
+    ui->line->setText(QString::number(traceFormat.traceFormat.line));
 
 
-    ui->argsLen->setText(QString::number(traceInfo.traceFormat.args_Len));
+    ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
 
-    ui->bLevel->setText(QString::number(traceInfo.traceData.bLevel));
-    ui->bProcessor->setText(QString::number(traceInfo.traceData.bProcessor));
-    ui->threadID->setText(QString::number(traceInfo.traceData.dwThreadID));
-    ui->dwSequence->setText(QString::number(traceInfo.traceData.dwSequence));
+    ui->bLevel->setText(QString::number(traceData.bLevel));
+    ui->bProcessor->setText(QString::number(traceData.bProcessor));
+    ui->threadID->setText(QString::number(traceData.dwThreadID));
+    ui->dwSequence->setText(QString::number(traceData.dwSequence));
 
-    ui->traceText->setText(traceInfo.traceLineData);
-    ui->traceDest->setText(traceInfo.fileDest);
-    ui->processName->setText(traceInfo.functionName);
+    ui->traceText->setText(traceFormat.traceLineData);
+    ui->traceDest->setText(traceFormat.fileDest);
+    ui->processName->setText(traceFormat.functionName);
 }
 
 void TraceWindow::SetTraceAsObject(Trace *trace)

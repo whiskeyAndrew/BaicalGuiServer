@@ -67,17 +67,18 @@ class ChunkHandler : public QThread
 private:
     Trace trace;
     bool windowOpened = false;
+
     TraceWindow *traceWindow;
-    TraceLineData traceData;
-    std::queue<std::vector<tINT8>> chunks;
+    TraceToGUI traceToGUI;
     QMutex mutex;
     void run();
+
+    std::queue<std::vector<tINT8>> chunks;
     std::vector<tINT8> chunkVector;
 
     tINT8* chunkBuffer;
     tINT8* chunkCursor;
     tINT8* chunkEnd;
-    tINT8* objectEnd; //нужен для определения конца читаемой структурки
 
     bool fileEnded = false; //прочтен ли файл до конца
     tUINT32 Ext_Raw;
@@ -85,21 +86,19 @@ private:
     tUINT32 structSubtype;
     tUINT32 structSize;
 
+    bool ProcessChunk();
 
 public:
+    ChunkHandler();
 
     bool AppendChunksQueue(std::vector<tINT8> newVector);
-    bool ProcessChunk();
-    ChunkHandler();
+    bool getWindowOpened();
     void GetChunkFromQueue();
-
     void setTraceWindow(TraceWindow *newTraceWindow);
-    bool getWindowOpened() const;
-
-    void setFileEnded(bool newFileEnded);
+    void setFileEnded(bool fileEnded);
 
 signals:
-    void SendTrace(TraceLineData trace);
+    void SendTrace(TraceToGUI trace);
     void SendTraceAsObject(Trace* trace);
     void SendQueueSize(tUINT32 size);
 };

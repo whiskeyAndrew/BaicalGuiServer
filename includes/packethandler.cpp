@@ -15,8 +15,10 @@ void PacketHandler::run()
         if(!PacketProcessing())
         {
             //std::cout<<"Getting next packet" <<std::endl;
+            free(packetBuffer);
             continue;
         }
+        free(packetBuffer);
     }
 }
 
@@ -40,6 +42,7 @@ void PacketHandler::setSocketIn(SOCKET newSocketIn)
 void PacketHandler::GetPacketFromQueue()
 {
     //Ждем пока очередь чем-то заполнится, НА ВСЯКИЙ СЛУЧАЙ
+
     while(packetQueue.empty())
     {
         continue;
@@ -117,6 +120,7 @@ bool PacketHandler::PacketProcessing()
     }
         return true;
     }
+
     return true;
 }
 
@@ -160,110 +164,6 @@ newChunk:
     }
     return false;
 }
-
-//Пока оставим на всякий случай
-//Старая вариация сбора чанков из разных пакетов
-//Верхнее вроде работает безотказно, но в этом мире никому нельзя верить
-
-//bool PacketHandler::InitData()
-//{
-//    bytesLeft = packetSize-UDP_HEAD_OFFSET;
-
-//ReadingPacket:
-//    //Копируем размер чанка, если он у нас не существует
-//    if(chunkSize==0)
-//    {
-
-//        memcpy(&chunkSize,packetCursor,sizeof(tUINT32));
-//        chunkSize = GET_USER_HEADER_SIZE(chunkSize);
-//        //std::cout<<chunkSize<<std::endl;
-//        //генерируем временный вектор для чанков, выходящих за рамки пакетов
-//        tempBuffer = (tINT8*)malloc(chunkSize);
-//        //Делаем ресайз вектора, присваиваем буфер вектору
-//        bufferVector.resize(chunkSize);
-//        chunkBuffer = bufferVector.data();
-//        //Присваеиваем курсор вектору
-//        p_chunkPointer = chunkBuffer;
-//    }
-
-//    //Мы переместили 50к байт, нам приходит еще 50к байт,
-//    //Это меньше, чем 110к байт, поэтому нам нужно добрать еще
-//    else if(bytesTransfered+bytesLeft<chunkSize)
-//    {
-//        //Копируем в конец вектора наш недостающий кусок
-//        memcpy(p_chunkPointer,packetCursor,bytesLeft);
-//        //Дополняем переданное количество байтов
-//        bytesTransfered+=bytesLeft;
-//        //Двигаем курсор по чанку внутри вектора
-//        p_chunkPointer+=bytesLeft;
-//        return false;
-//    }
-
-//    //Мы переместили 100кбайт, нам пришло еще 50кбайт
-//    //Это больше, чем 110к байт, поэтому заканчиваем буфер
-//    else if(bytesTransfered+bytesLeft>=chunkSize)
-//    {
-//        //Добиваем недозаполненный кусок в вектор
-//        memcpy(p_chunkPointer,packetCursor,chunkSize-bytesTransfered);
-//        //Передаем в очередь наш вектор
-//        chunkHandler.AppendChunksQueue(bufferVector);
-//        bufferVector.clear();//На всякий случай
-//        //Меняем значение bytesLeft на то, которое остается после транспортировки в буфер
-//        bytesLeft-=chunkSize-bytesTransfered;
-//        //Двигаем курсор пакета на начало нового буфера
-//        packetCursor+=chunkSize-bytesTransfered;
-//        //Обнуляем все, что нужно для чтения пакетиков
-//        chunkSize=0;
-//        bytesTransfered=0;
-
-//        if(packetCursor==packetBuffer+packetSize)
-//        {
-//            //Хз почему не обрабатываю этот вариант, вариант при котором конец чанка находится в конце пакета
-//            return true;
-//        }
-//        goto ReadingPacket;
-//    }
-
-//    //-----------Обработка внутри одного пакета------------------//
-//    //Смотрим на пакеты внутри буфера
-//    if(chunkSize<=bytesLeft)
-//    {
-//        memcpy(p_chunkPointer,packetCursor,chunkSize);
-//        bytesLeft-=chunkSize; //Отнимаем прочитанный кусок от суммы пакета
-//        packetCursor+=chunkSize; //Перемещаем пакет по курсору, чтобы пропустить считанный чанк
-//        chunkHandler.AppendChunksQueue(bufferVector);
-//        bufferVector.clear();//На всякий случай
-//        chunkSize=0;
-//    }
-
-//    //Если у нас размер чанка больше, чем остаток внутри пакета
-//    else if(chunkSize>bytesLeft)
-//    {
-//        //А хули я все время не копировал прямо в вектор?
-//        //Потому что говно получается и вылезают из-за этого скорее всего ошибки. Исправляем
-//        memcpy(p_chunkPointer,packetCursor,bytesLeft);
-//        //Скопировали в вектор, переместили курсор по нему
-//        p_chunkPointer+=bytesLeft;
-//        //bytesTransfered = сколько мы байтов перекинули в вектор,
-//        //по нему будем смотреть сколько нам не хватает для дозаполнения
-//        bytesTransfered = bytesLeft;
-//        bytesLeft = 0;
-//        return false;
-//    }
-
-//    //Если пакет прочитан не полностью - продолжаем его читать
-//    if(bytesLeft!=0)
-//    {
-//        chunkSize=0;
-//        goto ReadingPacket;
-//    }//Если пакет прочитан полностью - выходим из метода
-//    else
-//    {
-//        chunkSize=0;
-//        return true;
-//    }
-
-//}
 
 
 
@@ -312,6 +212,7 @@ bool PacketHandler::HandleHelloPacket()
     memcpy(outputBuf,&packetCRC,sizeof(tUINT32));
 
     tUINT32 bytesOut = sendto(socketIn, outputBuf, outputPacketSize, 0, (sockaddr*)&client, sizeof(client));
+    free(outputBuf);
     if (bytesOut == SOCKET_ERROR) {
         std::cout<<"Can't send Hello responce, error: "<< WSAGetLastError()<<std::endl;
         WSACleanup();
@@ -326,7 +227,7 @@ bool PacketHandler::HandleReportPacket()
     // Надо разобрать как генерируется ответ клиенту чтобы он не был статический, будем разбираться
     sH_Packet_Header reportAnswer = {0,counterPacketsFromServer,9,20,0};
     short serverStatus = 1;
-    tINT8*bufferReportAnswer = (tINT8*)malloc(20);
+    tINT8* bufferReportAnswer = (tINT8*)malloc(20);
     memcpy(bufferReportAnswer,&reportAnswer,sizeof(sH_Packet_Header));
     bufferReportAnswer+=sizeof(sH_Packet_Header);
     memcpy(bufferReportAnswer,&lastPacket,sizeof(tUINT32));
@@ -336,6 +237,7 @@ bool PacketHandler::HandleReportPacket()
     packetCRC = Get_CRC32((tUINT8*)bufferReportAnswer + CRC_OFFSET, 20-CRC_OFFSET);
     memcpy(bufferReportAnswer,&packetCRC,sizeof(tUINT32));
     tUINT32 bytesOut = sendto(socketIn, bufferReportAnswer, 20, 0, (sockaddr*)&client, sizeof(client));
+    free(bufferReportAnswer);
 
     if (bytesOut == SOCKET_ERROR) {
         std::cout<<"Can't send DataReport responce, error: "<< WSAGetLastError()<<std::endl;
@@ -361,6 +263,7 @@ bool PacketHandler::HandlePingPacket()
     packetCRC = Get_CRC32((tUINT8*)bufferReportAnswer + CRC_OFFSET, 20-CRC_OFFSET);
     memcpy(bufferReportAnswer,&packetCRC,sizeof(tUINT32));
     tUINT32 bytesOut = sendto(socketIn, bufferReportAnswer, 20, 0, (sockaddr*)&client, sizeof(client));
+    free(bufferReportAnswer);
 
     if (bytesOut == SOCKET_ERROR) {
         std::cout<<"Can't send DataReport responce, error: "<< WSAGetLastError()<<std::endl;

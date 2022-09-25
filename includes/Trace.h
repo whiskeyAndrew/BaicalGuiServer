@@ -6,15 +6,8 @@
 #include <QString>
 #include <QMap>
 
-#include <stdio.h>
 #include <memory>
-#include <string>
-#include <stdexcept>
 
-#include <utility>
-#include <iostream>
-#include <string>
-#include <string_view>
 
 #define SIZE_OF_ARG_END 5
 
@@ -77,26 +70,30 @@ struct sP7Trace_Format
 
 struct sP7Trace_Data
 {
-    tINT32 sP7Ext_Raw;
+    tUINT32 sP7Ext_Raw;
     tUINT16 wID;
     tUINT8 bLevel;
     tUINT8 bProcessor;
-    tINT32 dwThreadID;
-    tINT32 dwSequence;
+    tUINT32 dwThreadID;
+    tUINT32 dwSequence;
     tUINT64 qwTimer;
 };
 
-struct TraceLineData
+struct TraceToGUI
+{
+    QString trace;
+    tUINT32 sequence;
+};
+
+struct UniqueTraceData
 {
     sP7Trace_Format traceFormat;
-    sP7Trace_Data traceData;
     QString traceLineData;
-    QString traceLineToGUI;
     QString fileDest;
     QString functionName;
     std::vector<Args_ID> argsID;
-    std::vector<tUINT64> argsValue;
 };
+
 #pragma pack(pop)
 
 class Trace
@@ -110,15 +107,22 @@ private:
     sP7Trace_Format traceFormat;
     sP7Trace_Data traceData;
 
-    QMap<tUINT32,TraceLineData> uniqueTrace;
-    QMap<tUINT32,TraceLineData> traceToShow;
+    std::vector<tUINT64> argsValue;
+
+    QMap<tUINT32,UniqueTraceData> uniqueTraces;
+    QMap<tUINT32,sP7Trace_Data> traceToShow;
     QMap<tUINT32,sP7Trace_Module> modules;
 
-    QString formatVector(QString str, int argsCount, std::vector<tUINT64> args);
-    tINT8* ReadTraceText(tINT8* chunkCursor, TraceLineData *trace);
+    tINT64 arguments = 0;
+    Args_ID argumentsData;
+
+    QString FormatVector(QString str, int argsCount, std::vector<tUINT64> args);
+    tINT8* ReadTraceText(tINT8* chunkCursor, UniqueTraceData *trace);
 public:
     //TraceLineData traceDataPerLine;
-    TraceLineData GetTraceDataToGui(tUINT32 sequence);
+    sP7Trace_Data GetTraceData(tUINT32 sequence);
+    UniqueTraceData GetTraceFormat(tUINT32 wID);
+
     void setTraceInfo(tINT8* chunkPointer);
     void setTraceUTC(tINT8* chunkCursor);
     void setTraceThreadStart(tINT8* chunkCursor);
@@ -126,7 +130,7 @@ public:
     void setTraceThreadStop(tINT8* chunkCursor);
     void setTraceFormat(tINT8* chunkCursor);
 
-    TraceLineData setTraceData(tINT8* chunkCursor);
+    TraceToGUI setTraceData(tINT8* chunkCursor);
 
     QString getModule(tUINT32 moduleID);
 };

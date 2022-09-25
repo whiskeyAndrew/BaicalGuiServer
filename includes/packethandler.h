@@ -104,18 +104,16 @@ private:
 
     std::vector<char>dataVector;
     std::vector<char> bufferVector;
-    bool chunkSizeReady = false;
 
     BufferData dataFromQueue;
     sH_Packet_Header packetHeader;
     sH_Client_Hello packetHello;
-    void BufferToQueue();
+
     //Структурки для ответа клиенту
     sH_Packet_Header outPacketHeader;
     sH_Packet_Ack outPacketAck;
     sH_Ext outPacketExt;
     sH_Ext_Srv_Info outPacketUDPInfo;
-
 
     void GetPacketFromQueue();
     bool HandleHelloPacket();
@@ -126,12 +124,13 @@ private:
     tUINT32 GetPacketType(sH_Packet_Header pckHdr);
 
 public:
-    ChunkHandler chunkHandler;
+    PacketHandler();
+    ChunkHandler chunkHandler;    
     std::queue<std::vector<tINT8>> packetQueue;
     std::vector<tINT8> tempVector;
-    PacketHandler();
 
     sockaddr_in client;
+
     PacketHandler(sockaddr_in clientConstr)
     {
         client = clientConstr;
@@ -141,7 +140,6 @@ public:
     void AppendQueue(tUINT8* bufferPointer, tUINT32 bufferSize);
 
     void run();
-    void setDataFromQueue(const BufferData &newDataFromQueue);
     void setSocketIn(SOCKET newSocketIn);
     bool InitData();
 };
