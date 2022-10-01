@@ -184,6 +184,10 @@ bool PacketHandler::HandleHelloPacket()
         return false;
     }
 
+    chunkHandler.InitBackupWriter(packetHello.dwProcess_ID,
+                     packetHello.dwProcess_Start_Time_Hi,
+                     packetHello.dwProcess_Start_Time_Lo);
+
     counterPacketsFromServer++;
     outPacketHeader.dwID = counterPacketsFromServer;
     //Начинаем генерацию ответа на приветственный пакет

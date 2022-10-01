@@ -25,6 +25,7 @@ set(PROJECT_SOURCES
         includes/Trace.h includes/Trace.cpp
         includes/tracewindow.h includes/tracewindow.cpp includes/tracewindow.ui
         includes/filereader.h includes/filereader.cpp
+        includes/tracebackupwriter.h includes/tracebackupwriter.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

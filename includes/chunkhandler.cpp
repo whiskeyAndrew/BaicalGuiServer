@@ -139,10 +139,11 @@ bool ChunkHandler::ProcessChunk()
 
         case EP7USER_TYPE_TRACE:
         {
+            backupWriter.writeChunk(chunkCursor,structSize);
             switch(structSubtype){
             case EP7TRACE_TYPE_DATA:
-            {
-                //Не уникальный трейс
+            {                //Не уникальный трейс
+
                 traceToGUI = trace.setTraceData(chunkCursor);
                 if(getWindowOpened())
                 {
@@ -217,6 +218,11 @@ bool ChunkHandler::ProcessChunk()
 ChunkHandler::ChunkHandler()
 {
 
+}
+
+void ChunkHandler::InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
+{
+    backupWriter.setFileHeader(dwProcess_ID,dwProcess_Start_Time_Hi,dwProcess_Start_Time_Lo);
 }
 
 void ChunkHandler::GetChunkFromQueue()

@@ -6,18 +6,7 @@
 #include "chunkhandler.h"
 #include <vector>
 #include <QFile>
-#pragma pack(push,2)
 
-struct sP7File_Header
-{
-    tUINT64 qwMarker; //- 0x45D2AC71ECF32CA6ULL, 8 байт. Возможно, является маркером для байкал-сервера, чтобы по нему сервер распознавал, правильного ли формата он пытается открыть файл или нет.
-    tUINT32 dwProcess_ID; //4 байта – ID процесса, берется из WINAPI GetCurrentProcessID
-    tUINT32 dwProcess_Start_Time_Hi;//4байта - время создания файла, HI
-    tUINT32 dwProcess_Start_Time_Lo; //время создания файла, LO
-    char process_Name[512]; //
-    char host_Name[512];
-};
-#pragma pack(pop)
 
 class FileReader:public QThread
 {

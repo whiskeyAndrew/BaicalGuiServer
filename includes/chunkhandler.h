@@ -7,6 +7,8 @@
 #include <QMutex>
 #include "Trace.h"
 #include "tracewindow.h"
+#include "tracebackupwriter.h"
+
 #define P7_EXTENSION_TYPE_BITS_COUNT                                         (5)
 #define P7_EXTENSION_SUB_TYPE_BITS_COUNT                                     (5)
 #define P7_EXTENSION_PACKET_SIZE_BITS_COUNT                                 (22)
@@ -70,6 +72,8 @@ private:
 
     TraceWindow *traceWindow;
     TraceToGUI traceToGUI;
+    TraceBackupWriter backupWriter;
+
     QMutex mutex;
     void run();
 
@@ -91,6 +95,7 @@ private:
 public:
     ChunkHandler();
 
+    void InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
     bool AppendChunksQueue(std::vector<tINT8> newVector);
     bool getWindowOpened();
     void GetChunkFromQueue();
