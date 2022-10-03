@@ -7,6 +7,8 @@
 #include "includes/tracewindow.h"
 #include <QFileDialog>
 #include "includes/filereader.h"
+#include <QMessageBox>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -28,6 +30,7 @@ private:
     void InitTraceWindow();
 public slots:
     void GetNewConnection(sockaddr_in client);
+    void ChangeClientStatus(sockaddr_in client);
 private slots:
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();

@@ -12,7 +12,7 @@
 #define USER_PACKET_SIZE_BITS_COUNT       (32-USER_PACKET_CHANNEL_ID_BITS_COUNT)
 #define GET_USER_HEADER_SIZE(iBits) (iBits & ((1 << USER_PACKET_SIZE_BITS_COUNT) - 1))
 
-
+class Launcher;
 enum eTPacket_Type
 {
     ETPT_CLIENT_HELLO             = 0x0,    //tH_Common + tH_Client_Initial
@@ -81,7 +81,10 @@ struct sH_Ext_Srv_Info
 
 class PacketHandler:public QThread
 {
+    Q_OBJECT
 private:
+    Launcher* launcher;
+
     SOCKET socketIn;
     QMutex mutex;
     tUINT8* queueElement;
@@ -123,6 +126,8 @@ private:
 
     tUINT32 GetPacketType(sH_Packet_Header pckHdr);
 
+    ~PacketHandler();
+
 public:
     PacketHandler();
     ChunkHandler chunkHandler;    
@@ -131,9 +136,10 @@ public:
 
     sockaddr_in client;
 
-    PacketHandler(sockaddr_in clientConstr)
+    PacketHandler(sockaddr_in client, Launcher* launcher)
     {
-        client = clientConstr;
+        this->client = client;
+        this->launcher = launcher;
     }
 
     //Вызываем чтобы заполнять очередь внутри потока пакетами
@@ -142,6 +148,10 @@ public:
     void run();
     void setSocketIn(SOCKET newSocketIn);
     bool InitData();
+
+signals:
+    void ConnectionLost(sockaddr_in client);
+
 };
 
 #endif // PACKETHANDLER_H

@@ -3,6 +3,7 @@
 void Launcher::run()
 {
     connect(this,&Launcher::SendNewConnection,mainWindow,&MainWindow::GetNewConnection);
+    connect(this,&Launcher::ChangeClientStatus,mainWindow,&MainWindow::ChangeClientStatus);
     std::cout<<"Launcher:: Started socket init"<<std::endl;
     //чистим при старте список клиентов
     memset(clientsList,0,sizeof(clientsList));
@@ -84,6 +85,11 @@ void Launcher::SocketListener()
     }
 }
 
+void Launcher::ConnectionLost(sockaddr_in client){
+
+    emit ChangeClientStatus(client);
+}
+
 bool Launcher::FindClientInArray()
 {
     //Везде накидываем нтохсы потому что так правильно будет выводить пришедший порт
@@ -107,7 +113,7 @@ bool Launcher::FindClientInArray()
         if(clientsList[i].clientIp.sin_addr.S_un.S_addr == 0)
         {
             clientsList[i].clientIp = client;
-            PacketHandler *packetHandler = new PacketHandler(client);
+            PacketHandler *packetHandler = new PacketHandler(client,this);
             packetHandler->AppendQueue(packetBuffer,bytesIn);
             packetHandler->setSocketIn(socketIn);
             clientsList[i].connectionThread = packetHandler;

@@ -1,11 +1,12 @@
 #include "packethandler.h"
-
+#include "launcher.h"
 
 
 void PacketHandler::run()
 {
     //Нам надо один раз запустить и запомнить поток обработки чанков, это мы сделаем здесь
     chunkHandler.start();
+    connect(this,&PacketHandler::ConnectionLost,launcher,&Launcher::ConnectionLost);
 
     while(true)
     {
@@ -43,9 +44,16 @@ void PacketHandler::GetPacketFromQueue()
 {
     //Ждем пока очередь чем-то заполнится, НА ВСЯКИЙ СЛУЧАЙ
 
+    int time = GetTickCount();
+
     while(packetQueue.empty())
     {
-        continue;
+        //Перед заходом в цикл берем момент захода в метод, если проход 5 секунд, а пакетов не появляется - значит соединение разорвано
+        if(GetTickCount()>time+5000){
+            std::cout<<"Lost connection"<<std::endl;
+            emit ConnectionLost(client);
+            delete this;
+        }
     }
 
     //Сюда пришли если очередь не пуста, откусываем и начинаем обработку
@@ -144,7 +152,9 @@ newChunk:
         return false;
 
     bytesLeft-=chunkSize;
-    std::cout<<chunkSize<<std::endl;
+
+    //std::cout<<chunkSize<<std::endl;
+
     while(chunkSize<dataVector.size())
     {
         for(int i =0;i<chunkSize;i++)
@@ -170,6 +180,11 @@ newChunk:
 tUINT32 PacketHandler::GetPacketType(sH_Packet_Header pckHdr)
 {
     return (packetHeader.wBits &0xFu);
+}
+
+PacketHandler::~PacketHandler()
+{
+    this->terminate();
 }
 
 bool PacketHandler::HandleHelloPacket()
@@ -243,7 +258,7 @@ bool PacketHandler::HandleReportPacket()
     tUINT32 bytesOut = sendto(socketIn, bufferReportAnswer, 20, 0, (sockaddr*)&client, sizeof(client));
     free(bufferReportAnswer);
 
-    if (bytesOut == SOCKET_ERROR) {
+    if (bytesOut == SOCKET_ERROR  || bytesOut==0) {
         std::cout<<"Can't send DataReport responce, error: "<< WSAGetLastError()<<std::endl;
         WSACleanup();
         return false;

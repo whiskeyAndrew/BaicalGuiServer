@@ -23,12 +23,27 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection)
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     comboBoxText = inet_ntoa(newConnection.sin_addr);
     comboBoxText.push_back(":"+QString::number(ntohs(newConnection.sin_port)));
+    comboBoxText.push_front("🟢");
     // ui->comboBox->addItem(QString::number(ntohs(newConnection.sin_port)));
     ui->comboBox->addItem(comboBoxText);
     bool checkBoxState = ui->checkBox->isChecked();
     if(checkBoxState==true)
     {
         InitTraceWindow();
+    }
+}
+
+void MainWindow::ChangeClientStatus(sockaddr_in client)
+{
+    QString clientName = inet_ntoa(client.sin_addr);
+    clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
+    clientName.push_front("🟢");
+    for(int i =0; i<comboBoxText.size();i++){
+        if(clientName==ui->comboBox->itemText(i)){
+            clientName.remove(0,2);
+            clientName.push_front("❌ ");
+            ui->comboBox->setItemText(i,clientName);
+        }
     }
 }
 
@@ -55,6 +70,12 @@ void MainWindow::InitTraceWindow()
 {
     //Говнокод, пофиксить надо потом
     QString tempComboBoxText = ui->comboBox->currentText();
+    if(tempComboBoxText.startsWith("❌ ")){
+        QMessageBox mbx;
+        mbx.setText("This connection was terminated");
+        mbx.exec();
+        return;
+    }
     tempComboBoxText.remove(0,tempComboBoxText.length()-5);
 
     //Нужно написать сеттер для chunkHandlera, который получает traceWindow и выставялет windowOpened как true

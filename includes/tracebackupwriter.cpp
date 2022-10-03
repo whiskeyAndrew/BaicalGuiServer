@@ -5,7 +5,7 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
     if(!QDir( "Backups").exists()){
             QDir().mkdir("Backups");
     }
-     //Инициализация файла, в файл запишем его заголовок
+    //Инициализация файла, в файл запишем его заголовок
     fileHeader.dwProcess_ID = dwProcess_ID;
     fileHeader.dwProcess_Start_Time_Hi = dwProcess_Start_Time_Hi;
     fileHeader.dwProcess_Start_Time_Lo = dwProcess_Start_Time_Lo;
@@ -53,7 +53,6 @@ void TraceBackupWriter::writeChunk(tINT8 *chunk, tUINT32 size)
 
     file.write(data,chunkSize);
     file.flush();
-    file.close();
     free(data);
 }
 

@@ -17,6 +17,8 @@ TraceWindow::TraceWindow(QWidget *parent) :
     ui->tableWidget->verticalHeader()->setVisible(false);
 
     ui->tableWidget->setRowCount(1);
+
+    ui->tableWidget->hideColumn(0);
     ui->tableWidget->hideRow(0);
 
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
@@ -46,24 +48,28 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     }
 
     case EP7TRACE_LEVEL_INFO: {
+        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(176,224,230,70)));
         ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(176,224,230,70)));
         break;
     }
 
     case EP7TRACE_LEVEL_ERROR:
     {
+                ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,70,70,70)));
         ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,70,70,70)));
         break;
     }
 
     case EP7TRACE_LEVEL_CRITICAL:
     {
+                ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,0,0,70)));
         ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,0,0,70)));
         break;
     }
 
     case EP7TRACE_LEVEL_DEBUG:
     {
+                ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,255,165,70)));
         ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,255,165,70)));
         break;
     }
@@ -90,9 +96,10 @@ void TraceWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
     UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
 
     if(traceFormat.traceFormat.moduleID!=0)
-    {
-        QString moduleName = traceThread->getModule(traceFormat.traceFormat.moduleID);
-        ui->moduleID->setText(QString::number(traceFormat.traceFormat.moduleID) + " " + moduleName);
+    {        
+        ui->moduleID->setText(traceThread->getModule(traceFormat.traceFormat.moduleID));
+    } else{
+        ui->moduleID->setText("NULL");
     }
 
     ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
@@ -101,7 +108,7 @@ void TraceWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 
     ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
 
-    ui->bLevel->setText(QString::number(traceData.bLevel));
+    ui->bLevel->setText(bLevels.value(traceData.bLevel));
     ui->bProcessor->setText(QString::number(traceData.bProcessor));
     ui->threadID->setText(QString::number(traceData.dwThreadID));
     ui->dwSequence->setText(QString::number(traceData.dwSequence));

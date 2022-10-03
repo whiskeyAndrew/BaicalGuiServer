@@ -71,6 +71,10 @@ public:
 
 signals:
     void SendNewConnection(sockaddr_in newConnection);
+    void ChangeClientStatus(sockaddr_in client);
+
+public slots:
+    void ConnectionLost(sockaddr_in client);
 };
 
 #endif // LAUNCHER_H

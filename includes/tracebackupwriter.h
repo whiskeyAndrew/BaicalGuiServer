@@ -15,8 +15,8 @@ struct sP7File_Header{
     tUINT32 dwProcess_ID; //4 байта – ID процесса, берется из WINAPI GetCurrentProcessID
     tUINT32 dwProcess_Start_Time_Hi;//4байта - время создания файла, HI
     tUINT32 dwProcess_Start_Time_Lo; //время создания файла, LO
-    char process_Name[512] = {'t','e','m','p'};
-    char host_Name[512] = {'t','e','m','p'};
+    wchar_t process_Name[256] = {'t','e','m','p'};
+    wchar_t host_Name[256] = {'t','e','m','p'};
 };
 
 #pragma pack(pop)

@@ -31,6 +31,12 @@ public:
 private:    
     Trace *traceThread;
     Ui::TraceWindow *ui;
+    QMap<int,QString> bLevels = {{0,"TRACE"},
+                                 {1,"DEBUG"},
+                                 {2,"INFO"},
+                                 {3,"WARNING"},
+                                 {4,"ERROR"},
+                                 {5,"CRITICAL"}};
 public slots:
     void GetTrace(TraceToGUI trace);
     void GetQueueSize(tUINT32 size);

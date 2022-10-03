@@ -46,7 +46,14 @@
     </widget>
    </item>
    <item row="0" column="0" rowspan="3">
-    <widget class="QTableWidget" name="tableWidget"/>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="showGrid">
+      <bool>false</bool>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+    </widget>
    </item>
    <item row="1" column="2" rowspan="2">
     <widget class="QGroupBox" name="groupBox">
@@ -181,7 +188,7 @@
      <widget class="QLabel" name="wID">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>10</y>
         <width>161</width>
         <height>16</height>
@@ -197,7 +204,7 @@
      <widget class="QLabel" name="line">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>40</y>
         <width>161</width>
         <height>16</height>
@@ -213,7 +220,7 @@
      <widget class="QLabel" name="moduleID">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>70</y>
         <width>161</width>
         <height>16</height>
@@ -229,7 +236,7 @@
      <widget class="QLabel" name="argsLen">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>100</y>
         <width>161</width>
         <height>16</height>
@@ -245,7 +252,7 @@
      <widget class="QLabel" name="bLevel">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>130</y>
         <width>161</width>
         <height>16</height>
@@ -261,7 +268,7 @@
      <widget class="QLabel" name="bProcessor">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>160</y>
         <width>161</width>
         <height>16</height>
@@ -277,7 +284,7 @@
      <widget class="QLabel" name="threadID">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>190</y>
         <width>161</width>
         <height>16</height>
@@ -293,7 +300,7 @@
      <widget class="QLabel" name="dwSequence">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>220</y>
         <width>161</width>
         <height>16</height>
@@ -342,15 +349,15 @@
        </rect>
       </property>
       <property name="text">
-       <string>Process Name</string>
+       <string>Process</string>
       </property>
      </widget>
      <widget class="QLabel" name="traceText">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>80</x>
         <y>250</y>
-        <width>201</width>
+        <width>191</width>
         <height>81</height>
        </rect>
       </property>
@@ -361,7 +368,7 @@
        <bool>false</bool>
       </property>
       <property name="alignment">
-       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -373,7 +380,7 @@
      <widget class="QLabel" name="traceDest">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>340</y>
         <width>161</width>
         <height>48</height>
@@ -386,7 +393,7 @@
        <bool>false</bool>
       </property>
       <property name="alignment">
-       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -398,7 +405,7 @@
      <widget class="QLabel" name="processName">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>80</x>
         <y>410</y>
         <width>161</width>
         <height>16</height>
@@ -406,25 +413,6 @@
       </property>
       <property name="text">
        <string/>
-      </property>
-     </widget>
-     <widget class="QLabel" name="tempLabel">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>440</y>
-        <width>251</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>там проблема с текстом, я еще думаю как пофиксить</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
       </property>
      </widget>
     </widget>
