@@ -6,6 +6,9 @@
 #include <QTableWidgetItem>
 #include <queue>
 
+#include <QItemDelegate>
+#include <QPainter>
+
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -18,6 +21,16 @@ enum eP7Trace_Level
     EP7TRACE_LEVEL_COUNT
 };
 
+
+class Delegate : public QItemDelegate
+{
+    Q_OBJECT
+public:
+    Delegate(QWidget *parent = 0) : QItemDelegate(parent) {}
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+};
+
 class TraceViewer : public QAbstractTableModel
 {
     Q_OBJECT
@@ -25,7 +38,7 @@ class TraceViewer : public QAbstractTableModel
 public:
     TraceViewer(QObject *parent = 0);
 
-    void populateData(const QList<QString> &contactName,const QList<QString> &contactPhone);
+    void populateData(QString sequence, QString trace);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -33,6 +46,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
+    void initTable();
 private:
     QList<QString> traceText;
     QList<QString> traceSequence;
@@ -50,7 +64,10 @@ public:
     explicit TraceWindow(QWidget *parent = nullptr);
     ~TraceWindow();
 
-private:    
+private:
+    QList<QString> traceList;
+    QList<QString> sequenceList;
+    TraceViewer *traceViewer;
     Trace *traceThread;
     Ui::TraceWindow *ui;
     QMap<int,QString> bLevels = {{0,"TRACE"},
@@ -61,11 +78,12 @@ private:
                                  {5,"CRITICAL"}};
 public slots:
     void GetTrace(TraceToGUI trace);
-    void GetQueueSize(tUINT32 size);
     void SetTraceAsObject(Trace *trace);
     void GetTraceFromFile(std::queue<TraceToGUI>);
+
+    void onTableClicked(const QModelIndex &index);
+
 private slots:
-    void on_tableWidget_itemClicked(QTableWidgetItem *item);
     void on_expandButton_clicked(bool checked);
 };
 

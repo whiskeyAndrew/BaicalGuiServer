@@ -1,6 +1,29 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 #include <QDateTime>
+#include <QStyledItemDelegate>
+
+
+void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                     const QModelIndex &index) const
+{
+    QString txt = index.model()->data( index, Qt::DisplayRole ).toString();
+
+    if(index.row() == 0)//green row
+        painter->fillRect(option.rect,QColor(0,255,0));
+    else
+        if(index.row() == 1)//blue row
+            painter->fillRect(option.rect,option.backgroundBrush);
+        else
+            if(index.row() == 2)//red row
+                painter->fillRect(option.rect,QColor(255,0,0));
+    //and so on
+
+    if( option.state & QStyle::State_Selected )//we need this to show selection
+    {
+        painter->fillRect( option.rect, option.palette.highlight() );
+    }
+}
 
 TraceWindow::TraceWindow(QWidget *parent) :
     QWidget(parent),
@@ -8,133 +31,102 @@ TraceWindow::TraceWindow(QWidget *parent) :
 {
     this->setWindowFlags(Qt::Window);
     ui->setupUi(this);
-    ui->tableWidget->setColumnCount(2);
-    ui->tableWidget->setColumnWidth(0,50);
+    traceViewer = new TraceViewer(this);
+    traceViewer->initTable();
+    ui->tableView->setModel(traceViewer);
+    ui->tableView->hideColumn(0);
+    ui->tableView->horizontalHeader()->hide();
 
-    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("#"));
-    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Text"));
+    //ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    //ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->tableView->setFont(QFont("Courier",8));
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
 
-    ui->tableWidget->verticalHeader()->setVisible(false);
-
-    ui->tableWidget->setRowCount(1);
-
-    ui->tableWidget->hideColumn(0);
-    ui->tableWidget->hideRow(0);
-
-    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+    //Коннект по нажатию на ячейку
+    connect(ui->tableView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onTableClicked(const QModelIndex &)));
+    //ui->tableView->setItemDelegate(new Delegate);
 }
 
+void TraceWindow::onTableClicked(const QModelIndex &index)
+{
+    if (index.isValid()) {
+        tUINT32 row = index.row();
+        //Нулвая колонна скрыта, нам нужен из нее секвенс
+        tUINT32 seq = index.siblingAtColumn(0).data().toInt();
 
+
+        sP7Trace_Data traceData = traceThread->GetTraceData(seq);
+        UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
+
+        if(traceFormat.traceFormat.moduleID!=0)
+        {
+            ui->moduleID->setText(traceThread->getModule(traceFormat.traceFormat.moduleID));
+        } else{
+            ui->moduleID->setText("NULL");
+        }
+
+        ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
+        ui->line->setText(QString::number(traceFormat.traceFormat.line));
+
+
+        ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
+
+        ui->bLevel->setText(bLevels.value(traceData.bLevel));
+        ui->bProcessor->setText(QString::number(traceData.bProcessor));
+        ui->threadID->setText(QString::number(traceData.dwThreadID));
+        ui->dwSequence->setText(QString::number(traceData.dwSequence));
+
+        ui->traceText->setText(traceFormat.traceLineData);
+        ui->traceDest->setText(traceFormat.fileDest);
+        ui->processName->setText(traceFormat.functionName);
+    }
+}
 TraceWindow::~TraceWindow()
 {
     delete ui;
 }
 
+
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
-
-    int countNumber = ui->tableWidget->rowCount();
+    int countNumber = traceViewer->rowCount();
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
 
-    ui->tableWidget->insertRow(countNumber);
-    ui->tableWidget->setItem(countNumber, 0, new QTableWidgetItem(QString::number(trace.sequence)));
-    ui->tableWidget->item(countNumber,0)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    ui->tableWidget->setItem(countNumber, 1, new QTableWidgetItem(trace.trace));
-    ui->tableWidget->item(countNumber,1)->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    traceViewer->populateData(QString::number(trace.sequence),trace.trace);
+    ui->tableView->resizeRowToContents(countNumber);
 
-    switch(traceData.bLevel)
-    {
-    case EP7TRACE_LEVEL_TRACE:{
-        break;
-    }
 
-    case EP7TRACE_LEVEL_INFO: {
-        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(176,224,230,70)));
-        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(176,224,230,70)));
-        break;
-    }
+    //Вот эта штука может вызывать пролаги при большом количестве данных
+    //По логике вещей она обновляет ВСЮ таблицу при каждом инсерте, что делать, конечно, неправильно
+    //Я в этом не уверен, но 100к данных обновляющихся выдерживает, надо оставить надолго и проверить потом как оно
+    //Себя поведет
 
-    case EP7TRACE_LEVEL_ERROR:
-    {
-        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,70,70,70)));
-        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,70,70,70)));
-        break;
-    }
+    emit traceViewer->layoutChanged();
 
-    case EP7TRACE_LEVEL_CRITICAL:
-    {
-        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,0,0,70)));
-        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,0,0,70)));
-        break;
-    }
-
-    case EP7TRACE_LEVEL_DEBUG:
-    {
-        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,255,165,70)));
-        ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,255,165,70)));
-        break;
-    }
-    }
-
-    //ui->tableWidget->item(countNumber,1)->setData(Qt::UserRole,QVariant::fromValue(trace));
-    ui->tableWidget->resizeRowToContents(countNumber);
-    //ui->tableWidget->scrollToItem(ui->tableWidget->item(countNumber,0),QHeaderView::PositionAtBottom);
 }
 
-void TraceWindow::GetQueueSize(tUINT32 size)
-{
-    //ui->queueLength->setText(QString::number(size));
-}
 
 void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
 
-    ui->tableWidget->setRowCount(data.size());
     int counter = data.size();
 
     for(int i =0;i<counter;i++){
         TraceToGUI trace = data.front();
         data.pop();
-        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QString::number(trace.sequence)));
-        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(trace.trace));
-        ui->tableWidget->resizeRowToContents(i);
+
+        traceViewer->populateData(QString::number(trace.sequence),trace.trace);
+
     }
+    emit traceViewer->layoutChanged();
     this->show();
+    ui->tableView->resizeRowsToContents();
 }
 
-void TraceWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
-{
-    item = ui->tableWidget->item(item->row(),0);
-    sP7Trace_Data traceData = traceThread->GetTraceData(item->text().toInt());
-    UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
-
-    if(traceFormat.traceFormat.moduleID!=0)
-    {
-        ui->moduleID->setText(traceThread->getModule(traceFormat.traceFormat.moduleID));
-    } else{
-        ui->moduleID->setText("NULL");
-    }
-
-    ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
-    ui->line->setText(QString::number(traceFormat.traceFormat.line));
-
-
-    ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
-
-    ui->bLevel->setText(bLevels.value(traceData.bLevel));
-    ui->bProcessor->setText(QString::number(traceData.bProcessor));
-    ui->threadID->setText(QString::number(traceData.dwThreadID));
-    ui->dwSequence->setText(QString::number(traceData.dwSequence));
-
-    ui->traceText->setText(traceFormat.traceLineData);
-    ui->traceDest->setText(traceFormat.fileDest);
-    ui->processName->setText(traceFormat.functionName);
-}
 
 void TraceWindow::SetTraceAsObject(Trace *trace)
 {
     traceThread = trace;
 }
-
 
 
 void TraceWindow::on_expandButton_clicked(bool checked)
@@ -151,5 +143,58 @@ void TraceWindow::on_expandButton_clicked(bool checked)
         ui->groupBox->setMaximumHeight(16777215);
         ui->expandButton->setText("->");
     }
+}
+
+TraceViewer::TraceViewer(QObject *parent) : QAbstractTableModel(parent)
+{
+}
+
+void TraceViewer::populateData(QString sequence, QString trace)
+{
+    traceSequence.append(sequence);
+    traceText.append(trace);
+}
+
+int TraceViewer::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return traceSequence.length();
+}
+
+int TraceViewer::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return 2;
+}
+
+QVariant TraceViewer::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || role != Qt::DisplayRole) {
+        return QVariant();
+    }
+    if (index.column() == 0) {
+        return traceSequence[index.row()];
+    } else if (index.column() == 1) {
+        return traceText[index.row()];
+    }
+    return QVariant();
+}
+
+QVariant TraceViewer::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+        if (section == 0) {
+            return QString("Sequence");
+        } else if (section == 1) {
+            return QString("Trace");
+        }
+    }
+    return QVariant();
+}
+
+void TraceViewer::initTable()
+{
+    traceSequence.clear();
+    traceText.clear();
 }
 

@@ -34,8 +34,6 @@ void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
     traceWindow = newTraceWindow;
     connect(this, &ChunkHandler::SendTrace,
             traceWindow, &TraceWindow::GetTrace);
-    connect(this, &ChunkHandler::SendQueueSize,
-            traceWindow, &TraceWindow::GetQueueSize);
     connect(this,&ChunkHandler::SendTraceAsObject,traceWindow,&TraceWindow::SetTraceAsObject);
     emit SendTraceAsObject(&trace);
     //Дайте окну прогрузиться пожалуйста
