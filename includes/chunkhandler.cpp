@@ -4,6 +4,11 @@ bool ChunkHandler::getWindowOpened(){
     return windowOpened;
 }
 
+void ChunkHandler::setNeedBackup(bool newNeedBackup)
+{
+    needBackup = newNeedBackup;
+}
+
 void ChunkHandler::run()
 {
 
@@ -140,7 +145,9 @@ bool ChunkHandler::ProcessChunk()
 
         case EP7USER_TYPE_TRACE:
         {
-            backupWriter.writeChunk(chunkCursor,structSize);
+            if(needBackup){
+                backupWriter.writeChunk(chunkCursor,structSize);
+            }
             switch(structSubtype){
             case EP7TRACE_TYPE_DATA:
             {                //Не уникальный трейс

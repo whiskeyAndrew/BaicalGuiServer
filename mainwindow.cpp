@@ -55,12 +55,13 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    fileReader = new FileReader();
+    //Чтение из файла
     QString fileName = QFileDialog::getOpenFileName(this);
+    fileReader = new FileReader();
     traceWindow = new TraceWindow();
-    traceWindow->show();
-    fileReader->setFileName(fileName);
+
     fileReader->setTraceWindow(traceWindow);
+    fileReader->setFileName(fileName);
     fileReader->start();
 
 

@@ -2,7 +2,7 @@
 //Вместо того чтобы читать файл оно читает какую-то хрень
 //
 #include "filereader.h"
-
+#include "filechunkshandler.h"
 
 FileReader::FileReader()
 {    
@@ -11,21 +11,19 @@ FileReader::FileReader()
 
 void FileReader::run()
 {
-    TraceWindow* traceWindow;
-    chunkHandler.start();
+    fileChunksHandler->start();
     //------------Открываем файл и читаем его в буфер----------//
     ReadFileData();
     //-------------Обработка----------------//
     HandlingChunks();
-    //На данном этапе мы закончили читать файл, закрываем потоки
-    this->~FileReader();
+    fileChunksHandler->setFileEnded(true);
+    //this->~FileReader();
 
 }
 
 FileReader::~FileReader()
 {
-    chunkHandler.wait();
-    this->quit();
+
 }
 
 bool FileReader::ReadFileData()
@@ -41,8 +39,8 @@ bool FileReader::ReadFileData()
 void FileReader::setTraceWindow(TraceWindow *newTraceWindow)
 {
     traceWindow = newTraceWindow;
-    chunkHandler.setTraceWindow(traceWindow);
-
+    fileChunksHandler = new FileChunksHandler();
+    fileChunksHandler->SetTraceWindow(traceWindow);
 }
 
 void FileReader::setFileName(QString newFileName)
@@ -54,6 +52,7 @@ void FileReader::setFileName(QString newFileName)
 
 bool FileReader::HandlingChunks()
 {
+    sP7File_Header fileHeader;
     bufferCursor = data.begin();
     memcpy(&fileHeader,bufferCursor,sizeof(sP7File_Header));
     bufferCursor+=sizeof(sP7File_Header);
@@ -66,10 +65,10 @@ bool FileReader::HandlingChunks()
             dataVector.push_back(*bufferCursor);
             bufferCursor++;
         }
-        chunkHandler.AppendChunksQueue(dataVector);
+        fileChunksHandler->AppendChunks(dataVector);
         dataVector.clear();
         chunkSize=0;
     }
-    chunkHandler.setFileEnded(true);
+    //chunkHandler.setFileEnded(true);
     return true;
 }

@@ -6,7 +6,7 @@
 #include <iostream>
 #include "includes/tracewindow.h"
 #include <QFileDialog>
-#include "includes/filereader.h"
+#include "includes/FileReader/filereader.h"
 #include <QMessageBox>
 
 QT_BEGIN_NAMESPACE

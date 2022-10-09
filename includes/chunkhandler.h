@@ -69,7 +69,7 @@ class ChunkHandler : public QThread
 private:
     Trace trace;
     bool windowOpened = false;
-
+    bool needBackup = true;
     TraceWindow *traceWindow;
     TraceToGUI traceToGUI;
     TraceBackupWriter backupWriter;
@@ -101,6 +101,8 @@ public:
     void GetChunkFromQueue();
     void setTraceWindow(TraceWindow *newTraceWindow);
     void setFileEnded(bool fileEnded);
+
+    void setNeedBackup(bool newNeedBackup);
 
 signals:
     void SendTrace(TraceToGUI trace);

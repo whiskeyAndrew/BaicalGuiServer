@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<sockaddr_in>("sockaddr_in");
     qRegisterMetaType<tUINT32>("tUINT32");
     qRegisterMetaType<TraceToGUI>("TraceToGUI");
+    qRegisterMetaType<std::queue<TraceToGUI>>("std::queue<TraceToGUI>");
 
     QApplication a(argc, argv);
 

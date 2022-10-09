@@ -1,6 +1,6 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
-
+#include <QDateTime>
 
 TraceWindow::TraceWindow(QWidget *parent) :
     QWidget(parent),
@@ -32,6 +32,7 @@ TraceWindow::~TraceWindow()
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
+
     int countNumber = ui->tableWidget->rowCount();
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
 
@@ -55,21 +56,21 @@ void TraceWindow::GetTrace(TraceToGUI trace)
 
     case EP7TRACE_LEVEL_ERROR:
     {
-                ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,70,70,70)));
+        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,70,70,70)));
         ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,70,70,70)));
         break;
     }
 
     case EP7TRACE_LEVEL_CRITICAL:
     {
-                ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,0,0,70)));
+        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,0,0,70)));
         ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,0,0,70)));
         break;
     }
 
     case EP7TRACE_LEVEL_DEBUG:
     {
-                ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,255,165,70)));
+        ui->tableWidget->item(countNumber,0)->setBackground(QBrush(QColor(255,255,165,70)));
         ui->tableWidget->item(countNumber,1)->setBackground(QBrush(QColor(255,255,165,70)));
         break;
     }
@@ -78,9 +79,6 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     //ui->tableWidget->item(countNumber,1)->setData(Qt::UserRole,QVariant::fromValue(trace));
     ui->tableWidget->resizeRowToContents(countNumber);
     //ui->tableWidget->scrollToItem(ui->tableWidget->item(countNumber,0),QHeaderView::PositionAtBottom);
-
-
-
 }
 
 void TraceWindow::GetQueueSize(tUINT32 size)
@@ -88,6 +86,20 @@ void TraceWindow::GetQueueSize(tUINT32 size)
     //ui->queueLength->setText(QString::number(size));
 }
 
+void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
+
+    ui->tableWidget->setRowCount(data.size());
+    int counter = data.size();
+
+    for(int i =0;i<counter;i++){
+        TraceToGUI trace = data.front();
+        data.pop();
+        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QString::number(trace.sequence)));
+        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(trace.trace));
+        ui->tableWidget->resizeRowToContents(i);
+    }
+    this->show();
+}
 
 void TraceWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
 {
@@ -96,7 +108,7 @@ void TraceWindow::on_tableWidget_itemClicked(QTableWidgetItem *item)
     UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
 
     if(traceFormat.traceFormat.moduleID!=0)
-    {        
+    {
         ui->moduleID->setText(traceThread->getModule(traceFormat.traceFormat.moduleID));
     } else{
         ui->moduleID->setText("NULL");

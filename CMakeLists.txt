@@ -24,7 +24,8 @@ set(PROJECT_SOURCES
         includes/chunkhandler.h includes/chunkhandler.cpp
         includes/Trace.h includes/Trace.cpp
         includes/tracewindow.h includes/tracewindow.cpp includes/tracewindow.ui
-        includes/filereader.h includes/filereader.cpp
+        includes/FileReader/filereader.h includes/FileReader/filereader.cpp
+        includes/FileReader/filechunkshandler.h includes/FileReader/filechunkshandler.cpp
         includes/tracebackupwriter.h includes/tracebackupwriter.cpp
 )
 

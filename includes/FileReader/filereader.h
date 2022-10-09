@@ -2,21 +2,23 @@
 #define FILEREADER_H
 #include <QThread>
 #include <iostream>
-#include "GTypes.h"
-#include "chunkhandler.h"
+#include "../GTypes.h"
+#include "../tracewindow.h"
 #include <vector>
 #include <QFile>
 
+#pragma pack(push,2)
+
+
+#pragma pack(pop)
+class FileChunksHandler;
 
 class FileReader:public QThread
 {
     Q_OBJECT
 private:
-    sP7File_Header fileHeader;
-
-    ChunkHandler chunkHandler;
-
     QByteArray data;
+    FileChunksHandler *fileChunksHandler;
 
     TraceWindow *traceWindow;
     QString fileName;
