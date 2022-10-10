@@ -83,6 +83,7 @@ struct TraceToGUI
 {
     QString trace;
     tUINT32 sequence;
+    SYSTEMTIME traceTime;
 };
 
 struct UniqueTraceData
@@ -116,8 +117,11 @@ private:
     tINT64 arguments = 0;
     Args_ID argumentsData;
 
+    SYSTEMTIME traceTime;
+
     QString FormatVector(QString str, int argsCount, std::vector<tUINT64> args);
     tINT8* ReadTraceText(tINT8* chunkCursor, UniqueTraceData *trace);
+    SYSTEMTIME CountTraceTime();
 public:
     //TraceLineData traceDataPerLine;
     sP7Trace_Data GetTraceData(tUINT32 sequence);

@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 
 {
-
+    setWindowIcon(QIcon("logo.png"));
     ui->setupUi(this);
 
 }

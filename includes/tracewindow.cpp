@@ -37,11 +37,11 @@ TraceWindow::TraceWindow(QWidget *parent) :
     ui->tableView->hideColumn(0);
     ui->tableView->horizontalHeader()->hide();
 
-    //ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    //ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->tableView->setFont(QFont("Courier",8));
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
-
+    //ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView->setFont(QFont("Courier",8));
+    ui->groupBox_3->setVisible(false);
     //Коннект по нажатию на ячейку
     connect(ui->tableView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onTableClicked(const QModelIndex &)));
     //ui->tableView->setItemDelegate(new Delegate);
@@ -87,13 +87,22 @@ TraceWindow::~TraceWindow()
 }
 
 
+
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
     int countNumber = traceViewer->rowCount();
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
+    QString time = QString::number(trace.traceTime.wHour)+":"
+            +QString::number(trace.traceTime.wMinute)+":"
+            +QString::number(trace.traceTime.wSecond);
 
-    traceViewer->populateData(QString::number(trace.sequence),trace.trace);
+    traceViewer->populateData(QString::number(trace.sequence),trace.trace,time);
+    //ui->tableView->resizeColumnToContents(1);
+    //Последняя строка ресайзится по тексту внутри, остальные строки должны принятьь нужную ширину.
+    //Нужно будет перепродумать этот момент
     ui->tableView->resizeRowToContents(countNumber);
+    ui->tableView->setColumnWidth(0,80);
+    ui->tableView->setColumnWidth(1,80);
 
 
     //Вот эта штука может вызывать пролаги при большом количестве данных
@@ -114,7 +123,11 @@ void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
         TraceToGUI trace = data.front();
         data.pop();
 
-        traceViewer->populateData(QString::number(trace.sequence),trace.trace);
+        QString time = QString::number(trace.traceTime.wHour)+":"
+                +QString::number(trace.traceTime.wMinute)+":"
+                +QString::number(trace.traceTime.wSecond);
+
+        traceViewer->populateData(QString::number(trace.sequence),trace.trace,time);
 
     }
     emit traceViewer->layoutChanged();
@@ -149,10 +162,11 @@ TraceViewer::TraceViewer(QObject *parent) : QAbstractTableModel(parent)
 {
 }
 
-void TraceViewer::populateData(QString sequence, QString trace)
+void TraceViewer::populateData(QString sequence, QString trace, QString time)
 {
     traceSequence.append(sequence);
     traceText.append(trace);
+    traceTimer.append(time);
 }
 
 int TraceViewer::rowCount(const QModelIndex &parent) const
@@ -164,7 +178,7 @@ int TraceViewer::rowCount(const QModelIndex &parent) const
 int TraceViewer::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 2;
+    return 3;
 }
 
 QVariant TraceViewer::data(const QModelIndex &index, int role) const
@@ -175,6 +189,8 @@ QVariant TraceViewer::data(const QModelIndex &index, int role) const
     if (index.column() == 0) {
         return traceSequence[index.row()];
     } else if (index.column() == 1) {
+        return traceTimer[index.row()];
+    } else if(index.column()==2){
         return traceText[index.row()];
     }
     return QVariant();
@@ -186,6 +202,8 @@ QVariant TraceViewer::headerData(int section, Qt::Orientation orientation, int r
         if (section == 0) {
             return QString("Sequence");
         } else if (section == 1) {
+            return QString("Time");
+        }else if (section == 2) {
             return QString("Trace");
         }
     }
@@ -196,5 +214,28 @@ void TraceViewer::initTable()
 {
     traceSequence.clear();
     traceText.clear();
+}
+
+
+
+void TraceWindow::on_pushButton_clicked()
+{
+    if(ui->groupBox_3->isVisible()){
+        ui->groupBox_3->setVisible(false);
+    } else{
+        ui->groupBox_3->setVisible(true);
+    }
+}
+
+
+void TraceWindow::on_column0_stateChanged(int arg1)
+{
+    ui->tableView->setColumnHidden(0,!arg1);
+}
+
+
+void TraceWindow::on_Time_stateChanged(int arg1)
+{
+    ui->tableView->setColumnHidden(1,!arg1);
 }
 

@@ -38,7 +38,7 @@ class TraceViewer : public QAbstractTableModel
 public:
     TraceViewer(QObject *parent = 0);
 
-    void populateData(QString sequence, QString trace);
+    void populateData(QString sequence, QString trace, QString time);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -50,6 +50,7 @@ public:
 private:
     QList<QString> traceText;
     QList<QString> traceSequence;
+    QList<QString> traceTimer;
 
 };
 
@@ -85,6 +86,9 @@ public slots:
 
 private slots:
     void on_expandButton_clicked(bool checked);
+    void on_pushButton_clicked();
+    void on_column0_stateChanged(int arg1);
+    void on_Time_stateChanged(int arg1);
 };
 
 #endif // TRACEWINDOW_H

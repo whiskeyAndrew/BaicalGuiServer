@@ -33,7 +33,9 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
     argsValue.clear();
     traceToShow.insert(traceData.dwSequence,traceData);
 
-    return {traceTextToGUI,traceData.dwSequence};
+    traceTime = CountTraceTime();
+
+    return {traceTextToGUI,traceData.dwSequence,traceTime};
 }
 
 void Trace::setTraceFormat(tINT8* chunkCursor)
@@ -116,7 +118,19 @@ QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> arg
     return QString::fromStdString(toOutput);
 }
 
+SYSTEMTIME Trace::CountTraceTime(){
+    FILETIME creationTime;
+    SYSTEMTIME toSystemTime;
+    tUINT32 tempTime = (traceData.qwTimer-traceInfo.qwTimer_Value)/traceInfo.qwTimer_Frequency;
 
+    creationTime.dwLowDateTime = traceInfo.dwTime_Lo+tempTime;
+    creationTime.dwHighDateTime = traceInfo.dwTime_Hi;
+
+    FileTimeToSystemTime(&creationTime,&toSystemTime);
+    SystemTimeToTzSpecificLocalTime(NULL,&toSystemTime,&toSystemTime);
+
+   return toSystemTime;
+}
 
 void Trace::setTraceUTC(tINT8* chunkCursor)
 {
