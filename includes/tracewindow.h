@@ -38,7 +38,7 @@ class TraceViewer : public QAbstractTableModel
 public:
     TraceViewer(QObject *parent = 0);
 
-    void populateData(QString sequence, QString trace, QString time);
+    void populateData(int scrollValue);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -47,7 +47,14 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
     void initTable();
+    void fillTempList(QString text, QString sequence, QString timer);
+
+
 private:
+    QList<QString> tempText;
+    QList<QString> tempSequence;
+    QList<QString> tempTimer;
+
     QList<QString> traceText;
     QList<QString> traceSequence;
     QList<QString> traceTimer;
@@ -77,6 +84,8 @@ private:
                                  {3,"WARNING"},
                                  {4,"ERROR"},
                                  {5,"CRITICAL"}};
+    void resizeEvent(QResizeEvent *e);
+    void InitWindow();
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
@@ -89,6 +98,9 @@ private slots:
     void on_pushButton_clicked();
     void on_column0_stateChanged(int arg1);
     void on_Time_stateChanged(int arg1);
+    void on_verticalScrollBar_valueChanged(int value);
+    void on_pushButton_2_clicked();
+    void on_pushButton_3_clicked();
 };
 
 #endif // TRACEWINDOW_H

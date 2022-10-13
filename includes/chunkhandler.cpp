@@ -1,14 +1,5 @@
 #include "chunkhandler.h"
 
-bool ChunkHandler::getWindowOpened(){
-    return windowOpened;
-}
-
-void ChunkHandler::setNeedBackup(bool newNeedBackup)
-{
-    needBackup = newNeedBackup;
-}
-
 void ChunkHandler::run()
 {
 
@@ -22,32 +13,6 @@ void ChunkHandler::run()
         ProcessChunk();
     }
     this->quit();
-}
-
-void ChunkHandler::setFileEnded(bool fileEnded)
-{
-    this->fileEnded = fileEnded;
-}
-
-void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
-{
-    traceWindow = newTraceWindow;
-    connect(this, &ChunkHandler::SendTrace,
-            traceWindow, &TraceWindow::GetTrace);
-    connect(this,&ChunkHandler::SendTraceAsObject,traceWindow,&TraceWindow::SetTraceAsObject);
-    emit SendTraceAsObject(&trace);
-    //Дайте окну прогрузиться пожалуйста
-
-    windowOpened = true;
-
-}
-
-
-bool ChunkHandler::AppendChunksQueue(std::vector<tINT8> newVector)
-{
-    mutex.tryLock(-1);
-    chunks.push(newVector);
-    mutex.unlock();
 }
 
 bool ChunkHandler::ProcessChunk()
@@ -226,9 +191,26 @@ ChunkHandler::ChunkHandler()
 
 }
 
-void ChunkHandler::InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
+
+void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
 {
-    backupWriter.setFileHeader(dwProcess_ID,dwProcess_Start_Time_Hi,dwProcess_Start_Time_Lo);
+    traceWindow = newTraceWindow;
+    connect(this, &ChunkHandler::SendTrace,
+            traceWindow, &TraceWindow::GetTrace);
+    connect(this,&ChunkHandler::SendTraceAsObject,traceWindow,&TraceWindow::SetTraceAsObject);
+    emit SendTraceAsObject(&trace);
+    //Дайте окну прогрузиться пожалуйста
+
+    windowOpened = true;
+
+}
+
+
+bool ChunkHandler::AppendChunksQueue(std::vector<tINT8> newVector)
+{
+    mutex.tryLock(-1);
+    chunks.push(newVector);
+    mutex.unlock();
 }
 
 void ChunkHandler::GetChunkFromQueue()
@@ -255,4 +237,23 @@ void ChunkHandler::GetChunkFromQueue()
     {
         emit SendQueueSize(chunks.size());
     }
+}
+
+bool ChunkHandler::getWindowOpened(){
+    return windowOpened;
+}
+
+void ChunkHandler::setNeedBackup(bool newNeedBackup)
+{
+    needBackup = newNeedBackup;
+}
+
+void ChunkHandler::setFileEnded(bool fileEnded)
+{
+    this->fileEnded = fileEnded;
+}
+
+void ChunkHandler::InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
+{
+    backupWriter.setFileHeader(dwProcess_ID,dwProcess_Start_Time_Hi,dwProcess_Start_Time_Lo);
 }

@@ -2,27 +2,30 @@
 #include "tracewindow.h"
 #include <QDateTime>
 #include <QStyledItemDelegate>
-
+#include <QColorDialog>
 
 void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                      const QModelIndex &index) const
 {
     QString txt = index.model()->data( index, Qt::DisplayRole ).toString();
+    painter->setPen(Qt::white);
 
-    if(index.row() == 0)//green row
-        painter->fillRect(option.rect,QColor(0,255,0));
-    else
-        if(index.row() == 1)//blue row
-            painter->fillRect(option.rect,option.backgroundBrush);
-        else
-            if(index.row() == 2)//red row
-                painter->fillRect(option.rect,QColor(255,0,0));
-    //and so on
+    painter->drawText(option.rect,txt);
 
-    if( option.state & QStyle::State_Selected )//we need this to show selection
-    {
-        painter->fillRect( option.rect, option.palette.highlight() );
-    }
+    //    if(index.row() == 0)//green row
+    //        painter->fillRect(option.rect,QColor(0,255,0));
+    //    else
+    //        if(index.row() == 1)//blue row
+    //            painter->setPen(Qt::white);
+    //        else
+    //            if(index.row() == 2)//red row
+    //                painter->fillRect(option.rect,QColor(255,0,0));
+    //    //and so on
+
+    //    if( option.state & QStyle::State_Selected )//we need this to show selection
+    //    {
+    //        painter->fillRect( option.rect, option.palette.highlight() );
+    //    }
 }
 
 TraceWindow::TraceWindow(QWidget *parent) :
@@ -31,20 +34,13 @@ TraceWindow::TraceWindow(QWidget *parent) :
 {
     this->setWindowFlags(Qt::Window);
     ui->setupUi(this);
-    traceViewer = new TraceViewer(this);
-    traceViewer->initTable();
-    ui->tableView->setModel(traceViewer);
-    ui->tableView->hideColumn(0);
-    ui->tableView->horizontalHeader()->hide();
+    InitWindow();
 
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    ui->tableView->horizontalHeader()->setStretchLastSection(true);
-    //ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableView->setFont(QFont("Courier",8));
-    ui->groupBox_3->setVisible(false);
-    //Коннект по нажатию на ячейку
-    connect(ui->tableView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onTableClicked(const QModelIndex &)));
-    //ui->tableView->setItemDelegate(new Delegate);
+}
+
+void TraceWindow::resizeEvent(QResizeEvent* e)
+{
+    ui->tableView->resizeRowsToContents();
 }
 
 void TraceWindow::onTableClicked(const QModelIndex &index)
@@ -90,13 +86,19 @@ TraceWindow::~TraceWindow()
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
+    //Увеличиваем скроллбар на каждую строку+1
+    ui->verticalScrollBar->setMaximum(ui->verticalScrollBar->maximum()+1);
+
     int countNumber = traceViewer->rowCount();
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
     QString time = QString::number(trace.traceTime.wHour)+":"
             +QString::number(trace.traceTime.wMinute)+":"
             +QString::number(trace.traceTime.wSecond);
 
-    traceViewer->populateData(QString::number(trace.sequence),trace.trace,time);
+    traceViewer->fillTempList(trace.trace,QString::number(trace.sequence),time);
+
+    //traceViewer->populateData(QString::number(trace.sequence),trace.trace,time);
+
     //ui->tableView->resizeColumnToContents(1);
     //Последняя строка ресайзится по тексту внутри, остальные строки должны принятьь нужную ширину.
     //Нужно будет перепродумать этот момент
@@ -127,7 +129,7 @@ void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
                 +QString::number(trace.traceTime.wMinute)+":"
                 +QString::number(trace.traceTime.wSecond);
 
-        traceViewer->populateData(QString::number(trace.sequence),trace.trace,time);
+        //traceViewer->populateData(QString::number(trace.sequence),trace.trace,time);
 
     }
     emit traceViewer->layoutChanged();
@@ -160,13 +162,21 @@ void TraceWindow::on_expandButton_clicked(bool checked)
 
 TraceViewer::TraceViewer(QObject *parent) : QAbstractTableModel(parent)
 {
+
 }
 
-void TraceViewer::populateData(QString sequence, QString trace, QString time)
+void TraceViewer::populateData(int scrollValue)
 {
-    traceSequence.append(sequence);
-    traceText.append(trace);
-    traceTimer.append(time);
+    //    for(int i =scrollValue; i<scrollValue+50;i++){A
+    traceText.clear();
+    traceSequence.clear();
+    traceTimer.clear();
+
+    for(int i =scrollValue;i<scrollValue+50;i++){
+        traceSequence.append(tempSequence.value(i));
+        traceTimer.append(traceTimer.value(i));
+        traceText.append(tempText.value(i));
+    }
 }
 
 int TraceViewer::rowCount(const QModelIndex &parent) const
@@ -216,6 +226,14 @@ void TraceViewer::initTable()
     traceText.clear();
 }
 
+void TraceViewer::fillTempList(QString text, QString sequence, QString timer)
+{
+    tempSequence.append(sequence);
+    tempTimer.append(timer);
+    tempText.append(text);
+
+}
+
 
 
 void TraceWindow::on_pushButton_clicked()
@@ -237,5 +255,44 @@ void TraceWindow::on_column0_stateChanged(int arg1)
 void TraceWindow::on_Time_stateChanged(int arg1)
 {
     ui->tableView->setColumnHidden(1,!arg1);
+}
+
+
+void TraceWindow::on_verticalScrollBar_valueChanged(int value)
+{
+    traceViewer->populateData(value);
+    emit traceViewer->layoutChanged();
+}
+
+void TraceWindow::InitWindow(){
+    traceViewer = new TraceViewer(this);
+    traceViewer->initTable();
+    ui->tableView->setModel(traceViewer);
+    ui->tableView->hideColumn(0);
+    ui->tableView->horizontalHeader()->hide();
+
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
+    //ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView->setFont(QFont("Courier",8));
+    ui->groupBox_3->setVisible(false);
+    //Коннект по нажатию на ячейку
+    connect(ui->tableView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(onTableClicked(const QModelIndex &)));
+
+    ui->verticalScrollBar->setMaximum(0);
+    ui->tableView->setItemDelegate(new Delegate);
+
+}
+
+void TraceWindow::on_pushButton_2_clicked()
+{
+    this->setStyleSheet("color: white; background-color: rgb(42,43,44)");
+}
+
+
+
+void TraceWindow::on_pushButton_3_clicked()
+{
+    this->setStyleSheet("color: white; background-color: rgb(0,0,0)");
 }
 
