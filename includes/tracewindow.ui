@@ -65,6 +65,9 @@ color: rgb(255, 255, 255);</string>
      <property name="title">
       <string/>
      </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
      <widget class="QPushButton" name="expandButton">
       <property name="geometry">
        <rect>
@@ -136,6 +139,9 @@ color: rgb(255, 255, 255);</string>
      </property>
      <property name="title">
       <string/>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
      <widget class="QLabel" name="wIDStatic">
       <property name="geometry">
@@ -544,6 +550,12 @@ color: rgb(255, 255, 255);</string>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
      <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
@@ -601,7 +613,7 @@ color: rgb(255, 255, 255);</string>
       <string/>
      </property>
      <property name="flat">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <widget class="QCheckBox" name="column0">
       <property name="geometry">
