@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QStyledItemDelegate>
 #include <QColorDialog>
+#include <QWheelEvent>
 
 void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                      const QModelIndex &index) const
@@ -82,12 +83,25 @@ TraceWindow::~TraceWindow()
     delete ui;
 }
 
+//void TraceWindow::wheelEvent(QWheelEvent *event){
+//    QPoint numPixels = event->pixelDelta();
+//    QPoint numDegrees = event->angleDelta() / 8;
 
+//    if (!numPixels.isNull()) {
+//          ui->verticalScrollBar->valueChanged(ui->verticalScrollBar->value()+numPixels.ry());
+//      } else if (!numDegrees.isNull()) {
+//          QPoint numSteps = numDegrees / 15;
+//          ui->verticalScrollBar->valueChanged(ui->verticalScrollBar->value()+numSteps.ry());
+//      }
+
+//      event->accept();
+
+//}
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
     //Увеличиваем скроллбар на каждую строку+1
-    ui->verticalScrollBar->setMaximum(ui->verticalScrollBar->maximum()+1);
+
 
     int countNumber = traceViewer->rowCount();
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
@@ -96,7 +110,13 @@ void TraceWindow::GetTrace(TraceToGUI trace)
             +QString::number(trace.traceTime.wSecond);
 
     traceViewer->fillTempList(trace.trace,QString::number(trace.sequence),time);
+    ui->verticalScrollBar->setMaximum(traceViewer->getTempText().size());
 
+    //Первая инициализация при запуске окна
+    if(ui->verticalScrollBar->value()==0 && traceViewer->getTempText().size()<50){
+        traceViewer->populateData(ui->verticalScrollBar->value());
+        ui->verticalScrollBar->valueChanged(ui->verticalScrollBar->value()+1);
+    }
     //traceViewer->populateData(QString::number(trace.sequence),trace.trace,time);
 
     //ui->tableView->resizeColumnToContents(1);
@@ -148,15 +168,15 @@ void TraceWindow::on_expandButton_clicked(bool checked)
 {
     if(checked==true)
     {
-        ui->groupBox->setMinimumWidth(0);
-        ui->groupBox->setMaximumHeight(0);
+        ui->groupBox->setHidden(true);
         ui->expandButton->setText("<-");
+        ui->tableView->resizeRowsToContents();
     }
     else
     {
-        ui->groupBox->setMinimumWidth(280);
-        ui->groupBox->setMaximumHeight(16777215);
+        ui->groupBox->setHidden(false);
         ui->expandButton->setText("->");
+        ui->tableView->resizeRowsToContents();
     }
 }
 
@@ -174,7 +194,7 @@ void TraceViewer::populateData(int scrollValue)
 
     for(int i =scrollValue;i<scrollValue+50;i++){
         traceSequence.append(tempSequence.value(i));
-        traceTimer.append(traceTimer.value(i));
+        traceTimer.append(tempTimer.value(i));
         traceText.append(tempText.value(i));
     }
 }
@@ -234,6 +254,11 @@ void TraceViewer::fillTempList(QString text, QString sequence, QString timer)
 
 }
 
+const QList<QString> &TraceViewer::getTempText() const
+{
+    return tempText;
+}
+
 
 
 void TraceWindow::on_pushButton_clicked()
@@ -259,8 +284,9 @@ void TraceWindow::on_Time_stateChanged(int arg1)
 
 
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
-{
+{   
     traceViewer->populateData(value);
+    ui->tableView->resizeRowsToContents();
     emit traceViewer->layoutChanged();
 }
 
@@ -281,18 +307,13 @@ void TraceWindow::InitWindow(){
 
     ui->verticalScrollBar->setMaximum(0);
     ui->tableView->setItemDelegate(new Delegate);
+    this->sizePolicy().setRetainSizeWhenHidden(true);
 
 }
 
-void TraceWindow::on_pushButton_2_clicked()
+void TraceWindow::setStyle(QString newStyleSheet)
 {
-    this->setStyleSheet("color: white; background-color: rgb(42,43,44)");
+    setStyleSheet(newStyleSheet);
 }
 
-
-
-void TraceWindow::on_pushButton_3_clicked()
-{
-    this->setStyleSheet("color: white; background-color: rgb(0,0,0)");
-}
 

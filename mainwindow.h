@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include "includes/FileReader/filereader.h"
 #include <QMessageBox>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,11 +29,15 @@ private:
     Ui::MainWindow *ui;
     FileReader *fileReader;
     void InitTraceWindow();
+    QString styleSheet = "color: white; background-color: rgb(0,0,0)";
+    QList<TraceWindow*> traceWindows;
 public slots:
     void GetNewConnection(sockaddr_in client);
     void ChangeClientStatus(sockaddr_in client);
 private slots:
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
+    void on_actionHigh_Contrast_Black_triggered();
+    void on_actionLike_in_QT_triggered();
 };
 #endif // MAINWINDOW_H

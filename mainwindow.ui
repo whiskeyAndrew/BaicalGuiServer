@@ -33,6 +33,9 @@
       <height>24</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="text">
      <string>Open Window</string>
     </property>
@@ -73,11 +76,35 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMain">
+    <property name="title">
+     <string>Main</string>
+    </property>
+    <widget class="QMenu" name="menuThemes">
+     <property name="title">
+      <string>Themes</string>
+     </property>
+     <addaction name="actionHigh_Contrast_Black"/>
+     <addaction name="actionLike_in_QT"/>
+    </widget>
+    <addaction name="menuThemes"/>
+   </widget>
+   <addaction name="menuMain"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen_File">
    <property name="text">
     <string>Open File</string>
+   </property>
+  </action>
+  <action name="actionHigh_Contrast_Black">
+   <property name="text">
+    <string>High Contrast Black</string>
+   </property>
+  </action>
+  <action name="actionLike_in_QT">
+   <property name="text">
+    <string>Like in QT</string>
    </property>
   </action>
  </widget>

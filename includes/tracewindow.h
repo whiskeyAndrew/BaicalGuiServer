@@ -50,6 +50,8 @@ public:
     void fillTempList(QString text, QString sequence, QString timer);
 
 
+    const QList<QString> &getTempText() const;
+
 private:
     QList<QString> tempText;
     QList<QString> tempSequence;
@@ -72,6 +74,8 @@ public:
     explicit TraceWindow(QWidget *parent = nullptr);
     ~TraceWindow();
 
+    void setStyle(QString newStyleSheet);
+
 private:
     QList<QString> traceList;
     QList<QString> sequenceList;
@@ -86,6 +90,9 @@ private:
                                  {5,"CRITICAL"}};
     void resizeEvent(QResizeEvent *e);
     void InitWindow();
+
+    QString styleSheet;
+//    void wheelEvent(QWheelEvent *event);
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
@@ -99,8 +106,7 @@ private slots:
     void on_column0_stateChanged(int arg1);
     void on_Time_stateChanged(int arg1);
     void on_verticalScrollBar_valueChanged(int value);
-    void on_pushButton_2_clicked();
-    void on_pushButton_3_clicked();
+    void on_expandButton_clicked();
 };
 
 #endif // TRACEWINDOW_H
