@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setWindowIcon(QIcon("logo.png"));
     ui->setupUi(this);
-    this->setStyleSheet(styleSheet);
+    //this->setStyleSheet(styleSheet);
 }
 
 MainWindow::~MainWindow()
@@ -91,15 +91,17 @@ void MainWindow::InitTraceWindow()
             //            //Так делать нельзя, надо будет переделать
             launcher->clientsList[i].connectionThread->chunkHandler.setTraceWindow(traceWindow);
             traceWindows.append(traceWindow);
+            traceWindow->setClientName(comboBoxText);
             traceWindow->show();
             traceWindow->setStyle(styleSheet);
+
         }
     }
 }
 
 void MainWindow::on_actionHigh_Contrast_Black_triggered()
 {
-    styleSheet = "color: white; background-color: rgb(0,0,0)";
+    styleSheet = "color: white; background-color: rgb(0,0,0);";
     this->setStyleSheet(styleSheet);
     for(int i = 0;i<traceWindows.size();i++){
         traceWindows.at(i)->setStyle(styleSheet);
@@ -109,9 +111,19 @@ void MainWindow::on_actionHigh_Contrast_Black_triggered()
 
 void MainWindow::on_actionLike_in_QT_triggered()
 {
-    styleSheet = "color: white; background-color: rgb(42,43,44)";
+    styleSheet = "color: white; background-color: rgb(42,43,44);";
     this->setStyleSheet(styleSheet);
     for(int i = 0;i<traceWindows.length();i++){
+        traceWindows.at(i)->setStyle(styleSheet);
+    }
+}
+
+
+void MainWindow::on_actionWhite_triggered()
+{
+    styleSheet = "";
+    this->setStyleSheet(styleSheet);
+    for(int i = 0;i<traceWindows.size();i++){
         traceWindows.at(i)->setStyle(styleSheet);
     }
 }

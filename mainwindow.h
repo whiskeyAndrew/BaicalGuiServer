@@ -29,7 +29,7 @@ private:
     Ui::MainWindow *ui;
     FileReader *fileReader;
     void InitTraceWindow();
-    QString styleSheet = "color: white; background-color: rgb(0,0,0)";
+    QString styleSheet = "";
     QList<TraceWindow*> traceWindows;
 public slots:
     void GetNewConnection(sockaddr_in client);
@@ -39,5 +39,6 @@ private slots:
     void on_pushButton_2_clicked();
     void on_actionHigh_Contrast_Black_triggered();
     void on_actionLike_in_QT_triggered();
+    void on_actionWhite_triggered();
 };
 #endif // MAINWINDOW_H

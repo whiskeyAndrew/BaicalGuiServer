@@ -47,16 +47,25 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
     void initTable();
-    void fillTempList(QString text, QString sequence, QString timer);
+    void fillTempList(QString text, QString sequence, QString timer, tUINT32 wID);
 
+    QMap<tUINT32,tUINT32> needToShowMap;
 
     const QList<QString> &getTempText() const;
 
+    void setTraceWindow(TraceWindow *newTraceWindow);
+
+    void AppendNeedToShow(tUINT32 wID, bool needToShow);
+
 private:
+    TraceWindow *traceWindow;
+    QList<tUINT32> tempId;
     QList<QString> tempText;
     QList<QString> tempSequence;
     QList<QString> tempTimer;
 
+
+    QList<QString> traceId;
     QList<QString> traceText;
     QList<QString> traceSequence;
     QList<QString> traceTimer;
@@ -76,6 +85,10 @@ public:
 
     void setStyle(QString newStyleSheet);
 
+    void setClientName(const QString &newClientName);
+
+    const QMap<tUINT32, bool> &getNeedToShow() const;
+
 private:
     QList<QString> traceList;
     QList<QString> sequenceList;
@@ -90,8 +103,11 @@ private:
                                  {5,"CRITICAL"}};
     void resizeEvent(QResizeEvent *e);
     void InitWindow();
-
+    QString clientName;
     QString styleSheet;
+    QMap<tUINT32,bool> needToShow;
+
+    tUINT32 lastColumnSize = 0;
 //    void wheelEvent(QWheelEvent *event);
 public slots:
     void GetTrace(TraceToGUI trace);
@@ -106,7 +122,8 @@ private slots:
     void on_column0_stateChanged(int arg1);
     void on_Time_stateChanged(int arg1);
     void on_verticalScrollBar_valueChanged(int value);
-    void on_expandButton_clicked();
+    void on_Disable_clicked();
+    void on_infinite_line_stateChanged(int arg1);
 };
 
 #endif // TRACEWINDOW_H

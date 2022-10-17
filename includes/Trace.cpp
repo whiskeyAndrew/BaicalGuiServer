@@ -59,6 +59,7 @@ void Trace::setTraceFormat(tINT8* chunkCursor)
     ReadTraceText(chunkCursor, &uniqueTrace);
 
     uniqueTrace.traceFormat = traceFormat;
+    needToShow.insert(traceFormat.wID,true);
     uniqueTraces.insert(traceFormat.wID,uniqueTrace);
 }
 

@@ -26,24 +26,23 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(0, 0, 0);
-color: rgb(255, 255, 255);</string>
+   <string notr="true"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="sizeConstraint">
     <enum>QLayout::SetMaximumSize</enum>
    </property>
    <property name="leftMargin">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="spacing">
     <number>0</number>
@@ -66,7 +65,7 @@ color: rgb(255, 255, 255);</string>
       <string/>
      </property>
      <property name="flat">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <widget class="QPushButton" name="expandButton">
       <property name="geometry">
@@ -109,6 +108,57 @@ color: rgb(255, 255, 255);</string>
        <string>Columns</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="Disable">
+      <property name="geometry">
+       <rect>
+        <x>670</x>
+        <y>10</y>
+        <width>80</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Disable</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="Autoscroll">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>10</y>
+        <width>78</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>autoscroll</string>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="infinite_line">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>10</y>
+        <width>78</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>infinite line</string>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+     </widget>
     </widget>
    </item>
    <item row="3" column="2" rowspan="2">
@@ -137,11 +187,14 @@ color: rgb(255, 255, 255);</string>
      <property name="contextMenuPolicy">
       <enum>Qt::DefaultContextMenu</enum>
      </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);</string>
+     </property>
      <property name="title">
       <string/>
      </property>
      <property name="flat">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <widget class="QLabel" name="wIDStatic">
       <property name="geometry">
@@ -151,9 +204,6 @@ color: rgb(255, 255, 255);</string>
         <width>49</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>wID</string>
@@ -168,9 +218,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string>Line</string>
       </property>
@@ -183,9 +230,6 @@ color: rgb(255, 255, 255);</string>
         <width>71</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>Args amount</string>
@@ -200,9 +244,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string>ModuleID</string>
       </property>
@@ -215,9 +256,6 @@ color: rgb(255, 255, 255);</string>
         <width>71</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>bProcessor</string>
@@ -232,9 +270,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string>Sequence</string>
       </property>
@@ -247,9 +282,6 @@ color: rgb(255, 255, 255);</string>
         <width>49</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>threadID</string>
@@ -264,9 +296,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string>bLevel</string>
       </property>
@@ -279,9 +308,6 @@ color: rgb(255, 255, 255);</string>
         <width>161</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string/>
@@ -299,9 +325,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string/>
       </property>
@@ -317,9 +340,6 @@ color: rgb(255, 255, 255);</string>
         <width>161</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string/>
@@ -337,9 +357,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string/>
       </property>
@@ -355,9 +372,6 @@ color: rgb(255, 255, 255);</string>
         <width>161</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string/>
@@ -375,9 +389,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string/>
       </property>
@@ -393,9 +404,6 @@ color: rgb(255, 255, 255);</string>
         <width>161</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string/>
@@ -413,9 +421,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string/>
       </property>
@@ -432,9 +437,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string>Trace Text</string>
       </property>
@@ -447,9 +449,6 @@ color: rgb(255, 255, 255);</string>
         <width>61</width>
         <height>16</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string>Trace Dest</string>
@@ -464,9 +463,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string>Process</string>
       </property>
@@ -479,9 +475,6 @@ color: rgb(255, 255, 255);</string>
         <width>191</width>
         <height>81</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
       </property>
       <property name="text">
        <string/>
@@ -508,9 +501,6 @@ color: rgb(255, 255, 255);</string>
         <height>48</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string/>
       </property>
@@ -536,9 +526,6 @@ color: rgb(255, 255, 255);</string>
         <height>16</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(255, 255, 255);</string>
-      </property>
       <property name="text">
        <string/>
       </property>
@@ -548,7 +535,9 @@ color: rgb(255, 255, 255);</string>
    <item row="3" column="0" rowspan="2">
     <widget class="QTableView" name="tableView">
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(0, 0, 0);
+</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -556,16 +545,40 @@ color: rgb(255, 255, 255);</string>
      <property name="frameShadow">
       <enum>QFrame::Plain</enum>
      </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
      <property name="verticalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="autoScroll">
+      <bool>false</bool>
      </property>
      <property name="alternatingRowColors">
       <bool>false</bool>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ContiguousSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="horizontalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
      <property name="showGrid">
       <bool>false</bool>
      </property>
+     <property name="gridStyle">
+      <enum>Qt::NoPen</enum>
+     </property>
      <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>30</number>
+     </attribute>
+     <attribute name="horizontalHeaderHighlightSections">
       <bool>false</bool>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
@@ -574,8 +587,14 @@ color: rgb(255, 255, 255);</string>
      <attribute name="verticalHeaderCascadingSectionResizes">
       <bool>false</bool>
      </attribute>
+     <attribute name="verticalHeaderMinimumSectionSize">
+      <number>30</number>
+     </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
       <number>30</number>
+     </attribute>
+     <attribute name="verticalHeaderHighlightSections">
+      <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderStretchLastSection">
       <bool>false</bool>
@@ -585,6 +604,9 @@ color: rgb(255, 255, 255);</string>
    <item row="3" column="1" rowspan="2">
     <widget class="QScrollBar" name="verticalScrollBar">
      <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
       <number>0</number>
      </property>
      <property name="value">
@@ -613,7 +635,7 @@ color: rgb(255, 255, 255);</string>
       <string/>
      </property>
      <property name="flat">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <widget class="QCheckBox" name="column0">
       <property name="geometry">
