@@ -8,7 +8,7 @@
 
 #include <QItemDelegate>
 #include <QPainter>
-
+#include "tracerowslist.h"
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -88,7 +88,6 @@ public:
     void setClientName(const QString &newClientName);
 
     const QMap<tUINT32, bool> &getNeedToShow() const;
-
 private:
     QList<QString> traceList;
     QList<QString> sequenceList;
@@ -108,7 +107,11 @@ private:
     QMap<tUINT32,bool> needToShow;
 
     tUINT32 lastColumnSize = 0;
-//    void wheelEvent(QWheelEvent *event);
+    //    void wheelEvent(QWheelEvent *event);
+    void mousePressEvent(QMouseEvent *eventPress);
+    void wheelEvent(QWheelEvent *event);
+    bool eventFilter(QObject *object, QEvent *event);
+    TraceRowsList *rawTraces;
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
@@ -116,6 +119,7 @@ public slots:
 
     void onTableClicked(const QModelIndex &index);
 
+    void traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state);
 private slots:
     void on_expandButton_clicked(bool checked);
     void on_pushButton_clicked();
@@ -124,6 +128,7 @@ private slots:
     void on_verticalScrollBar_valueChanged(int value);
     void on_Disable_clicked();
     void on_infinite_line_stateChanged(int arg1);
+    void on_UniqueRows_clicked();
 };
 
 #endif // TRACEWINDOW_H

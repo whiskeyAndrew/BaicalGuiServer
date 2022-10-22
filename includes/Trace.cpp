@@ -61,6 +61,7 @@ void Trace::setTraceFormat(tINT8* chunkCursor)
     uniqueTrace.traceFormat = traceFormat;
     needToShow.insert(traceFormat.wID,true);
     uniqueTraces.insert(traceFormat.wID,uniqueTrace);
+
 }
 
 template<typename ... Args>

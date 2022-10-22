@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
         includes/FileReader/filereader.h includes/FileReader/filereader.cpp
         includes/FileReader/filechunkshandler.h includes/FileReader/filechunkshandler.cpp
         includes/tracebackupwriter.h includes/tracebackupwriter.cpp
+        includes/tracerowslist.h includes/tracerowslist.cpp includes/tracerowslist.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

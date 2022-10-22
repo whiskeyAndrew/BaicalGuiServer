@@ -10,6 +10,12 @@
     <height>537</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
@@ -157,6 +163,19 @@
       </property>
       <property name="checked">
        <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="UniqueRows">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>10</y>
+        <width>80</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Disable</string>
       </property>
      </widget>
     </widget>
@@ -535,7 +554,7 @@
    <item row="3" column="0" rowspan="2">
     <widget class="QTableView" name="tableView">
      <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255);
+      <string notr="true">color: rgb(103, 103, 103);
 background-color: rgb(0, 0, 0);
 </string>
      </property>
@@ -563,6 +582,9 @@ background-color: rgb(0, 0, 0);
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
      <property name="horizontalScrollMode">
       <enum>QAbstractItemView::ScrollPerPixel</enum>
      </property>
@@ -572,10 +594,16 @@ background-color: rgb(0, 0, 0);
      <property name="gridStyle">
       <enum>Qt::NoPen</enum>
      </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
      <attribute name="horizontalHeaderCascadingSectionResizes">
       <bool>false</bool>
      </attribute>
      <attribute name="horizontalHeaderMinimumSectionSize">
+      <number>10</number>
+     </attribute>
+     <attribute name="horizontalHeaderDefaultSectionSize">
       <number>30</number>
      </attribute>
      <attribute name="horizontalHeaderHighlightSections">
@@ -584,14 +612,17 @@ background-color: rgb(0, 0, 0);
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>false</bool>
      </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
      <attribute name="verticalHeaderCascadingSectionResizes">
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderMinimumSectionSize">
-      <number>30</number>
+      <number>10</number>
      </attribute>
      <attribute name="verticalHeaderDefaultSectionSize">
-      <number>30</number>
+      <number>15</number>
      </attribute>
      <attribute name="verticalHeaderHighlightSections">
       <bool>false</bool>

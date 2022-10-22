@@ -25,6 +25,7 @@ void TraceWindow::resizeEvent(QResizeEvent* e)
 
 void TraceWindow::onTableClicked(const QModelIndex &index)
 {
+    ui->Autoscroll->setChecked(false);
     if (index.isValid()) {
         tUINT32 row = index.row();
         //Нулвая колонна скрыта, нам нужен из нее секвенс
@@ -62,17 +63,27 @@ TraceWindow::~TraceWindow()
     delete ui;
 }
 
+void TraceWindow::mousePressEvent(QMouseEvent *eventPress){
+    ui->tableView->clearSelection();
+    ui->tableView->clearFocus();
+}
+
+
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
     //Увеличиваем скроллбар на каждую строку+1
     int countNumber = traceViewer->rowCount();
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
+    UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
+
     QString time = QString::number(trace.traceTime.wHour)+":"
             +QString::number(trace.traceTime.wMinute)+":"
             +QString::number(trace.traceTime.wSecond);
 
     if(!traceViewer->needToShowMap.contains(traceData.wID)){
+
         traceViewer->needToShowMap.insert(traceData.wID,2);
+        rawTraces->AppendList(traceFormat.traceLineData,2,traceData.wID);
     }
     traceViewer->fillTempList(trace.trace,QString::number(trace.sequence),time,traceData.wID);
     ui->verticalScrollBar->setMaximum(traceViewer->getTempText().size()-50);
@@ -155,20 +166,24 @@ void TraceViewer::populateData(int scrollValue)
 
     int lastCell = scrollValue+50;
     for(int i =scrollValue;i<lastCell;i++){
-        tINT32 boolean = needToShowMap.value(tempId.value(i));
-        //Сраный QMap рандомно возвращает нули, не понял пока почему, пока не трогаю и оставил
-        //На возвращение 1 и 2
+        tINT32 boolean = needToShowMap.value(tempId.value(i),-1);
+        //enum CheckState {
+        //    Unchecked - 0, не надо показывать
+        //    PartiallyChecked, - не используется
+        //    Checked - 2, надо показать
+        //}
+
         //Возможно std map будет работать нормально
-        if(boolean==1){
+        if(boolean==0){
             lastCell++;
             continue;
         }
+
         traceText.append(tempText.value(i));
         traceSequence.append(tempSequence.value(i));
         traceTimer.append(tempTimer.value(i));
         //traceId.append(QString::number(tempId.value(i)));
     }
-    std::cout<<std::endl;
 }
 
 int TraceViewer::rowCount(const QModelIndex &parent) const
@@ -187,7 +202,7 @@ QVariant TraceViewer::data(const QModelIndex &index, int role) const
 {
     if (index.column() == 2 && role == Qt::TextAlignmentRole) {
         return Qt::AlignTop;
-       }
+    }
     if (!index.isValid() || role != Qt::DisplayRole) {
         return QVariant();
     }
@@ -227,7 +242,6 @@ void TraceViewer::fillTempList(QString text, QString sequence, QString timer,tUI
     tempTimer.append(timer);
     tempText.append(text);
     tempId.append(wID);
-
 }
 
 void TraceViewer::AppendNeedToShow(tUINT32 wID, bool needToShow)
@@ -273,7 +287,6 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {   
     traceViewer->populateData(value);
 
-
     if(ui->infinite_line->isChecked()){
         ui->tableView->resizeColumnToContents(2);
     }
@@ -283,7 +296,9 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
             ui->tableView->resizeRowToContents(i);
         }
     }
-        emit traceViewer->layoutChanged();
+    ui->tableView->clearSelection();
+    ui->tableView->clearFocus();
+    emit traceViewer->layoutChanged();
 }
 
 void TraceWindow::InitWindow(){
@@ -305,6 +320,12 @@ void TraceWindow::InitWindow(){
     ui->verticalScrollBar->setMaximum(0);
     ui->tableView->setItemDelegate(new Delegate);
     //ui->tableView->setColumnHidden(3,true);
+    ui->tableView->viewport()->installEventFilter(this);
+
+    rawTraces = new TraceRowsList();
+    rawTraces->setTraceWindow(this);
+    rawTraces->createConnections();
+
 
 }
 
@@ -330,17 +351,38 @@ void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                      const QModelIndex &index) const
 {
     QString txt = index.model()->data( index, Qt::DisplayRole ).toString();
-    painter->setPen(Qt::white);
-
+    painter->setPen(QColor(200,200,200));
     painter->drawText(option.rect,txt);
-
     QStyleOptionViewItem itemOption(option);
-
     itemOption.palette.setColor(QPalette::Highlight, Qt::black);  // set your color here
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &itemOption, painter, nullptr);
 
 }
 
+void TraceWindow::wheelEvent(QWheelEvent *event)
+{
+    QPoint numDegrees = event->angleDelta() / 8*(-1);
+    ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+numDegrees.y()/15);
+    event->accept();
+    ui->tableView->setViewport(ui->tableView->viewport());
+    ui->Autoscroll->setChecked(false);
+}
+
+bool TraceWindow::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == ui->tableView->viewport() && event->type() == QEvent::Wheel) {
+        return true;
+    }
+    return false;
+}
+
+void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state){
+    traceViewer->needToShowMap.insert(wID,state);
+
+    traceViewer->populateData(ui->verticalScrollBar->value());
+    ui->tableView->resizeRowsToContents();
+    emit traceViewer->layoutChanged();
+}
 
 void TraceWindow::on_Disable_clicked()
 {
@@ -348,7 +390,7 @@ void TraceWindow::on_Disable_clicked()
         return;
     }
     else {
-        traceViewer->needToShowMap.insert(ui->wID->text().toInt(),1);
+        traceViewer->needToShowMap.insert(ui->wID->text().toInt(),0);
     }
     traceViewer->populateData(ui->verticalScrollBar->value());
     emit traceViewer->layoutChanged();
@@ -358,5 +400,11 @@ void TraceWindow::on_Disable_clicked()
 void TraceWindow::on_infinite_line_stateChanged(int arg1)
 {
     on_verticalScrollBar_valueChanged(ui->verticalScrollBar->value());
+}
+
+
+void TraceWindow::on_UniqueRows_clicked()
+{
+    rawTraces->show();
 }
 
