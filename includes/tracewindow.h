@@ -56,6 +56,7 @@ public:
     void setTraceWindow(TraceWindow *newTraceWindow);
 
     void AppendNeedToShow(tUINT32 wID, bool needToShow);
+    void UpdateViewer();
 
 private:
     TraceWindow *traceWindow;
@@ -88,6 +89,10 @@ public:
     void setClientName(const QString &newClientName);
 
     const QMap<tUINT32, bool> &getNeedToShow() const;
+    void ResizeOneRow(tUINT32 rowId);
+    tUINT64 getTimer() const;
+    void setTimer(tUINT64 newTimer);
+    QTableView *tableView;
 private:
     QList<QString> traceList;
     QList<QString> sequenceList;
@@ -112,6 +117,8 @@ private:
     void wheelEvent(QWheelEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
     TraceRowsList *rawTraces;
+
+    tUINT64 timer = 0;
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
@@ -120,7 +127,10 @@ public slots:
     void onTableClicked(const QModelIndex &index);
 
     void traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state);
+
+
 private slots:
+    void AutoscrollStateChanged(tUINT32 stat);
     void on_expandButton_clicked(bool checked);
     void on_pushButton_clicked();
     void on_column0_stateChanged(int arg1);

@@ -4,7 +4,6 @@
 #include <QStyledItemDelegate>
 #include <QColorDialog>
 #include <QWheelEvent>
-#include <QTimer>
 
 
 
@@ -15,14 +14,21 @@ TraceWindow::TraceWindow(QWidget *parent) :
     this->setWindowFlags(Qt::Window);
     ui->setupUi(this);
     InitWindow();
+    connect(ui->Autoscroll,&QCheckBox::stateChanged,this,&TraceWindow::AutoscrollStateChanged);
+    connect(ui->infinite_line,&QCheckBox::stateChanged,this,&TraceWindow::AutoscrollStateChanged);
 
 }
 
 void TraceWindow::resizeEvent(QResizeEvent* e)
 {
-    ui->tableView->resizeRowsToContents();
+    for(int i =0;i<50;i++){
+        ui->tableView->resizeRowToContents(i);
+    }
 }
 
+void TraceWindow::AutoscrollStateChanged(tUINT32 stat){
+    ui->tableView->resizeRowsToContents();
+}
 void TraceWindow::onTableClicked(const QModelIndex &index)
 {
     ui->Autoscroll->setChecked(false);
@@ -72,7 +78,6 @@ void TraceWindow::mousePressEvent(QMouseEvent *eventPress){
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
     //Увеличиваем скроллбар на каждую строку+1
-    int countNumber = traceViewer->rowCount();
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
     UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
 
@@ -85,6 +90,7 @@ void TraceWindow::GetTrace(TraceToGUI trace)
         traceViewer->needToShowMap.insert(traceData.wID,2);
         rawTraces->AppendList(traceFormat.traceLineData,2,traceData.wID);
     }
+
     traceViewer->fillTempList(trace.trace,QString::number(trace.sequence),time,traceData.wID);
     ui->verticalScrollBar->setMaximum(traceViewer->getTempText().size()-50);
     ui->verticalScrollBar->setMinimum(0);
@@ -97,7 +103,8 @@ void TraceWindow::GetTrace(TraceToGUI trace)
         //По логике вещей она обновляет ВСЮ таблицу при каждом инсерте, что делать, конечно, неправильно
         //Я в этом не уверен, но 100к данных обновляющихся выдерживает, надо оставить надолго и проверить потом как оно
         //Себя поведет
-        emit traceViewer->layoutChanged();
+        traceViewer->UpdateViewer();
+
     }
     //Последняя строка ресайзится по тексту внутри, остальные строки должны принятьь нужную ширину.
     //Нужно будет перепродумать этот момент
@@ -123,7 +130,7 @@ void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
                 +QString::number(trace.traceTime.wMinute)+":"
                 +QString::number(trace.traceTime.wSecond);
     }
-    emit traceViewer->layoutChanged();
+    traceViewer->UpdateViewer();
     this->show();
     ui->tableView->resizeRowsToContents();
 }
@@ -134,6 +141,9 @@ void TraceWindow::SetTraceAsObject(Trace *trace)
     traceThread = trace;
 }
 
+void TraceWindow::ResizeOneRow(tUINT32 rowId){
+    ui->tableView->resizeRowToContents(rowId);
+}
 
 void TraceWindow::on_expandButton_clicked(bool checked)
 {
@@ -156,34 +166,39 @@ TraceViewer::TraceViewer(QObject *parent) : QAbstractTableModel(parent)
 
 }
 
+void TraceViewer::UpdateViewer(){
+    emit layoutChanged();
+}
+
 void TraceViewer::populateData(int scrollValue)
 {
-    //scrollValue+=50;
-    traceText.clear();
-    traceSequence.clear();
-    traceTimer.clear();
-    traceId.clear();
 
-    int lastCell = scrollValue+50;
-    for(int i =scrollValue;i<lastCell;i++){
-        tINT32 boolean = needToShowMap.value(tempId.value(i),-1);
-        //enum CheckState {
-        //    Unchecked - 0, не надо показывать
-        //    PartiallyChecked, - не используется
-        //    Checked - 2, надо показать
-        //}
+    tUINT32 counter = 50;
+    tUINT32 listCursor = scrollValue+50;
 
-        //Возможно std map будет работать нормально
+    while(true){
+        if(counter>50){
+            break;
+        }
+
+        tINT32 boolean = needToShowMap.value(tempId.value(listCursor),-1);
         if(boolean==0){
-            lastCell++;
+            listCursor--;
             continue;
         }
 
-        traceText.append(tempText.value(i));
-        traceSequence.append(tempSequence.value(i));
-        traceTimer.append(tempTimer.value(i));
-        //traceId.append(QString::number(tempId.value(i)));
+        traceText.replace(counter,tempText.value(listCursor));
+        traceSequence.replace(counter,tempSequence.value(listCursor));
+        traceTimer.replace(counter,tempTimer.value(listCursor));
+
+        counter--;
+        listCursor--;
     }
+
+    std::reverse(traceText.begin(),traceText.end());
+    std::reverse(traceSequence.begin(),traceSequence.end());
+    std::reverse(traceTimer.begin(),traceTimer.end());
+    std::cout<<counter<<std::endl;
 }
 
 int TraceViewer::rowCount(const QModelIndex &parent) const
@@ -232,8 +247,11 @@ QVariant TraceViewer::headerData(int section, Qt::Orientation orientation, int r
 
 void TraceViewer::initTable()
 {
-    traceSequence.clear();
-    traceText.clear();
+    for(int i =0;i<50;i++){
+        traceSequence.append(0);
+        traceText.append(0);
+        traceTimer.append(0);
+    }
 }
 
 void TraceViewer::fillTempList(QString text, QString sequence, QString timer,tUINT32 wID)
@@ -298,7 +316,7 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
     }
     ui->tableView->clearSelection();
     ui->tableView->clearFocus();
-    emit traceViewer->layoutChanged();
+    traceViewer->UpdateViewer();
 }
 
 void TraceWindow::InitWindow(){
@@ -308,6 +326,7 @@ void TraceWindow::InitWindow(){
     ui->tableView->setModel(traceViewer);
     ui->tableView->hideColumn(0);
     ui->tableView->horizontalHeader()->hide();
+    traceViewer->initTable();
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
@@ -364,6 +383,7 @@ void TraceWindow::wheelEvent(QWheelEvent *event)
     QPoint numDegrees = event->angleDelta() / 8*(-1);
     ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+numDegrees.y()/15);
     event->accept();
+    ui->tableView->resizeRowsToContents();
     ui->tableView->setViewport(ui->tableView->viewport());
     ui->Autoscroll->setChecked(false);
 }
@@ -376,12 +396,22 @@ bool TraceWindow::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
+tUINT64 TraceWindow::getTimer() const
+{
+    return timer;
+}
+
+void TraceWindow::setTimer(tUINT64 newTimer)
+{
+    timer = newTimer;
+}
+
 void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state){
     traceViewer->needToShowMap.insert(wID,state);
 
     traceViewer->populateData(ui->verticalScrollBar->value());
     ui->tableView->resizeRowsToContents();
-    emit traceViewer->layoutChanged();
+    traceViewer->UpdateViewer();
 }
 
 void TraceWindow::on_Disable_clicked()
@@ -393,7 +423,7 @@ void TraceWindow::on_Disable_clicked()
         traceViewer->needToShowMap.insert(ui->wID->text().toInt(),0);
     }
     traceViewer->populateData(ui->verticalScrollBar->value());
-    emit traceViewer->layoutChanged();
+    traceViewer->UpdateViewer();
 }
 
 
