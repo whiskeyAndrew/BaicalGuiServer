@@ -1,4 +1,56 @@
 #include "Trace.h"
+#include "qdatetime.h"
+#include <ctime>
+#include "time.h"
+static __attribute__ ((unused)) void UnpackLocalTime(tUINT64  i_qwTime,
+                                                     tUINT32 &o_rYear,
+                                                     tUINT32 &o_rMonth,
+                                                     tUINT32 &o_rDay,
+                                                     tUINT32 &o_rHour,
+                                                     tUINT32 &o_rMinutes,
+                                                     tUINT32 &o_rSeconds,
+                                                     tUINT32 &o_rMilliseconds,
+                                                     tUINT32 &o_rMicroseconds,
+                                                     tUINT32 &o_rNanoseconds
+                                                    )
+{
+    tUINT32 l_dwReminder = i_qwTime % TIME_MLSC_100NS; //micro & 100xNanoseconds
+    tUINT32 l_dwNano     = i_qwTime % 10;
+    tUINT32 l_dwMicro    = l_dwReminder / 10;
+
+    i_qwTime -= l_dwReminder;
+
+    tUINT32 l_dwMilli = (i_qwTime % TIME_SEC_100NS) / TIME_MLSC_100NS;
+
+    i_qwTime -= TIME_OFFSET_1601_1970;
+
+    time_t  l_llTime = i_qwTime / TIME_SEC_100NS;
+    tm     *l_pTime  = localtime(&l_llTime);
+    if (l_pTime)
+    {
+        o_rYear         = 1900 + l_pTime->tm_year;
+        o_rMonth        = 1 + l_pTime->tm_mon;
+        o_rDay          = l_pTime->tm_mday;
+        o_rHour         = l_pTime->tm_hour;
+        o_rMinutes      = l_pTime->tm_min;
+        o_rSeconds      = l_pTime->tm_sec;
+        o_rMilliseconds = l_dwMilli;
+        o_rMicroseconds = l_dwMicro;
+        o_rNanoseconds  = l_dwNano;
+    }
+    else
+    {
+        o_rYear         = 0;
+        o_rMonth        = 0;
+        o_rDay          = 0;
+        o_rHour         = 0;
+        o_rMinutes      = 0;
+        o_rSeconds      = 0;
+        o_rMilliseconds = l_dwMilli;
+        o_rMicroseconds = l_dwMicro;
+        o_rNanoseconds  = l_dwNano;
+    }
+}//UnpackLocalTime
 
 TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
 {
@@ -33,9 +85,9 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
     argsValue.clear();
     traceToShow.insert(traceData.dwSequence,traceData);
 
-    traceTime = CountTraceTime();
+    //traceTime = CountTraceTime();
 
-    return {traceTextToGUI,traceData.dwSequence,traceTime};
+    return {traceTextToGUI,traceData.dwSequence,CountTraceTime()};
 }
 
 void Trace::setTraceFormat(tINT8* chunkCursor)
@@ -120,10 +172,24 @@ QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> arg
     return QString::fromStdString(toOutput);
 }
 
-SYSTEMTIME Trace::CountTraceTime(){
+p7Time Trace::CountTraceTime(){
+    tUINT64 l_dbTimeDiff = (((tDOUBLE)traceData.qwTimer - (tDOUBLE)traceInfo.qwTimer_Value) * (tDOUBLE)TIME_SEC_100NS) / (tDOUBLE)traceInfo.qwTimer_Frequency;
+    tUINT64 m_qwStreamTime = (tUINT64)traceInfo.dwTime_Lo + (((tUINT64)traceInfo.dwTime_Hi) << 32);
+
+    p7Time time;
+    UnpackLocalTime(m_qwStreamTime+l_dbTimeDiff,
+                    time.dwYear,
+                    time.dwMonth,
+                    time.dwDay,
+                    time.dwHour,
+                    time.dwMinutes,
+                    time.dwSeconds,
+                    time.dwMilliseconds,
+                    time.dwMicroseconds,
+                    time.dwNanoseconds);
     FILETIME creationTime;
     SYSTEMTIME toSystemTime;
-    tUINT32 tempTime = (traceData.qwTimer-traceInfo.qwTimer_Value)/traceInfo.qwTimer_Frequency;
+    tUINT32 tempTime = (traceData.qwTimer-traceInfo.qwTimer_Value);/*traceInfo.qwTimer_Frequency*1000;*/
 
     creationTime.dwLowDateTime = traceInfo.dwTime_Lo+tempTime;
     creationTime.dwHighDateTime = traceInfo.dwTime_Hi;
@@ -131,7 +197,7 @@ SYSTEMTIME Trace::CountTraceTime(){
     FileTimeToSystemTime(&creationTime,&toSystemTime);
     SystemTimeToTzSpecificLocalTime(NULL,&toSystemTime,&toSystemTime);
 
-   return toSystemTime;
+   return time;
 }
 
 void Trace::setTraceUTC(tINT8* chunkCursor)

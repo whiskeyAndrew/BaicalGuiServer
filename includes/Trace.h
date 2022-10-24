@@ -8,8 +8,30 @@
 
 #include <memory>
 
+#define TIME_OFFSET_1601_1970                            (116444736000000000ULL)
+
+#define TIME_HRS_100NS                                            36000000000ull
+#define TIME_MIN_100NS                                              600000000ull
+#define TIME_SEC_100NS                                               10000000ull
+#define TIME_MLSC_100NS                                                 10000ull
+#define TIME_MCSC_100NS                                                    10ull
+
+#define TIME_ZONE_AVALIABLE
+
 
 #define SIZE_OF_ARG_END 5
+
+struct p7Time{
+    tUINT32        dwYear;            //year
+    tUINT32        dwMonth;           //month
+    tUINT32        dwDay;             //day
+    tUINT32        dwHour;            //hour
+    tUINT32        dwMinutes;         //minute
+    tUINT32        dwSeconds;         //seconds
+    tUINT32        dwMilliseconds;    //milliseconds
+    tUINT32        dwMicroseconds;    //microseconds
+    tUINT32        dwNanoseconds;     //nanoseconds
+};
 
 class TraceWindow;
 #pragma pack(push,2)
@@ -83,7 +105,7 @@ struct TraceToGUI
 {
     QString trace;
     tUINT32 sequence;
-    SYSTEMTIME traceTime;
+    p7Time traceTime;
 };
 
 struct UniqueTraceData
@@ -123,7 +145,7 @@ private:
 
     QString FormatVector(QString str, int argsCount, std::vector<tUINT64> args);
     tINT8* ReadTraceText(tINT8* chunkCursor, UniqueTraceData *trace);
-    SYSTEMTIME CountTraceTime();
+    p7Time CountTraceTime();
 public:
     //TraceLineData traceDataPerLine;
     sP7Trace_Data GetTraceData(tUINT32 sequence);

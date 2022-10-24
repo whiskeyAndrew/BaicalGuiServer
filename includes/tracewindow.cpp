@@ -16,18 +16,33 @@ TraceWindow::TraceWindow(QWidget *parent) :
     InitWindow();
     connect(ui->Autoscroll,&QCheckBox::stateChanged,this,&TraceWindow::AutoscrollStateChanged);
     connect(ui->infinite_line,&QCheckBox::stateChanged,this,&TraceWindow::AutoscrollStateChanged);
-
+    connect(ui->verticalScrollBar,&QScrollBar::sliderPressed,this,&TraceWindow::OffAutoscroll);
+    connect(ui->verticalScrollBar,&QScrollBar::sliderReleased,this,&TraceWindow::VerticalSliderReleased);
 }
 
-void TraceWindow::resizeEvent(QResizeEvent* e)
-{
-    for(int i =0;i<50;i++){
-        ui->tableView->resizeRowToContents(i);
+void TraceWindow::resizeEvent(QResizeEvent* e){
+    if(ui->Autoscroll->isChecked()==false){
+        for(int i =50;i>0;i--){
+            ui->tableView->resizeRowToContents(i);
+        }
+    }
+}
+
+void TraceWindow::OffAutoscroll(){
+    ui->Autoscroll->setChecked(false);
+}
+
+void TraceWindow::VerticalSliderReleased(){
+    if((ui->verticalScrollBar->value() > ui->verticalScrollBar->maximum() - ui->verticalScrollBar->maximum()*0.05)
+            &&(ui->Autoscroll->isChecked()==false)){
+        ui->Autoscroll->setChecked(true);
     }
 }
 
 void TraceWindow::AutoscrollStateChanged(tUINT32 stat){
-    ui->tableView->resizeRowsToContents();
+    if(ui->infinite_line->isChecked()==false){
+        ui->tableView->resizeRowsToContents();
+    }
 }
 void TraceWindow::onTableClicked(const QModelIndex &index)
 {
@@ -81,9 +96,9 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
     UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
 
-    QString time = QString::number(trace.traceTime.wHour)+":"
-            +QString::number(trace.traceTime.wMinute)+":"
-            +QString::number(trace.traceTime.wSecond);
+    QString time = QString::number(trace.traceTime.dwHour)+":"
+            +QString::number(trace.traceTime.dwMinutes)+":"
+            +QString::number(trace.traceTime.dwSeconds);
 
     if(!traceViewer->needToShowMap.contains(traceData.wID)){
 
@@ -105,6 +120,10 @@ void TraceWindow::GetTrace(TraceToGUI trace)
         //Себя поведет
         traceViewer->UpdateViewer();
 
+        if(ui->infinite_line->isChecked()==false){
+            ui->tableView->resizeRowsToContents();
+        }
+
     }
     //Последняя строка ресайзится по тексту внутри, остальные строки должны принятьь нужную ширину.
     //Нужно будет перепродумать этот момент
@@ -112,9 +131,8 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     if(ui->Autoscroll->isChecked()){
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->maximum());
     }
-
     ui->tableView->setColumnWidth(0,80);
-    ui->tableView->setColumnWidth(1,80);
+    ui->tableView->setColumnWidth(1,70);
 }
 
 
@@ -126,9 +144,9 @@ void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
         TraceToGUI trace = data.front();
         data.pop();
 
-        QString time = QString::number(trace.traceTime.wHour)+":"
-                +QString::number(trace.traceTime.wMinute)+":"
-                +QString::number(trace.traceTime.wSecond);
+        //        QString time = QString::number(trace.traceTime.wHour)+":"
+        //                +QString::number(trace.traceTime.wMinute)+":"
+        //                +QString::number(trace.traceTime.wSecond);
     }
     traceViewer->UpdateViewer();
     this->show();
@@ -151,12 +169,14 @@ void TraceWindow::on_expandButton_clicked(bool checked)
     {
         ui->groupBox->setHidden(true);
         ui->expandButton->setText("<-");
-        ui->tableView->resizeRowsToContents();
     }
     else
     {
         ui->groupBox->setHidden(false);
         ui->expandButton->setText("->");
+    }
+
+    if(ui->infinite_line->isChecked()==false){
         ui->tableView->resizeRowsToContents();
     }
 }
@@ -167,7 +187,18 @@ TraceViewer::TraceViewer(QObject *parent) : QAbstractTableModel(parent)
 }
 
 void TraceViewer::UpdateViewer(){
+    //    if(initTime==0){
+    //        initTime = GetTickCount();
+    //    }
+    //    else if(initTime+2500>GetTickCount()){
+    //        initTime = 0;
     emit layoutChanged();
+    //        if(traceText.length()>50){
+    //            for(int i = 50;i>0;i++){
+    //                traceWindow->tableView->resizeRowToContents(i);
+    //            }
+    //        }
+    //    }
 }
 
 void TraceViewer::populateData(int scrollValue)
@@ -186,8 +217,18 @@ void TraceViewer::populateData(int scrollValue)
             listCursor--;
             continue;
         }
+        QString text = tempText.value(listCursor);
 
-        traceText.replace(counter,tempText.value(listCursor));
+        //перенос каждые 80 символов чтоб красиво
+        if(traceWindow->infiniteLine->isChecked()==false){
+            for(int i = 0;i<text.length();i+=80){
+                if(i!=0){
+                    text.insert(i,'\n');
+                }
+            }
+        }
+
+        traceText.replace(counter,text);
         traceSequence.replace(counter,tempSequence.value(listCursor));
         traceTimer.replace(counter,tempTimer.value(listCursor));
 
@@ -198,7 +239,6 @@ void TraceViewer::populateData(int scrollValue)
     std::reverse(traceText.begin(),traceText.end());
     std::reverse(traceSequence.begin(),traceSequence.end());
     std::reverse(traceTimer.begin(),traceTimer.end());
-    std::cout<<counter<<std::endl;
 }
 
 int TraceViewer::rowCount(const QModelIndex &parent) const
@@ -302,21 +342,22 @@ void TraceWindow::on_Time_stateChanged(int arg1)
 
 
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
-{   
+{       
     traceViewer->populateData(value);
+    traceViewer->UpdateViewer();
 
     if(ui->infinite_line->isChecked()){
         ui->tableView->resizeColumnToContents(2);
     }
     else {
         ui->tableView->setColumnWidth(2,lastColumnSize);
-        for(int i = value;i<value+50;i++){
+        for(int i = 20;i>=0;i--){
             ui->tableView->resizeRowToContents(i);
         }
     }
     ui->tableView->clearSelection();
     ui->tableView->clearFocus();
-    traceViewer->UpdateViewer();
+
 }
 
 void TraceWindow::InitWindow(){
@@ -345,7 +386,7 @@ void TraceWindow::InitWindow(){
     rawTraces->setTraceWindow(this);
     rawTraces->createConnections();
 
-
+    infiniteLine = ui->infinite_line;
 }
 
 const QMap<tUINT32, bool> &TraceWindow::getNeedToShow() const
@@ -372,6 +413,7 @@ void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     QString txt = index.model()->data( index, Qt::DisplayRole ).toString();
     painter->setPen(QColor(200,200,200));
     painter->drawText(option.rect,txt);
+
     QStyleOptionViewItem itemOption(option);
     itemOption.palette.setColor(QPalette::Highlight, Qt::black);  // set your color here
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &itemOption, painter, nullptr);
@@ -383,7 +425,9 @@ void TraceWindow::wheelEvent(QWheelEvent *event)
     QPoint numDegrees = event->angleDelta() / 8*(-1);
     ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+numDegrees.y()/15);
     event->accept();
-    ui->tableView->resizeRowsToContents();
+    if(ui->infinite_line->isChecked()==false){
+        ui->tableView->resizeRowsToContents();
+    }
     ui->tableView->setViewport(ui->tableView->viewport());
     ui->Autoscroll->setChecked(false);
 }
@@ -410,8 +454,8 @@ void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state){
     traceViewer->needToShowMap.insert(wID,state);
 
     traceViewer->populateData(ui->verticalScrollBar->value());
-    ui->tableView->resizeRowsToContents();
     traceViewer->UpdateViewer();
+    ui->tableView->resizeRowsToContents();
 }
 
 void TraceWindow::on_Disable_clicked()
@@ -424,12 +468,23 @@ void TraceWindow::on_Disable_clicked()
     }
     traceViewer->populateData(ui->verticalScrollBar->value());
     traceViewer->UpdateViewer();
+
+    if(ui->infinite_line->isChecked()==false){
+        ui->tableView->resizeRowsToContents();
+    }
 }
 
 
 void TraceWindow::on_infinite_line_stateChanged(int arg1)
 {
     on_verticalScrollBar_valueChanged(ui->verticalScrollBar->value());
+
+    if(arg1==Qt::Checked){
+        for(int i =0;i<50;i++){
+            ui->tableView->setRowHeight(i,20);
+        }
+    }
+
 }
 
 

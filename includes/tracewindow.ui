@@ -175,7 +175,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Disable</string>
+       <string>Show rows</string>
       </property>
      </widget>
     </widget>

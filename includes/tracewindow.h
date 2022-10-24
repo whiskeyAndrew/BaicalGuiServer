@@ -8,6 +8,7 @@
 
 #include <QItemDelegate>
 #include <QPainter>
+#include "qcheckbox.h"
 #include "tracerowslist.h"
 enum eP7Trace_Level
 {
@@ -71,6 +72,7 @@ private:
     QList<QString> traceSequence;
     QList<QString> traceTimer;
 
+    tUINT64 initTime = 0;
 };
 
 namespace Ui {
@@ -93,6 +95,8 @@ public:
     tUINT64 getTimer() const;
     void setTimer(tUINT64 newTimer);
     QTableView *tableView;
+    QCheckBox *infiniteLine;
+
 private:
     QList<QString> traceList;
     QList<QString> sequenceList;
@@ -139,6 +143,8 @@ private slots:
     void on_Disable_clicked();
     void on_infinite_line_stateChanged(int arg1);
     void on_UniqueRows_clicked();
+    void OffAutoscroll();
+    void VerticalSliderReleased();
 };
 
 #endif // TRACEWINDOW_H
