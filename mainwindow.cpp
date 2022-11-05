@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     setWindowIcon(QIcon("logo.png"));
     ui->setupUi(this);
-    //this->setStyleSheet(styleSheet);
 }
 
 MainWindow::~MainWindow()

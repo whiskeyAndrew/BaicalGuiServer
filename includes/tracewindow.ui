@@ -53,6 +53,22 @@
    <property name="spacing">
     <number>0</number>
    </property>
+   <item row="3" column="1" rowspan="2">
+    <widget class="QScrollBar" name="verticalScrollBar">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="sizePolicy">
@@ -551,22 +567,6 @@
      </widget>
     </widget>
    </item>
-   <item row="3" column="1" rowspan="2">
-    <widget class="QScrollBar" name="verticalScrollBar">
-     <property name="minimum">
-      <number>0</number>
-     </property>
-     <property name="maximum">
-      <number>0</number>
-     </property>
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="sizePolicy">
@@ -625,12 +625,18 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="QPlainTextEdit" name="plainTextEdit">
+    <widget class="QTextBrowser" name="textBrowser">
      <property name="styleSheet">
       <string notr="true">color: rgb(192, 192, 192);</string>
      </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
      <property name="textInteractionFlags">
-      <set>Qt::TextSelectableByMouse</set>
+      <set>Qt::LinksAccessibleByMouse|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>
