@@ -100,7 +100,12 @@ bool Launcher::FindClientInArray()
                 && (ntohs(client.sin_port) == ntohs(clientsList[i].clientIp.sin_port)))
         {
             packetHandler = clientsList[i].connectionThread;
+
             packetHandler->AppendQueue(packetBuffer,bytesIn);
+
+            packetHandler->syncThreads.tryLock(-1);
+            packetHandler->waitCondition.wakeAll();
+            packetHandler->syncThreads.unlock();
 
             return true;
         }

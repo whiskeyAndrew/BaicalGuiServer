@@ -85,19 +85,19 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     //sP7Trace_Data traceData = traceThread->GetTraceData(trace.sequence);
     //    UniqueTraceData traceFormat = traceThread->GetTraceFormat(traceData.wID);
 
-//    QString time = QString::number(trace.traceTime.dwHour)+":"
-//            +QString::number(trace.traceTime.dwMinutes)+":"
-//            +QString::number(trace.traceTime.dwSeconds);
+    //    QString time = QString::number(trace.traceTime.dwHour)+":"
+    //            +QString::number(trace.traceTime.dwMinutes)+":"
+    //            +QString::number(trace.traceTime.dwSeconds);
     ui->verticalScrollBar->setMaximum(guiData.size()-1);
     guiData.insert(ui->verticalScrollBar->maximum(),{trace.sequence,trace.trace});
 
     if(guiData.size()<LINES_TO_SHOW){
         GUIData g = guiData.value(ui->verticalScrollBar->maximum());
 
-            ui->textBrowser->append(traceLinkStart+
-                                    QString::number(g.sequence)+traceLinkMiddle+
-                                    QString::number(g.sequence)+" "+g.trace+traceLinkEnd);
-            firstInitCounter++;
+        ui->textBrowser->append(traceLinkStart+
+                                QString::number(g.sequence)+traceLinkMiddle+
+                                QString::number(g.sequence)+" "+g.trace+traceLinkEnd);
+        firstInitCounter++;
     }
 
     if(ui->Autoscroll->isChecked()){

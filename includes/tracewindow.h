@@ -41,6 +41,7 @@ public:
     void setClientName(const QString &newClientName);
 
 private:
+    time_t autoscrollTime = 0;
     QString traceLinkStart = "<a href=\"";
     QString traceLinkMiddle = "\"style=\"color:#C0C0C0\"style=\"text-decoration:none\">";
     QString traceLinkEnd = "</a>";

@@ -1,5 +1,6 @@
 #include "chunkhandler.h"
 
+
 void ChunkHandler::run()
 {
 
@@ -220,9 +221,10 @@ void ChunkHandler::GetChunkFromQueue()
         return;
     }
 
-    while(chunks.empty())
-    {
-        continue;
+    if(chunks.empty()){
+        syncThreads.lock();
+        waitCondition.wait(&syncThreads);
+        syncThreads.unlock();
     }
 
     mutex.tryLock(-1);
@@ -232,11 +234,6 @@ void ChunkHandler::GetChunkFromQueue()
     chunkBuffer = chunkVector.data();
     chunkCursor = chunkBuffer;
     chunkEnd = chunkBuffer+chunkVector.size();
-
-    if(getWindowOpened())
-    {
-        emit SendQueueSize(chunks.size());
-    }
 }
 
 bool ChunkHandler::getWindowOpened(){

@@ -118,7 +118,7 @@ private:
     sH_Ext outPacketExt;
     sH_Ext_Srv_Info outPacketUDPInfo;
 
-    void GetPacketFromQueue();
+    bool GetPacketFromQueue();
     bool HandleHelloPacket();
     bool HandleReportPacket();
     bool HandlePingPacket();
@@ -129,6 +129,9 @@ private:
     ~PacketHandler();
 
 public:
+    QMutex syncThreads;
+    QWaitCondition waitCondition;
+
     PacketHandler();
     ChunkHandler chunkHandler;    
     std::queue<std::vector<tINT8>> packetQueue;

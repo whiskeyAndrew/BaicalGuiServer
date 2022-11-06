@@ -43,7 +43,7 @@ private:
     //Клиент
     sockaddr_in serverHint;
     sockaddr_in client;
-    static const tUINT32 clientListSize = 12;
+    static const tUINT32 clientListSize = 30;
 
     PacketHandler *packetHandler;
 
