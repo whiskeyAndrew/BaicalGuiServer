@@ -14,6 +14,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+class PacketHandler;
 class Launcher;
 class MainWindow : public QMainWindow
 {
@@ -24,15 +25,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     Launcher* launcher;
+    QList<TraceWindow*> traceWindows;
 private:
+    tUINT32 connectionsCounter = 0;
     QString comboBoxText;
     Ui::MainWindow *ui;
     FileReader *fileReader;
     void InitTraceWindow();
     QString styleSheet = "";
-    QList<TraceWindow*> traceWindows;
+
 public slots:
-    void GetNewConnection(sockaddr_in client);
+    void GetNewConnection(sockaddr_in client, PacketHandler *packetHandler);
     void ChangeClientStatus(sockaddr_in client);
 private slots:
     void on_pushButton_clicked();

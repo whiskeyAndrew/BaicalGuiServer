@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
     qRegisterMetaType<tUINT32>("tUINT32");
     qRegisterMetaType<TraceToGUI>("TraceToGUI");
     qRegisterMetaType<std::queue<TraceToGUI>>("std::queue<TraceToGUI>");
-
+    qRegisterMetaType<UniqueTraceData>("UniqueTraceData");
+    qRegisterMetaType<PacketHandler*>("PacketHandler*");
     QApplication a(argc, argv);
 
     MainWindow mainWindow;

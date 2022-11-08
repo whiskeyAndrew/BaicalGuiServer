@@ -11,7 +11,7 @@ void PacketHandler::run()
     while(true)
     {
         //Берем из очереди буфер
-
+        lastPacketTime = GetCurrentTime();
         if(!GetPacketFromQueue()){
             continue;
         }
@@ -43,27 +43,21 @@ void PacketHandler::setSocketIn(SOCKET newSocketIn)
     socketIn = newSocketIn;
 }
 
+time_t PacketHandler::getLastPacketTime()
+{
+    return lastPacketTime;
+}
+
 bool PacketHandler::GetPacketFromQueue()
 {
     //Ждем пока очередь чем-то заполнится, НА ВСЯКИЙ СЛУЧАЙ
 
-//    int time = GetTickCount();
 
     if(packetQueue.empty()){
         syncThreads.tryLock(-1);
         waitCondition.wait(&syncThreads);
         syncThreads.unlock();
     }
-
-//    while(packetQueue.empty())
-//    {
-//        //Перед заходом в цикл берем момент захода в метод, если проход 5 секунд, а пакетов не появляется - значит соединение разорвано
-//        if(GetTickCount()>time+5000){
-//            std::cout<<"Lost connection"<<std::endl;
-//            emit ConnectionLost(client);
-//            delete this;
-//        }
-//    }
 
     //Сюда пришли если очередь не пуста, откусываем и начинаем обработку
     if(packetQueue.empty()){
@@ -165,9 +159,6 @@ newChunk:
         return false;
 
     bytesLeft-=chunkSize;
-
-    //std::cout<<chunkSize<<std::endl;
-
     while(chunkSize<dataVector.size())
     {
         for(int i =0;i<chunkSize;i++)
@@ -179,9 +170,7 @@ newChunk:
         //Передаем в очередь наш вектор
         chunkHandler.AppendChunksQueue(bufferVector);
 
-        chunkHandler.syncThreads.tryLock(-1);
-        chunkHandler.waitCondition.wakeAll();
-        chunkHandler.syncThreads.unlock();
+        chunkHandler.waitCondition.wakeOne();
 
         bufferVector.clear();//На всякий случай
         chunkSize=0;

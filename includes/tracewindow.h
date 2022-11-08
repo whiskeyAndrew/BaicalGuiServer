@@ -24,6 +24,7 @@ enum eP7Trace_Level
 struct GUIData{
     tUINT32 sequence;
     QString trace;
+    tUINT32 wID;
 };
 
 namespace Ui {
@@ -39,6 +40,8 @@ public:
 
     void setStyle(QString newStyleSheet);
     void setClientName(const QString &newClientName);
+
+    TraceRowsList *getTraceRowsList();
 
 private:
     time_t autoscrollTime = 0;
@@ -74,7 +77,7 @@ private:
     void InitWindow();
 
     bool eventFilter(QObject *object, QEvent *event);
-    TraceRowsList *rawTraces;
+    TraceRowsList *traceRowsList;
 
     tUINT32 firstInitCounter = 0;
 public slots:
@@ -82,7 +85,7 @@ public slots:
     void SetTraceAsObject(Trace *trace);
     void GetTraceFromFile(std::queue<TraceToGUI>);
     void traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state);
-
+    void AddUniqueTrace(UniqueTraceData trace);
 
 private slots:
     void AutoscrollStateChanged(tUINT32 stat);

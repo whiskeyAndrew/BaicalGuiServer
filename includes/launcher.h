@@ -13,6 +13,8 @@
 #include <QVector>
 #include <QMap>
 #include <QMutex>
+#include <QList>
+
 //std::vector<char> vectorChunk;
 //std::queue<std::vector<char>> queueChunks;
 struct ClientData
@@ -21,6 +23,7 @@ struct ClientData
     PacketHandler *connectionThread;
 };
 
+class ConnectionTimeoutChecker;
 class Launcher:public QThread
 {
     Q_OBJECT
@@ -54,8 +57,10 @@ private:
     //Буффер пакета
     tUINT8 packetBuffer[65280]; //65280 - максимальный размер входящих даных
 
+    ConnectionTimeoutChecker *connectionTimeoutChecker;
 public:
-    ClientData clientsList[clientListSize];
+    QList<ClientData> *clientsList;
+    //ClientData clientsList[clientListSize];
     Launcher()
     {
 
@@ -70,7 +75,7 @@ public:
     }
 
 signals:
-    void SendNewConnection(sockaddr_in newConnection);
+    void SendNewConnection(sockaddr_in newConnection,PacketHandler *packetHandler);
     void ChangeClientStatus(sockaddr_in client);
 
 public slots:

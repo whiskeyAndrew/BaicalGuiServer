@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 #include "includes/chunkhandler.h"
 #include "includes/launcher.h"
+#include "includes/packethandler.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,19 +18,20 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::GetNewConnection(sockaddr_in newConnection)
+void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packetHandler)
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     comboBoxText = inet_ntoa(newConnection.sin_addr);
     comboBoxText.push_back(":"+QString::number(ntohs(newConnection.sin_port)));
     comboBoxText.push_front("🟢");
     // ui->comboBox->addItem(QString::number(ntohs(newConnection.sin_port)));
-    ui->comboBox->addItem(comboBoxText);
-    bool checkBoxState = ui->checkBox->isChecked();
-    if(checkBoxState==true)
-    {
-        InitTraceWindow();
-    }
+
+    ui->comboBox->addItem(comboBoxText,connectionsCounter++);
+
+    InitTraceWindow();
+
+    packetHandler->start();
+
 }
 
 void MainWindow::ChangeClientStatus(sockaddr_in client)
@@ -48,7 +50,8 @@ void MainWindow::ChangeClientStatus(sockaddr_in client)
 
 void MainWindow::on_pushButton_clicked()
 {
-    InitTraceWindow();
+    tUINT32 index = ui->comboBox->currentData().toString().toInt();
+    traceWindows.at(index)->show();
 }
 
 
@@ -76,26 +79,20 @@ void MainWindow::InitTraceWindow()
         mbx.exec();
         return;
     }
-    tempComboBoxText.remove(0,tempComboBoxText.length()-5);
 
-    //Нужно написать сеттер для chunkHandlera, который получает traceWindow и выставялет windowOpened как true
-    //Чтобы было по красоте
-    for(int i = 0;i<10;i++)
-    {
-        //Ищем клиента из комбобокса
-        if(tempComboBoxText==QString::number(ntohs(launcher->clientsList[i].clientIp.sin_port)))
-        {
-            traceWindow = new TraceWindow();
 
-            //            //Так делать нельзя, надо будет переделать
-            launcher->clientsList[i].connectionThread->chunkHandler.setTraceWindow(traceWindow);
-            traceWindows.append(traceWindow);
-            traceWindow->setClientName(comboBoxText);
-            traceWindow->show();
-            traceWindow->setStyle(styleSheet);
+    traceWindow = new TraceWindow();
+    traceWindows.append(traceWindow);
+    tUINT32 index = traceWindows.size()-1;
+    launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);
 
-        }
+    traceWindow->setClientName(comboBoxText);
+
+    if(ui->checkBox->isChecked()){
+        traceWindow->show();
     }
+
+    traceWindow->setStyle(styleSheet);
 }
 
 void MainWindow::on_actionHigh_Contrast_Black_triggered()

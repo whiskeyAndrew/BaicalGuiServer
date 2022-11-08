@@ -94,7 +94,7 @@ private:
     tUINT32 structSize;
 
     bool ProcessChunk();
-
+    bool connectionEstablished = false;
 public:
     ChunkHandler();
 
@@ -105,7 +105,7 @@ public:
     void InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
     bool AppendChunksQueue(std::vector<tINT8> newVector);
     bool getWindowOpened();
-    void GetChunkFromQueue();
+    bool GetChunkFromQueue();
     void setTraceWindow(TraceWindow *newTraceWindow);
     void setFileEnded(bool fileEnded);
 
@@ -113,6 +113,7 @@ public:
 
 signals:
     void SendTrace(TraceToGUI trace);
+    void SendUniqueTrace(UniqueTraceData trace);
     void SendTraceAsObject(Trace* trace);
     void SendQueueSize(tUINT32 size);
 };

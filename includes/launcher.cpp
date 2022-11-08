@@ -1,12 +1,17 @@
 #include "launcher.h"
-
+#include "connectiontimeoutchecker.h"
 void Launcher::run()
 {
     connect(this,&Launcher::SendNewConnection,mainWindow,&MainWindow::GetNewConnection);
     connect(this,&Launcher::ChangeClientStatus,mainWindow,&MainWindow::ChangeClientStatus);
+
+    clientsList = new QList<ClientData>;
+    connectionTimeoutChecker = new ConnectionTimeoutChecker(clientsList,mainWindow);
+    connectionTimeoutChecker->start();
+
     std::cout<<"Launcher:: Started socket init"<<std::endl;
     //чистим при старте список клиентов
-    memset(clientsList,0,sizeof(clientsList));
+    //memset(clientsList,0,sizeof(clientsList));
     //Инициализируем сокет
     while(!socketStarted)
     {
@@ -94,39 +99,26 @@ bool Launcher::FindClientInArray()
 {
     //Везде накидываем нтохсы потому что так правильно будет выводить пришедший порт
     //Ищем клиента в массиве клиентов, если он есть
-    for(int i =0;i<clientListSize;i++)
+    for(int i =0;i<clientsList->size();i++)
     {
-        if((ntohs(client.sin_addr.S_un.S_addr) == ntohs(clientsList[i].clientIp.sin_addr.S_un.S_addr))
-                && (ntohs(client.sin_port) == ntohs(clientsList[i].clientIp.sin_port)))
+        if((ntohs(client.sin_addr.S_un.S_addr) == ntohs(clientsList->at(i).clientIp.sin_addr.S_un.S_addr))
+                && (ntohs(client.sin_port) == ntohs(clientsList->at(i).clientIp.sin_port)))
         {
-            packetHandler = clientsList[i].connectionThread;
-
+            packetHandler = clientsList->at(i).connectionThread;
             packetHandler->AppendQueue(packetBuffer,bytesIn);
-
-            packetHandler->syncThreads.tryLock(-1);
-            packetHandler->waitCondition.wakeAll();
-            packetHandler->syncThreads.unlock();
+            packetHandler->waitCondition.wakeOne();
 
             return true;
         }
     }
 
     //Не нашли клиента, делаем нового
-    //Пока что проверяем на наличие пустых слотов, потом перезапись сдаелам
-    for(int i =0;i<clientListSize;i++)
-    {
-        if(clientsList[i].clientIp.sin_addr.S_un.S_addr == 0)
-        {
-            clientsList[i].clientIp = client;
-            PacketHandler *packetHandler = new PacketHandler(client,this);
-            packetHandler->AppendQueue(packetBuffer,bytesIn);
-            packetHandler->setSocketIn(socketIn);
-            clientsList[i].connectionThread = packetHandler;
+    PacketHandler *packetHandler = new PacketHandler(client,this);
+    clientsList->append({client,packetHandler});
 
-            clientsList[i].connectionThread->start();
-            emit SendNewConnection(client);
-            return true;
-        }
-    }
-    return false;
+    emit SendNewConnection(client,packetHandler);
+    packetHandler->AppendQueue(packetBuffer,bytesIn);
+    packetHandler->setSocketIn(socketIn);
+    return true;
+
 }
