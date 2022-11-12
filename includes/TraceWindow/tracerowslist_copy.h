@@ -1,5 +1,5 @@
-#ifndef TRACEROWSLIST_H
-#define TRACEROWSLIST_H
+#ifndef TRACEROWSLIST_COPY_H
+#define TRACEROWSLIST_COPY_H
 
 #include "includes/GTypes.h"
 #include <QWidget>
@@ -22,18 +22,21 @@ public:
     }
     explicit TraceRowsList(QWidget *parent = nullptr);
     ~TraceRowsList();
-    void AppendList(QString text, tUINT32 needToShow,tUINT32 wID);
+
 
     void itemChanged(QListWidgetItem * item);
 
     void createConnections();
     TraceWindow *getTraceWindow() const;
     void setTraceWindow(TraceWindow *newTraceWindow);
-
+    void AppendList(QString text, tUINT32 wID);
+    QMap<tUINT32,tUINT32> needToShow;
+    void DisableElement(tUINT32 wID);
 private:
     Ui::TraceRowsList *ui;
 signals:
     void SendRowWID(tUINT32 wID, tUINT32 state);
+
 };
 
-#endif // TRACEROWSLIST_H
+#endif // TRACEROWSLIST_COPY_H

@@ -83,6 +83,7 @@ class PacketHandler:public QThread
 {
     Q_OBJECT
 private:
+    time_t lastPacketTime;
     Launcher* launcher;
 
     SOCKET socketIn;
@@ -118,19 +119,22 @@ private:
     sH_Ext outPacketExt;
     sH_Ext_Srv_Info outPacketUDPInfo;
 
-    void GetPacketFromQueue();
+    bool GetPacketFromQueue();
     bool HandleHelloPacket();
     bool HandleReportPacket();
     bool HandlePingPacket();
     bool PacketProcessing();
 
     tUINT32 GetPacketType(sH_Packet_Header pckHdr);
-
     ~PacketHandler();
+    void run();
 
 public:
+    QMutex syncThreads;
+    QWaitCondition waitCondition;
+
     PacketHandler();
-    ChunkHandler chunkHandler;    
+    ChunkHandler chunkHandler;
     std::queue<std::vector<tINT8>> packetQueue;
     std::vector<tINT8> tempVector;
 
@@ -145,9 +149,11 @@ public:
     //Вызываем чтобы заполнять очередь внутри потока пакетами
     void AppendQueue(tUINT8* bufferPointer, tUINT32 bufferSize);
 
-    void run();
+
     void setSocketIn(SOCKET newSocketIn);
     bool InitData();
+
+    time_t getLastPacketTime();
 
 signals:
     void ConnectionLost(sockaddr_in client);

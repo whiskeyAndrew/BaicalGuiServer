@@ -53,6 +53,22 @@
    <property name="spacing">
     <number>0</number>
    </property>
+   <item row="3" column="1" rowspan="2">
+    <widget class="QScrollBar" name="verticalScrollBar">
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="sizePolicy">
@@ -115,6 +131,9 @@
       </property>
      </widget>
      <widget class="QPushButton" name="Disable">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>670</x>
@@ -165,7 +184,7 @@
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="UniqueRows">
+     <widget class="QPushButton" name="WindowSettings">
       <property name="geometry">
        <rect>
         <x>580</x>
@@ -175,7 +194,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Show rows</string>
+       <string>Config</string>
       </property>
      </widget>
     </widget>
@@ -551,103 +570,6 @@
      </widget>
     </widget>
    </item>
-   <item row="3" column="0" rowspan="2">
-    <widget class="QTableView" name="tableView">
-     <property name="styleSheet">
-      <string notr="true">color: rgb(103, 103, 103);
-background-color: rgb(0, 0, 0);
-</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="lineWidth">
-      <number>0</number>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="autoScroll">
-      <bool>false</bool>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>false</bool>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::ContiguousSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="verticalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
-     </property>
-     <property name="horizontalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
-     </property>
-     <property name="showGrid">
-      <bool>false</bool>
-     </property>
-     <property name="gridStyle">
-      <enum>Qt::NoPen</enum>
-     </property>
-     <attribute name="horizontalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="horizontalHeaderCascadingSectionResizes">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="horizontalHeaderMinimumSectionSize">
-      <number>10</number>
-     </attribute>
-     <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>30</number>
-     </attribute>
-     <attribute name="horizontalHeaderHighlightSections">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderCascadingSectionResizes">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderMinimumSectionSize">
-      <number>10</number>
-     </attribute>
-     <attribute name="verticalHeaderDefaultSectionSize">
-      <number>15</number>
-     </attribute>
-     <attribute name="verticalHeaderHighlightSections">
-      <bool>false</bool>
-     </attribute>
-     <attribute name="verticalHeaderStretchLastSection">
-      <bool>false</bool>
-     </attribute>
-    </widget>
-   </item>
-   <item row="3" column="1" rowspan="2">
-    <widget class="QScrollBar" name="verticalScrollBar">
-     <property name="minimum">
-      <number>0</number>
-     </property>
-     <property name="maximum">
-      <number>0</number>
-     </property>
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="sizePolicy">
@@ -703,6 +625,22 @@ background-color: rgb(0, 0, 0);
        <bool>true</bool>
       </property>
      </widget>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QTextBrowser" name="textBrowser">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(192, 192, 192);</string>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse</set>
+     </property>
     </widget>
    </item>
   </layout>

@@ -106,6 +106,8 @@ struct TraceToGUI
     QString trace;
     tUINT32 sequence;
     p7Time traceTime;
+    tUINT32 wID;
+    tUINT32 bLevel;
 };
 
 struct UniqueTraceData
@@ -156,7 +158,7 @@ public:
     void setTraceThreadStart(tINT8* chunkCursor);
     void setTraceModule(tINT8* chunkCursor);
     void setTraceThreadStop(tINT8* chunkCursor);
-    void setTraceFormat(tINT8* chunkCursor);
+    UniqueTraceData setTraceFormat(tINT8* chunkCursor);
 
     TraceToGUI setTraceData(tINT8* chunkCursor);
 

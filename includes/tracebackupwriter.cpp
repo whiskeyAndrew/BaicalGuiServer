@@ -53,6 +53,7 @@ void TraceBackupWriter::writeChunk(tINT8 *chunk, tUINT32 size)
 
     file.write(data,chunkSize);
     file.flush();
+    file.close();
     free(data);
 }
 

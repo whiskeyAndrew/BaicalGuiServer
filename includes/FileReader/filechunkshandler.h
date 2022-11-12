@@ -1,7 +1,7 @@
 #ifndef FILECHUNKSHANDLER_H
 #define FILECHUNKSHANDLER_H
 #include <QThread>
-#include "../tracewindow.h"
+#include "../TraceWindow/tracewindow.h"
 #include "filereader.h"
 #include <queue>
 #include <QMutex>

@@ -11,7 +11,10 @@ void PacketHandler::run()
     while(true)
     {
         //Берем из очереди буфер
-        GetPacketFromQueue();
+        lastPacketTime = GetCurrentTime();
+        if(!GetPacketFromQueue()){
+            continue;
+        }
         //Обрабатываем
         if(!PacketProcessing())
         {
@@ -40,23 +43,26 @@ void PacketHandler::setSocketIn(SOCKET newSocketIn)
     socketIn = newSocketIn;
 }
 
-void PacketHandler::GetPacketFromQueue()
+time_t PacketHandler::getLastPacketTime()
+{
+    return lastPacketTime;
+}
+
+bool PacketHandler::GetPacketFromQueue()
 {
     //Ждем пока очередь чем-то заполнится, НА ВСЯКИЙ СЛУЧАЙ
 
-    int time = GetTickCount();
 
-    while(packetQueue.empty())
-    {
-        //Перед заходом в цикл берем момент захода в метод, если проход 5 секунд, а пакетов не появляется - значит соединение разорвано
-        if(GetTickCount()>time+5000){
-            std::cout<<"Lost connection"<<std::endl;
-            emit ConnectionLost(client);
-            delete this;
-        }
+    if(packetQueue.empty()){
+        syncThreads.tryLock(-1);
+        waitCondition.wait(&syncThreads);
+        syncThreads.unlock();
     }
 
     //Сюда пришли если очередь не пуста, откусываем и начинаем обработку
+    if(packetQueue.empty()){
+        return false;
+    }
     mutex.tryLock(-1);
     tempVector = packetQueue.front();
     packetQueue.pop();
@@ -66,6 +72,7 @@ void PacketHandler::GetPacketFromQueue()
     packetBuffer = (tUINT8*)malloc(packetSize);
     memcpy(packetBuffer,tempVector.data(),packetSize);
     packetCursor = packetBuffer;
+    return true;
 }
 
 bool PacketHandler::PacketProcessing()
@@ -152,9 +159,6 @@ newChunk:
         return false;
 
     bytesLeft-=chunkSize;
-
-    //std::cout<<chunkSize<<std::endl;
-
     while(chunkSize<dataVector.size())
     {
         for(int i =0;i<chunkSize;i++)
@@ -165,6 +169,9 @@ newChunk:
 
         //Передаем в очередь наш вектор
         chunkHandler.AppendChunksQueue(bufferVector);
+
+        chunkHandler.waitCondition.wakeOne();
+
         bufferVector.clear();//На всякий случай
         chunkSize=0;
 
@@ -200,8 +207,8 @@ bool PacketHandler::HandleHelloPacket()
     }
 
     chunkHandler.InitBackupWriter(packetHello.dwProcess_ID,
-                     packetHello.dwProcess_Start_Time_Hi,
-                     packetHello.dwProcess_Start_Time_Lo);
+                                  packetHello.dwProcess_Start_Time_Hi,
+                                  packetHello.dwProcess_Start_Time_Lo);
 
     counterPacketsFromServer++;
     outPacketHeader.dwID = counterPacketsFromServer;

@@ -1,5 +1,6 @@
 #include "chunkhandler.h"
 
+
 void ChunkHandler::run()
 {
 
@@ -9,7 +10,10 @@ void ChunkHandler::run()
 
     while((!chunks.empty()) || (fileEnded == false))
     {
-        GetChunkFromQueue();
+
+        if(!GetChunkFromQueue()){
+            continue;
+        }
         ProcessChunk();
     }
     this->quit();
@@ -126,7 +130,14 @@ bool ChunkHandler::ProcessChunk()
             case EP7TRACE_TYPE_DESC:
             {
                 //Уникальный трейс
-                trace.setTraceFormat(chunkCursor);
+                UniqueTraceData uTrace = trace.setTraceFormat(chunkCursor);
+
+                //По какой-то причине инициализация соединений происходит позже, чем начинается обработка данных. Пока временный костыль
+                if(!connectionEstablished){
+                    connect(this,&ChunkHandler::SendUniqueTrace,traceWindow,&TraceWindow::AddUniqueTrace);
+                    connectionEstablished = true;
+                }
+                emit SendUniqueTrace(uTrace);
                 chunkCursor = chunkCursor+structSize;
                 break;
             }
@@ -194,6 +205,7 @@ ChunkHandler::ChunkHandler()
 
 void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
 {
+    //Происходит позже чем обработка данных, исправить позже
     traceWindow = newTraceWindow;
     connect(this, &ChunkHandler::SendTrace,
             traceWindow, &TraceWindow::GetTrace);
@@ -213,16 +225,21 @@ bool ChunkHandler::AppendChunksQueue(std::vector<tINT8> newVector)
     mutex.unlock();
 }
 
-void ChunkHandler::GetChunkFromQueue()
+bool ChunkHandler::GetChunkFromQueue()
 {
     if(fileEnded==true && chunks.empty())
     {
-        return;
+        return true;
     }
 
-    while(chunks.empty())
-    {
-        continue;
+    if(chunks.empty()){
+        syncThreads.lock();
+        waitCondition.wait(&syncThreads);
+        syncThreads.unlock();
+    }
+
+    if(chunks.empty()){
+        return false;
     }
 
     mutex.tryLock(-1);
@@ -232,11 +249,7 @@ void ChunkHandler::GetChunkFromQueue()
     chunkBuffer = chunkVector.data();
     chunkCursor = chunkBuffer;
     chunkEnd = chunkBuffer+chunkVector.size();
-
-    if(getWindowOpened())
-    {
-        emit SendQueueSize(chunks.size());
-    }
+    return true;
 }
 
 bool ChunkHandler::getWindowOpened(){

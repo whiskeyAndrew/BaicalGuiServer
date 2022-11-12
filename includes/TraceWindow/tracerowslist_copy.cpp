@@ -22,16 +22,27 @@ TraceRowsList::~TraceRowsList(){
     delete ui;
 }
 
-void TraceRowsList::AppendList(QString text, tUINT32 needToShow,tUINT32 wID){
+void TraceRowsList::AppendList(QString text,tUINT32 wID){
     ui->listWidget->addItem(text);
     QListWidgetItem *listItem = ui->listWidget->item(ui->listWidget->count()-1);
     listItem->setData(Qt::ToolTipRole,wID);
     listItem->setCheckState(Qt::Checked);
+    needToShow.insert(wID,Qt::Checked);
 }
 
+void TraceRowsList::DisableElement(tUINT32 wID){
+    needToShow.insert(wID,Qt::Unchecked);
+    for(int i =0;i<ui->listWidget->count();i++){
+        if(ui->listWidget->item(i)->data(Qt::ToolTipRole)==wID){
+            ui->listWidget->item(i)->setCheckState(Qt::Unchecked);
+            break;
+        }
+    }
+}
 void TraceRowsList::itemChanged(QListWidgetItem * item){
     tUINT32 wID = item->data(Qt::ToolTipRole).toInt();
     tUINT32 state = item->checkState();
+    needToShow.insert(wID,state);
     emit SendRowWID(wID,state);
 
 }

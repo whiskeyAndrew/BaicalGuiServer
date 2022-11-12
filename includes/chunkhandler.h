@@ -6,8 +6,9 @@
 #include "GTypes.h"
 #include <QMutex>
 #include "Trace.h"
-#include "tracewindow.h"
+#include "TraceWindow/tracewindow.h"
 #include "tracebackupwriter.h"
+#include <QWaitCondition>
 
 #define P7_EXTENSION_TYPE_BITS_COUNT                                         (5)
 #define P7_EXTENSION_SUB_TYPE_BITS_COUNT                                     (5)
@@ -67,6 +68,8 @@ class ChunkHandler : public QThread
 {
     Q_OBJECT
 private:
+
+
     Trace trace;
     bool windowOpened = false;
     bool needBackup = true;
@@ -77,7 +80,7 @@ private:
     QMutex mutex;
     void run();
 
-    std::queue<std::vector<tINT8>> chunks;
+
     std::vector<tINT8> chunkVector;
 
     tINT8* chunkBuffer;
@@ -91,14 +94,18 @@ private:
     tUINT32 structSize;
 
     bool ProcessChunk();
-
+    bool connectionEstablished = false;
 public:
     ChunkHandler();
+
+    QWaitCondition waitCondition;
+    QMutex syncThreads;
+    std::queue<std::vector<tINT8>> chunks;
 
     void InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
     bool AppendChunksQueue(std::vector<tINT8> newVector);
     bool getWindowOpened();
-    void GetChunkFromQueue();
+    bool GetChunkFromQueue();
     void setTraceWindow(TraceWindow *newTraceWindow);
     void setFileEnded(bool fileEnded);
 
@@ -106,6 +113,7 @@ public:
 
 signals:
     void SendTrace(TraceToGUI trace);
+    void SendUniqueTrace(UniqueTraceData trace);
     void SendTraceAsObject(Trace* trace);
     void SendQueueSize(tUINT32 size);
 };

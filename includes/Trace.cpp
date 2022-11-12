@@ -87,10 +87,10 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
 
     //traceTime = CountTraceTime();
 
-    return {traceTextToGUI,traceData.dwSequence,CountTraceTime()};
+    return {traceTextToGUI,traceData.dwSequence,CountTraceTime(),uniqueTrace.traceFormat.wID,traceData.bLevel};
 }
 
-void Trace::setTraceFormat(tINT8* chunkCursor)
+UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)
 {
     UniqueTraceData uniqueTrace;
     //Уникальный трейс
@@ -110,10 +110,11 @@ void Trace::setTraceFormat(tINT8* chunkCursor)
 
     ReadTraceText(chunkCursor, &uniqueTrace);
 
+    //перепроверить че это за строка такая
     uniqueTrace.traceFormat = traceFormat;
-    needToShow.insert(traceFormat.wID,true);
-    uniqueTraces.insert(traceFormat.wID,uniqueTrace);
 
+    uniqueTraces.insert(traceFormat.wID,uniqueTrace);
+    return uniqueTrace;
 }
 
 template<typename ... Args>
