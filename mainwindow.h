@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include "winsock2.h"
 #include <iostream>
-#include "includes/tracewindow.h"
+#include "includes/TraceWindow/tracewindow.h"
 #include <QFileDialog>
 #include "includes/FileReader/filereader.h"
 #include <QMessageBox>

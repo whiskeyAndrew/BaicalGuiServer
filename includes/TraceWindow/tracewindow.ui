@@ -184,7 +184,7 @@
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="UniqueRows">
+     <widget class="QPushButton" name="WindowSettings">
       <property name="geometry">
        <rect>
         <x>580</x>
@@ -194,7 +194,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Show rows</string>
+       <string>Config</string>
       </property>
      </widget>
     </widget>

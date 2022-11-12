@@ -87,7 +87,7 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
 
     //traceTime = CountTraceTime();
 
-    return {traceTextToGUI,traceData.dwSequence,CountTraceTime(),uniqueTrace.traceFormat.wID};
+    return {traceTextToGUI,traceData.dwSequence,CountTraceTime(),uniqueTrace.traceFormat.wID,traceData.bLevel};
 }
 
 UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)

@@ -6,7 +6,7 @@
 #include "GTypes.h"
 #include <QMutex>
 #include "Trace.h"
-#include "tracewindow.h"
+#include "TraceWindow/tracewindow.h"
 #include "tracebackupwriter.h"
 #include <QWaitCondition>
 

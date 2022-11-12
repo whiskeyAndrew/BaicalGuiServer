@@ -1,13 +1,14 @@
 #ifndef TRACEWINDOW_H
 #define TRACEWINDOW_H
 
-#include "Trace.h"
+#include "../Trace.h"
 #include <QWidget>
 #include <queue>
 #include "qcheckbox.h"
-#include "tracerowslist.h"
 #include <QWheelEvent>
 #include <QTextCursor>
+#include <QDialog>
+#include "tracewindowsettings.h"
 
 enum eP7Trace_Level
 {
@@ -25,27 +26,50 @@ struct GUIData{
     tUINT32 sequence;
     QString trace;
     tUINT32 wID;
+    tUINT32 bLevel;
 };
 
 namespace Ui {
 class TraceWindow;
 }
-class TraceWindow : public QWidget
+class TraceWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit TraceWindow(QWidget *parent = nullptr);
+    explicit TraceWindow(QDialog *parent = nullptr);
     ~TraceWindow();
 
     void setStyle(QString newStyleSheet);
     void setClientName(const QString &newClientName);
 
-    TraceRowsList *getTraceRowsList();
+    const QString &getTraceColor() const;
+    void setTraceColor(const QString &newTraceColor);
+    const QString &getDebugColor() const;
+    void setDebugColor(const QString &newDebugColor);
+    const QString &getInfoColor() const;
+    void setInfoColor(const QString &newInfoColor);
+    const QString &getWarningColor() const;
+    void setWarningColor(const QString &newWarningColor);
+    const QString &getErrorColor() const;
+    void setErrorColor(const QString &newErrorColor);
+    const QString &getCriticalColor() const;
+    void setCriticalColor(const QString &newCriticalColor);
 
 private:
+    TraceWindowSettings *traceSettings;
+    QString traceColor = "";
+    QString debugColor = "style=\"background-color:rgba(255, 203, 15, 0.2)\"";
+    QString infoColor = "";
+    QString warningColor = "";
+    QString errorColor = "style=\"background-color:rgba(255, 0, 0, 0.2)\"";
+    QString criticalColor = "style=\"background-color:rgba(255, 0, 0, 0.4)\"";
+
+
+
     time_t autoscrollTime = 0;
-    QString traceLinkStart = "<a href=\"";
+    QString traceLinkStart = "<a ";
+    QString traceLinkHref = "href=\"";
     QString traceLinkMiddle = "\"style=\"color:#C0C0C0\"style=\"text-decoration:none\">";
     QString traceLinkEnd = "</a>";
 
@@ -77,9 +101,9 @@ private:
     void InitWindow();
 
     bool eventFilter(QObject *object, QEvent *event);
-    TraceRowsList *traceRowsList;
 
     tUINT32 firstInitCounter = 0;
+    QString GetGuiRow(GUIData g);
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
@@ -87,6 +111,7 @@ public slots:
     void traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state);
     void AddUniqueTrace(UniqueTraceData trace);
 
+    void ReloadTracesInsideWindow();
 private slots:
     void AutoscrollStateChanged(tUINT32 stat);
     void on_expandButton_clicked(bool checked);
@@ -94,10 +119,10 @@ private slots:
     void on_verticalScrollBar_valueChanged(int value);
     void on_Disable_clicked();
     void on_infinite_line_stateChanged(int arg1);
-    void on_UniqueRows_clicked();
     void OffAutoscroll();
     void VerticalSliderReleased();
     void OpenHyperlink(const QUrl &link);
+    void on_WindowSettings_clicked();
 };
 
 #endif // TRACEWINDOW_H

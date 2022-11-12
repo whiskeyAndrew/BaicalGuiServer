@@ -23,12 +23,12 @@ set(PROJECT_SOURCES
         includes/packethandler.h includes/packethandler.cpp
         includes/chunkhandler.h includes/chunkhandler.cpp
         includes/Trace.h includes/Trace.cpp
-        includes/tracewindow.h includes/tracewindow.cpp includes/tracewindow.ui
+        includes/TraceWindow/tracewindow.h includes/TraceWindow/tracewindow.cpp includes/TraceWindow/tracewindow.ui
         includes/FileReader/filereader.h includes/FileReader/filereader.cpp
         includes/FileReader/filechunkshandler.h includes/FileReader/filechunkshandler.cpp
         includes/tracebackupwriter.h includes/tracebackupwriter.cpp
-        includes/tracerowslist.h includes/tracerowslist.cpp includes/tracerowslist.ui
         includes/connectiontimeoutchecker.h includes/connectiontimeoutchecker.cpp
+        includes/TraceWindow/tracewindowsettings.h includes/TraceWindow/tracewindowsettings.cpp includes/TraceWindow/tracewindowsettings.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

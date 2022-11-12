@@ -107,6 +107,7 @@ struct TraceToGUI
     tUINT32 sequence;
     p7Time traceTime;
     tUINT32 wID;
+    tUINT32 bLevel;
 };
 
 struct UniqueTraceData

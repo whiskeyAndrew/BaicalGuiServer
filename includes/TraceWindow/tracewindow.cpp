@@ -5,8 +5,8 @@
 
 #define LINES_TO_SHOW 60
 
-TraceWindow::TraceWindow(QWidget *parent) :
-    QWidget(parent),
+TraceWindow::TraceWindow(QDialog *parent) :
+    QDialog(parent),
     ui(new Ui::TraceWindow)
 {
     this->setWindowFlags(Qt::Window);
@@ -15,7 +15,42 @@ TraceWindow::TraceWindow(QWidget *parent) :
 }
 
 void TraceWindow::AddUniqueTrace(UniqueTraceData trace){
-    traceRowsList->AppendList(trace.traceLineData,trace.traceFormat.wID);
+    traceSettings->AppendUniqueTracesList(trace.traceLineData,trace.traceFormat.wID);
+}
+
+void TraceWindow::ReloadTracesInsideWindow(){
+    tUINT32 counter = 0;
+    tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW;
+    ui->textBrowser->setText("");
+
+    while(counter<LINES_TO_SHOW){
+        if(value>guiData.size()){
+            value = guiData.size()-1;
+        }
+        if(value<guiData.size()){
+            GUIData g = guiData.value(value);
+            if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
+                value--;
+                continue;
+            }
+
+            traceText = " "+g.trace;
+            sequence = QString::number(g.sequence);
+            cursor.movePosition(QTextCursor::Start);
+            ui->textBrowser->setTextCursor(cursor);
+            //<br> замедляет работу
+            //проверка избавляет от тупой пустой строки в самом верху
+            if(counter<LINES_TO_SHOW-1){
+                ui->textBrowser->insertPlainText("\n");
+            }
+            ui->textBrowser->insertHtml(GetGuiRow(g));
+            value--;
+            counter++;
+        } else {
+            break;
+        }
+
+    }
 }
 void TraceWindow::OpenHyperlink(const QUrl &link){
     ui->Autoscroll->setChecked(false);
@@ -33,7 +68,6 @@ void TraceWindow::OpenHyperlink(const QUrl &link){
 
     ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
     ui->line->setText(QString::number(traceFormat.traceFormat.line));
-
 
     ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
 
@@ -71,33 +105,7 @@ void TraceWindow::AutoscrollStateChanged(tUINT32 stat){
     if(stat!=Qt::Checked){
         return;
     }
-    tUINT32 counter = 0;
-    tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW;
-    while(counter<50){
-        if(value>guiData.size()){
-            value = guiData.size()-1;
-        }
-        if(value<guiData.size()){
-            GUIData g = guiData.value(value);
-            if(traceRowsList->needToShow.value(g.wID)!=Qt::Checked){
-                value--;
-                continue;
-            }
-
-            traceText = " "+g.trace;
-            sequence = QString::number(g.sequence);
-            cursor.movePosition(QTextCursor::Start);
-            ui->textBrowser->setTextCursor(cursor);
-            ui->textBrowser->insertHtml(traceLinkStart+sequence
-                                        +traceLinkMiddle+sequence
-                                        +traceText+traceLinkEnd);
-            ui->textBrowser->insertPlainText("\n");
-            value--;
-            counter++;
-        } else {
-            break;
-        }
-    }
+    ReloadTracesInsideWindow();
 }
 
 TraceWindow::~TraceWindow()
@@ -114,15 +122,12 @@ void TraceWindow::mousePressEvent(QMouseEvent *eventPress){
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
     ui->verticalScrollBar->setMaximum(guiData.size()-1);
-    guiData.insert(ui->verticalScrollBar->maximum(),{trace.sequence,trace.trace,trace.wID});
+    guiData.insert(ui->verticalScrollBar->maximum(),{trace.sequence,trace.trace,trace.wID,trace.bLevel});
 
     if(guiData.size()<LINES_TO_SHOW){
         GUIData g = guiData.value(ui->verticalScrollBar->maximum());
 
-        ui->textBrowser->append(traceLinkStart+
-                                QString::number(g.sequence)+traceLinkMiddle+
-                                QString::number(g.sequence)+" "+g.trace+traceLinkEnd);
-        firstInitCounter++;
+        ui->textBrowser->append(GetGuiRow(g));
     }
 
     if(ui->Autoscroll->isChecked()){
@@ -177,7 +182,7 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 
     if(ui->Autoscroll->isChecked()){
         GUIData g = guiData.value(ui->verticalScrollBar->value());
-        if(traceRowsList->needToShow.value(g.wID)!=Qt::Checked){
+        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
             return;
         }
 
@@ -189,48 +194,22 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
         cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
         cursor.select(QTextCursor::LineUnderCursor);
         cursor.removeSelectedText();
-        cursor.deleteChar(); // clean up new line
-        ui->textBrowser->append(traceLinkStart + sequence + traceLinkMiddle + sequence + traceText + traceLinkEnd);
+        cursor.deleteChar();
+        ui->textBrowser->append(GetGuiRow(g));
         return;
     }
 
     ui->textBrowser->setText("");
 
     tUINT32 counter = 0;
-    value = value+LINES_TO_SHOW;
-    while(counter<50){
-        if(value==1){
-            break;
-        }
-        if(value>guiData.size()){
-            value = guiData.size()-1;
-        }
-        if(value<guiData.size()){
-
-            GUIData g = guiData.value(value);
-            if(traceRowsList->needToShow.value(g.wID)!=Qt::Checked){
-                value--;
-                continue;
-            }
-
-            traceText = " "+g.trace;
-            sequence = QString::number(g.sequence);
-            cursor.movePosition(QTextCursor::Start);
-            ui->textBrowser->setTextCursor(cursor);
-            ui->textBrowser->insertHtml(traceLinkStart+sequence
-                                        +traceLinkMiddle+sequence
-                                        +traceText+traceLinkEnd);
-            ui->textBrowser->insertPlainText("\n");
-            value--;
-            counter++;
-        } else {
-            break;
-        }
-    }
+    ReloadTracesInsideWindow();
 
 }
 
 void TraceWindow::InitWindow(){
+    traceSettings = new TraceWindowSettings(this);
+    traceSettings->show();
+
     ui->groupBox_3->setVisible(false);
     ui->verticalScrollBar->setMaximum(0);
 
@@ -241,10 +220,6 @@ void TraceWindow::InitWindow(){
     ui->textBrowser->setFont(QFont("Courier",10));
 
     ui->textBrowser->textCursor().setVisualNavigation(false);
-
-    traceRowsList = new TraceRowsList();
-    traceRowsList->setTraceWindow(this);
-    traceRowsList->createConnections();
 
     infiniteLine = ui->infinite_line;
     ui->textBrowser->setOpenLinks(false);
@@ -259,6 +234,7 @@ void TraceWindow::InitWindow(){
     //Отключаем
     ui->textBrowser->verticalScrollBar()->setDisabled(true);
     ui->infinite_line->setChecked(true);
+
 }
 
 void TraceWindow::setClientName(const QString &newClientName)
@@ -291,10 +267,6 @@ bool TraceWindow::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-TraceRowsList *TraceWindow::getTraceRowsList()
-{
-    return traceRowsList;
-}
 
 void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state){
     //ui->textBrowser->clear();
@@ -307,7 +279,7 @@ void TraceWindow::on_Disable_clicked()
         return;
     }
     tUINT32 wID = ui->wID->text().toInt();
-    traceRowsList->DisableElement(wID);
+    traceSettings->DisableElement(wID);
 }
 
 
@@ -323,8 +295,100 @@ void TraceWindow::on_infinite_line_stateChanged(int arg1)
     }
 }
 
-void TraceWindow::on_UniqueRows_clicked()
+QString TraceWindow::GetGuiRow(GUIData g){
+    //"style=\"background-color:#33475b\""
+    QString color;
+    switch(g.bLevel){
+    case EP7TRACE_LEVEL_TRACE:
+        color = traceColor;
+        break;
+    case EP7TRACE_LEVEL_DEBUG:
+        color = debugColor;
+        break;
+    case  EP7TRACE_LEVEL_INFO:
+        color = infoColor;
+        break;
+    case EP7TRACE_LEVEL_WARNING:
+        color = warningColor;
+        break;
+    case EP7TRACE_LEVEL_ERROR:
+        color = errorColor;
+        break;
+    case EP7TRACE_LEVEL_CRITICAL:
+        color = criticalColor;
+        break;
+    default:
+        break;
+    }
+
+    return traceLinkStart+color+traceLinkHref+sequence
+            +traceLinkMiddle+sequence
+            +traceText+traceLinkEnd;
+}
+
+
+const QString &TraceWindow::getTraceColor() const
 {
-    traceRowsList->show();
+    return traceColor;
+}
+
+void TraceWindow::setTraceColor(const QString &newTraceColor)
+{
+    traceColor = newTraceColor;
+}
+
+const QString &TraceWindow::getDebugColor() const
+{
+    return debugColor;
+}
+
+void TraceWindow::setDebugColor(const QString &newDebugColor)
+{
+    debugColor = newDebugColor;
+}
+
+const QString &TraceWindow::getInfoColor() const
+{
+    return infoColor;
+}
+
+void TraceWindow::setInfoColor(const QString &newInfoColor)
+{
+    infoColor = newInfoColor;
+}
+
+const QString &TraceWindow::getWarningColor() const
+{
+    return warningColor;
+}
+
+void TraceWindow::setWarningColor(const QString &newWarningColor)
+{
+    warningColor = newWarningColor;
+}
+
+const QString &TraceWindow::getErrorColor() const
+{
+    return errorColor;
+}
+
+void TraceWindow::setErrorColor(const QString &newErrorColor)
+{
+    errorColor = newErrorColor;
+}
+
+const QString &TraceWindow::getCriticalColor() const
+{
+    return criticalColor;
+}
+
+void TraceWindow::setCriticalColor(const QString &newCriticalColor)
+{
+    criticalColor = newCriticalColor;
+}
+
+void TraceWindow::on_WindowSettings_clicked()
+{
+    traceSettings->show();
 }
 

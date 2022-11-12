@@ -1,5 +1,5 @@
-#ifndef TRACEROWSLIST_H
-#define TRACEROWSLIST_H
+#ifndef TRACEROWSLIST_COPY_H
+#define TRACEROWSLIST_COPY_H
 
 #include "includes/GTypes.h"
 #include <QWidget>
@@ -39,4 +39,4 @@ signals:
 
 };
 
-#endif // TRACEROWSLIST_H
+#endif // TRACEROWSLIST_COPY_H

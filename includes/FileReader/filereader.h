@@ -3,7 +3,7 @@
 #include <QThread>
 #include <iostream>
 #include "../GTypes.h"
-#include "../tracewindow.h"
+#include "../TraceWindow/tracewindow.h"
 #include <vector>
 #include <QFile>
 
