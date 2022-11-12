@@ -51,6 +51,12 @@ void MainWindow::ChangeClientStatus(sockaddr_in client)
 void MainWindow::on_pushButton_clicked()
 {
     tUINT32 index = ui->comboBox->currentData().toString().toInt();
+
+    if(traceWindows.at(index)->isVisible()){
+        traceWindows.at(index)->raise();
+        return;
+    }
+
     traceWindows.at(index)->show();
 }
 

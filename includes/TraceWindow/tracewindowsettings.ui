@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="uniqueTraces">
       <attribute name="title">
@@ -134,7 +134,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QLabel" name="warningLabel">
           <property name="geometry">
            <rect>
-            <x>250</x>
+            <x>280</x>
             <y>30</y>
             <width>51</width>
             <height>20</height>
@@ -147,7 +147,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="warningColorButton">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>340</x>
             <y>30</y>
             <width>121</width>
             <height>20</height>
@@ -170,7 +170,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QLabel" name="errorLabel">
           <property name="geometry">
            <rect>
-            <x>250</x>
+            <x>280</x>
             <y>60</y>
             <width>51</width>
             <height>20</height>
@@ -183,7 +183,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QLabel" name="criticalLabel">
           <property name="geometry">
            <rect>
-            <x>250</x>
+            <x>280</x>
             <y>90</y>
             <width>51</width>
             <height>20</height>
@@ -242,7 +242,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="errorColorButton">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>340</x>
             <y>60</y>
             <width>121</width>
             <height>20</height>
@@ -265,7 +265,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="criticalColorButton">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>340</x>
             <y>90</y>
             <width>121</width>
             <height>20</height>
@@ -283,6 +283,107 @@ selection-color: rgb(85, 255, 255);</string>
           </property>
           <property name="flat">
            <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearTrace">
+          <property name="geometry">
+           <rect>
+            <x>200</x>
+            <y>30</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearDebug">
+          <property name="geometry">
+           <rect>
+            <x>200</x>
+            <y>60</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearInfo">
+          <property name="geometry">
+           <rect>
+            <x>200</x>
+            <y>90</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearWarning">
+          <property name="geometry">
+           <rect>
+            <x>480</x>
+            <y>30</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearError">
+          <property name="geometry">
+           <rect>
+            <x>480</x>
+            <y>60</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearCritical">
+          <property name="geometry">
+           <rect>
+            <x>480</x>
+            <y>90</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>130</y>
+            <width>81</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Transparency</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="lineEdit">
+          <property name="geometry">
+           <rect>
+            <x>90</x>
+            <y>130</y>
+            <width>113</width>
+            <height>24</height>
+           </rect>
           </property>
          </widget>
         </widget>

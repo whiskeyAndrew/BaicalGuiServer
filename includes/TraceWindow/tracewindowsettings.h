@@ -4,6 +4,7 @@
 #include <QColorDialog>
 #include "../Trace.h"
 #include <QListWidgetItem>
+#include <QMessageBox>
 
 class TraceWindow;
 namespace Ui {
@@ -36,14 +37,33 @@ private slots:
     void on_errorColorButton_clicked();
     void on_criticalColorButton_clicked();
 
+    void on_clearTrace_clicked();
+    void on_clearDebug_clicked();
+    void on_clearInfo_clicked();
+    void on_clearWarning_clicked();
+    void on_clearError_clicked();
+    void on_clearCritical_clicked();
+
+    void on_lineEdit_editingFinished();
+
 private:
+    //TraceColors
     QColorDialog *colorDialog;
-    QColor rgbFromColorDialog;
+    QColor traceColor;
+    QColor debugColor;
+    QColor infoColor;
+    QColor warningColor;
+    QColor errorColor;
+    QColor criticalColor;
+
+    QString transparency = "0.2";
 
     TraceWindow *traceWindow;
 
     Ui::TraceWindowSettings *ui;
 
+
+    void ReloadColors();
 signals:
     //Unique Traces List
     void SendRowWID(tUINT32 wID, tUINT32 state);

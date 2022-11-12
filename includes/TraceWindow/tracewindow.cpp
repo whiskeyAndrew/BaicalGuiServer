@@ -1,8 +1,6 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 
-
-
 #define LINES_TO_SHOW 60
 
 TraceWindow::TraceWindow(QDialog *parent) :
@@ -208,7 +206,6 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 
 void TraceWindow::InitWindow(){
     traceSettings = new TraceWindowSettings(this);
-    traceSettings->show();
 
     ui->groupBox_3->setVisible(false);
     ui->verticalScrollBar->setMaximum(0);
@@ -389,6 +386,10 @@ void TraceWindow::setCriticalColor(const QString &newCriticalColor)
 
 void TraceWindow::on_WindowSettings_clicked()
 {
+    if(traceSettings->isVisible()){
+        traceSettings->raise();
+        return;
+    }
     traceSettings->show();
 }
 
