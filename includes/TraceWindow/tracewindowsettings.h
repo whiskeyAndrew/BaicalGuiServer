@@ -28,6 +28,9 @@ public:
     void DisableElement(tUINT32 wID);
     //~Unique Traces List
 
+    void SetWindowName(QString name);
+    tUINT32 isTraceColumnNeedToShow();
+    tUINT32 isSequenceColumnNeedToShow();
 private slots:
     //Trace Colors
     void on_traceColorButton_clicked();
@@ -46,6 +49,18 @@ private slots:
 
     void on_lineEdit_editingFinished();
 
+    void on_traceCheckBox_stateChanged(int arg1);
+
+    void on_debugCheckBox_stateChanged(int arg1);
+
+    void on_infoCheckBox_stateChanged(int arg1);
+
+    void on_warningCheckBox_stateChanged(int arg1);
+
+    void on_errorCheckBox_stateChanged(int arg1);
+
+    void on_criticalCheckBox_stateChanged(int arg1);
+
 private:
     //TraceColors
     QColorDialog *colorDialog;
@@ -56,14 +71,13 @@ private:
     QColor errorColor;
     QColor criticalColor;
 
-    QString transparency = "0.2";
-
     TraceWindow *traceWindow;
 
     Ui::TraceWindowSettings *ui;
 
 
     void ReloadColors();
+    void InitColors();
 signals:
     //Unique Traces List
     void SendRowWID(tUINT32 wID, tUINT32 state);

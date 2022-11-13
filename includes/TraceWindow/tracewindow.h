@@ -37,35 +37,43 @@ class TraceWindow : public QDialog
     Q_OBJECT
 
 public:
+    QList<tUINT32> isNeedToShowByTraceLevel;
     explicit TraceWindow(QDialog *parent = nullptr);
     ~TraceWindow();
 
     void setStyle(QString newStyleSheet);
     void setClientName(const QString &newClientName);
 
-    const QString &getTraceColor() const;
-    void setTraceColor(const QString &newTraceColor);
-    const QString &getDebugColor() const;
-    void setDebugColor(const QString &newDebugColor);
-    const QString &getInfoColor() const;
-    void setInfoColor(const QString &newInfoColor);
-    const QString &getWarningColor() const;
-    void setWarningColor(const QString &newWarningColor);
-    const QString &getErrorColor() const;
-    void setErrorColor(const QString &newErrorColor);
-    const QString &getCriticalColor() const;
-    void setCriticalColor(const QString &newCriticalColor);
+    QColor getTraceColor();
+    void setTraceColor (QColor newTraceColor);
+    QColor getDebugColor();
+    void setDebugColor(QColor newDebugColor);
+    QColor getInfoColor();
+    void setInfoColor(QColor newInfoColor);
+    QColor getWarningColor();
+    void setWarningColor(QColor newWarningColor);
+    QColor getErrorColor();
+    void setErrorColor(QColor newErrorColor);
+    QColor getCriticalColor();
+    void setCriticalColor(QColor newCriticalColor);
+
+    QString getTransparency() const;
+    void setTransparency(QString newTransparency);
+
+    void changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state);
+    const QString &getClientName() const;
 
 private:
     TraceWindowSettings *traceSettings;
-    QString traceColor = "";
-    QString debugColor = "style=\"background-color:rgba(255, 203, 15, 0.2)\"";
-    QString infoColor = "";
-    QString warningColor = "";
-    QString errorColor = "style=\"background-color:rgba(255, 0, 0, 0.2)\"";
-    QString criticalColor = "style=\"background-color:rgba(255, 0, 0, 0.4)\"";
 
-
+    //"style=\"background-color:rgba(255, 0, 0, 0.4)\""
+    QColor traceColor = "";
+    QColor debugColor = "";
+    QColor infoColor = "";
+    QColor warningColor = "";
+    QColor errorColor = "";
+    QColor criticalColor = "";
+    QString transparency = "0.2";
 
     time_t autoscrollTime = 0;
     QString traceLinkStart = "<a ";

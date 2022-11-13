@@ -32,6 +32,11 @@ void TraceWindow::ReloadTracesInsideWindow(){
                 continue;
             }
 
+            if(isNeedToShowByTraceLevel.at(g.bLevel)!=Qt::Checked){
+                value--;
+                continue;
+            }
+
             traceText = " "+g.trace;
             sequence = QString::number(g.sequence);
             cursor.movePosition(QTextCursor::Start);
@@ -158,15 +163,6 @@ void TraceWindow::on_expandButton_clicked(bool checked)
 }
 
 
-void TraceWindow::on_pushButton_clicked()
-{
-    if(ui->groupBox_3->isVisible()){
-        ui->groupBox_3->setVisible(false);
-    } else{
-        ui->groupBox_3->setVisible(true);
-    }
-}
-
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {       
     cursor = ui->textBrowser->textCursor();
@@ -180,7 +176,12 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 
     if(ui->Autoscroll->isChecked()){
         GUIData g = guiData.value(ui->verticalScrollBar->value());
+
         if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
+            return;
+        }
+
+        if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
             return;
         }
 
@@ -205,9 +206,14 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 }
 
 void TraceWindow::InitWindow(){
+
+    //Инициализация списка по которому смотрим надо ли показывать трейс ПО bLevel
+    for(int i =0;i<6;i++){
+        isNeedToShowByTraceLevel.append(2);
+    }
+
     traceSettings = new TraceWindowSettings(this);
 
-    ui->groupBox_3->setVisible(false);
     ui->verticalScrollBar->setMaximum(0);
 
     QPalette pallete = ui->textBrowser->palette();
@@ -238,6 +244,7 @@ void TraceWindow::setClientName(const QString &newClientName)
 {
     clientName = newClientName;
     this->setWindowTitle(clientName);
+    traceSettings->SetWindowName(clientName);
 }
 
 void TraceWindow::setStyle(QString newStyleSheet)
@@ -297,91 +304,139 @@ QString TraceWindow::GetGuiRow(GUIData g){
     QString color;
     switch(g.bLevel){
     case EP7TRACE_LEVEL_TRACE:
-        color = traceColor;
+        color = "style=\"background-color:rgba("+QString::number(traceColor.red())+", "
+                +QString::number(traceColor.green())+", "
+                +QString::number(traceColor.blue())
+                +", "+transparency+")\"";
         break;
     case EP7TRACE_LEVEL_DEBUG:
-        color = debugColor;
+        color = "style=\"background-color:rgba("+QString::number(debugColor.red())+", "
+                +QString::number(debugColor.green())+", "
+                +QString::number(debugColor.blue())
+                +", "+transparency+")\"";
         break;
     case  EP7TRACE_LEVEL_INFO:
-        color = infoColor;
+        color = "style=\"background-color:rgba("+QString::number(infoColor.red())+", "
+                +QString::number(infoColor.green())+", "
+                +QString::number(infoColor.blue())
+                +", "+transparency+")\"";
         break;
     case EP7TRACE_LEVEL_WARNING:
-        color = warningColor;
+        color = "style=\"background-color:rgba("+QString::number(warningColor.red())+", "
+                +QString::number(warningColor.green())+", "
+                +QString::number(warningColor.blue())
+                +", "+transparency+")\"";
         break;
     case EP7TRACE_LEVEL_ERROR:
-        color = errorColor;
+        color = "style=\"background-color:rgba("+QString::number(errorColor.red())+", "
+                +QString::number(errorColor.green())+", "
+                +QString::number(errorColor.blue())
+                +", "+transparency+")\"";
         break;
     case EP7TRACE_LEVEL_CRITICAL:
-        color = criticalColor;
+        color = "style=\"background-color:rgba("+QString::number(criticalColor.red())+", "
+                +QString::number(criticalColor.green())+", "
+                +QString::number(criticalColor.blue())
+                +", "+transparency+")\"";
         break;
     default:
         break;
     }
 
+    QString sequenceToGUI = "";
+    if(traceSettings->isSequenceColumnNeedToShow()){
+        sequenceToGUI = sequence;
+    }
+    if(!traceSettings->isTraceColumnNeedToShow()){
+        traceText="";
+    }
+
     return traceLinkStart+color+traceLinkHref+sequence
-            +traceLinkMiddle+sequence
+            +traceLinkMiddle+sequenceToGUI
             +traceText+traceLinkEnd;
 }
 
+void TraceWindow::changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state){
+    isNeedToShowByTraceLevel[id] = state;
+    if(ui->Autoscroll->isChecked()==Qt::Unchecked){
+        ReloadTracesInsideWindow();
+    }
+}
 
-const QString &TraceWindow::getTraceColor() const
+const QString &TraceWindow::getClientName() const
+{
+    return clientName;
+}
+
+
+QColor TraceWindow::getTraceColor()
 {
     return traceColor;
 }
 
-void TraceWindow::setTraceColor(const QString &newTraceColor)
+void TraceWindow::setTraceColor(QColor newTraceColor)
 {
     traceColor = newTraceColor;
 }
 
-const QString &TraceWindow::getDebugColor() const
+QColor TraceWindow::getDebugColor()
 {
     return debugColor;
 }
 
-void TraceWindow::setDebugColor(const QString &newDebugColor)
+void TraceWindow::setDebugColor(QColor newDebugColor)
 {
     debugColor = newDebugColor;
 }
 
-const QString &TraceWindow::getInfoColor() const
+QColor TraceWindow::getInfoColor()
 {
     return infoColor;
 }
 
-void TraceWindow::setInfoColor(const QString &newInfoColor)
+void TraceWindow::setInfoColor(QColor newInfoColor)
 {
     infoColor = newInfoColor;
 }
 
-const QString &TraceWindow::getWarningColor() const
+QColor TraceWindow::getWarningColor()
 {
     return warningColor;
 }
 
-void TraceWindow::setWarningColor(const QString &newWarningColor)
+void TraceWindow::setWarningColor(QColor newWarningColor)
 {
     warningColor = newWarningColor;
 }
 
-const QString &TraceWindow::getErrorColor() const
+QColor TraceWindow::getErrorColor()
 {
     return errorColor;
 }
 
-void TraceWindow::setErrorColor(const QString &newErrorColor)
+void TraceWindow::setErrorColor(QColor newErrorColor)
 {
     errorColor = newErrorColor;
 }
 
-const QString &TraceWindow::getCriticalColor() const
+QColor TraceWindow::getCriticalColor()
 {
     return criticalColor;
 }
 
-void TraceWindow::setCriticalColor(const QString &newCriticalColor)
+void TraceWindow::setCriticalColor(QColor newCriticalColor)
 {
     criticalColor = newCriticalColor;
+}
+
+QString TraceWindow::getTransparency() const
+{
+    return transparency;
+}
+
+void TraceWindow::setTransparency(QString newTransparency)
+{
+    transparency = newTransparency;
 }
 
 void TraceWindow::on_WindowSettings_clicked()

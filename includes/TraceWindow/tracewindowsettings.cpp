@@ -9,8 +9,14 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow):ui(new Ui:
     colorDialog = new QColorDialog();
     connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::itemChanged);
     connect(this,&TraceWindowSettings::SendRowWID,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
+
+    InitColors();
+    ui->lineEdit->setPlaceholderText("0.0-1.0");
 }
 
+void TraceWindowSettings::SetWindowName(QString name){
+        this->setWindowTitle(name +" config");
+}
 TraceWindowSettings::~TraceWindowSettings()
 {
     delete ui;
@@ -50,18 +56,13 @@ void TraceWindowSettings::on_traceColorButton_clicked()
     if(!traceColor.isValid()){
         return;
     }
-    QString htmlColor = "style=\"background-color:rgba("+QString::number(traceColor.red())+", "
-            +QString::number(traceColor.green())+", "
-            +QString::number(traceColor.blue())
-            +", "+transparency+")\"";
-
     ui->traceColorButton->setStyleSheet("background-color: rgb("+QString::number(traceColor.red())+", "
                                         +QString::number(traceColor.green())+", "
                                         +QString::number(traceColor.blue())+");"+
                                         "selection-color: rgb("+QString::number(traceColor.red())+", "
                                         +QString::number(traceColor.green())+", "
                                         +QString::number(traceColor.blue())+");");
-    traceWindow->setTraceColor(htmlColor);
+    traceWindow->setTraceColor(traceColor);
 }
 
 
@@ -71,18 +72,13 @@ void TraceWindowSettings::on_debugColorButton_clicked()
     if(!debugColor.isValid()){
         return;
     }
-    QString htmlColor = "style=\"background-color:rgba("+QString::number(debugColor.red())+", "
-            +QString::number(debugColor.green())+", "
-            +QString::number(debugColor.blue())
-            +", "+transparency+")\"";
-
     ui->debugColorButton->setStyleSheet("background-color: rgb("+QString::number(debugColor.red())+", "
                                         +QString::number(debugColor.green())+", "
                                         +QString::number(debugColor.blue())+");"+
                                         "selection-color: rgb("+QString::number(debugColor.red())+", "
                                         +QString::number(debugColor.green())+", "
                                         +QString::number(debugColor.blue())+");");
-    traceWindow->setDebugColor(htmlColor);
+    traceWindow->setDebugColor(debugColor);
 }
 
 
@@ -92,18 +88,13 @@ void TraceWindowSettings::on_infoColorButton_clicked()
     if(!infoColor.isValid()){
         return;
     }
-    QString htmlColor = "style=\"background-color:rgba("+QString::number(infoColor.red())+", "
-            +QString::number(infoColor.green())+", "
-            +QString::number(infoColor.blue())
-            +", "+transparency+")\"";
-
     ui->infoColorButton->setStyleSheet("background-color: rgb("+QString::number(infoColor.red())+", "
                                        +QString::number(infoColor.green())
                                        +", "+QString::number(infoColor.blue())+");"+
                                        "selection-color: rgb("+QString::number(infoColor.red())+", "
                                        +QString::number(infoColor.green())+", "
                                        +QString::number(infoColor.blue())+");");
-    traceWindow->setInfoColor(htmlColor);
+    traceWindow->setInfoColor(infoColor);
 }
 
 
@@ -113,18 +104,13 @@ void TraceWindowSettings::on_warningColorButton_clicked()
     if(!warningColor.isValid()){
         return;
     }
-    QString htmlColor = "style=\"background-color:rgba("+QString::number(warningColor.red())+", "
-            +QString::number(warningColor.green())+", "
-            +QString::number(warningColor.blue())
-            +", "+transparency+")\"";
-
     ui->warningColorButton->setStyleSheet("background-color: rgb("+QString::number(warningColor.red())+", "
                                           +QString::number(warningColor.green())+", "
                                           +QString::number(warningColor.blue())+");"+
                                           "selection-color: rgb("+QString::number(warningColor.red())+", "
                                           +QString::number(warningColor.green())+", "
                                           +QString::number(warningColor.blue())+");");
-    traceWindow->setWarningColor(htmlColor);
+    traceWindow->setWarningColor(warningColor);
 }
 
 
@@ -134,18 +120,13 @@ void TraceWindowSettings::on_errorColorButton_clicked()
     if(!errorColor.isValid()){
         return;
     }
-    QString htmlColor = "style=\"background-color:rgba("+QString::number(errorColor.red())+", "
-            +QString::number(errorColor.green())+", "
-            +QString::number(errorColor.blue())
-            +", "+transparency+")\"";
-
     ui->errorColorButton->setStyleSheet("background-color: rgb("+QString::number(errorColor.red())+", "
                                         +QString::number(errorColor.green())+", "
                                         +QString::number(errorColor.blue())+");"+
                                         "selection-color: rgb("+QString::number(errorColor.red())+", "
                                         +QString::number(errorColor.green())+", "
                                         +QString::number(errorColor.blue())+");");
-    traceWindow->setErrorColor(htmlColor);
+    traceWindow->setErrorColor(errorColor);
 }
 
 
@@ -155,10 +136,6 @@ void TraceWindowSettings::on_criticalColorButton_clicked()
     if(!criticalColor.isValid()){
         return;
     }
-    QString htmlColor = "style=\"background-color:rgba("+QString::number(criticalColor.red())+", "
-            +QString::number(criticalColor.green())+", "
-            +QString::number(criticalColor.blue())
-            +", "+transparency+")\"";
 
     ui->criticalColorButton->setStyleSheet("background-color: rgb("+QString::number(criticalColor.red())+", "
                                            +QString::number(criticalColor.green())+", "
@@ -166,7 +143,7 @@ void TraceWindowSettings::on_criticalColorButton_clicked()
                                            "selection-color: rgb("+QString::number(criticalColor.red())+", "
                                            +QString::number(criticalColor.green())+", "
                                            +QString::number(criticalColor.blue())+");");
-    traceWindow->setCriticalColor(htmlColor);
+    traceWindow->setCriticalColor(criticalColor);
 }
 
 
@@ -177,7 +154,7 @@ void TraceWindowSettings::on_clearTrace_clicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         traceWindow->setTraceColor("");
-        //добавить изменение цвета кнопка
+        ui->traceColorButton->setStyleSheet("");
     }
 }
 
@@ -189,7 +166,7 @@ void TraceWindowSettings::on_clearDebug_clicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         traceWindow->setDebugColor("");
-        //добавить изменение цвета кнопка
+        ui->traceColorButton->setStyleSheet("");
     }
 }
 
@@ -201,7 +178,7 @@ void TraceWindowSettings::on_clearInfo_clicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         traceWindow->setInfoColor("");
-        //добавить изменение цвета кнопка
+        ui->traceColorButton->setStyleSheet("");
     }
 }
 
@@ -213,7 +190,7 @@ void TraceWindowSettings::on_clearWarning_clicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         traceWindow->setWarningColor("");
-        //добавить изменение цвета кнопка
+        ui->traceColorButton->setStyleSheet("");
     }
 }
 
@@ -225,7 +202,7 @@ void TraceWindowSettings::on_clearError_clicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         traceWindow->setErrorColor("");
-        //добавить изменение цвета кнопка
+        ui->traceColorButton->setStyleSheet("");
     }
 }
 
@@ -237,7 +214,7 @@ void TraceWindowSettings::on_clearCritical_clicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         traceWindow->setCriticalColor("");
-        //добавить изменение цвета кнопка
+        ui->traceColorButton->setStyleSheet("");
     }
 }
 
@@ -246,110 +223,127 @@ void TraceWindowSettings::on_lineEdit_editingFinished()
 {
     QRegExp re("[+-]?([0-9]*[.])?[0-9]+");  // a digit (\d), zero or more times (*)
     if (!re.exactMatch(ui->lineEdit->text())){
-        ui->lineEdit->setText(transparency);
+        ui->lineEdit->setText(traceWindow->getTransparency());
         return;
     }
 
     if(ui->lineEdit->text().toFloat()>1.0 || ui->lineEdit->text().toFloat()<0.0)
     {
-        ui->lineEdit->setText(transparency);
+        ui->lineEdit->setText(traceWindow->getTransparency());
         return;
     }
 
-    transparency = ui->lineEdit->text();
-
-    ReloadColors();
+    traceWindow->setTransparency(ui->lineEdit->text());
 }
 
-void TraceWindowSettings::ReloadColors(){
-    QString htmlColor;
-    if(traceColor.isValid()){
-        htmlColor = "style=\"background-color:rgba("+QString::number(traceColor.red())+", "
-                +QString::number(traceColor.green())+", "
-                +QString::number(traceColor.blue())
-                +", "+transparency+")\"";
-
-        ui->traceColorButton->setStyleSheet("background-color: rgb("+QString::number(traceColor.red())+", "
-                                            +QString::number(traceColor.green())+", "
-                                            +QString::number(traceColor.blue())+");"+
-                                            "selection-color: rgb("+QString::number(traceColor.red())+", "
-                                            +QString::number(traceColor.green())+", "
-                                            +QString::number(traceColor.blue())+");");
-        traceWindow->setTraceColor(htmlColor);
-    }
-
-    if(debugColor.isValid()){
-        htmlColor = "style=\"background-color:rgba("+QString::number(debugColor.red())+", "
-                +QString::number(debugColor.green())+", "
-                +QString::number(debugColor.blue())
-                +", "+transparency+")\"";
-
-        ui->debugColorButton->setStyleSheet("background-color: rgb("+QString::number(debugColor.red())+", "
-                                            +QString::number(debugColor.green())+", "
-                                            +QString::number(debugColor.blue())+");"+
-                                            "selection-color: rgb("+QString::number(debugColor.red())+", "
-                                            +QString::number(debugColor.green())+", "
-                                            +QString::number(debugColor.blue())+");");
-        traceWindow->setDebugColor(htmlColor);
-    }
-
-    if(infoColor.isValid()){
-        htmlColor = "style=\"background-color:rgba("+QString::number(infoColor.red())+", "
-                +QString::number(infoColor.green())+", "
-                +QString::number(infoColor.blue())
-                +", "+transparency+")\"";
-
-        ui->infoColorButton->setStyleSheet("background-color: rgb("+QString::number(infoColor.red())+", "
-                                           +QString::number(infoColor.green())
-                                           +", "+QString::number(infoColor.blue())+");"+
-                                           "selection-color: rgb("+QString::number(infoColor.red())+", "
-                                           +QString::number(infoColor.green())+", "
-                                           +QString::number(infoColor.blue())+");");
-        traceWindow->setInfoColor(htmlColor);
-    }
-
-    if(warningColor.isValid()){
-        htmlColor = "style=\"background-color:rgba("+QString::number(warningColor.red())+", "
-                +QString::number(warningColor.green())+", "
-                +QString::number(warningColor.blue())
-                +", "+transparency+")\"";
-
-        ui->warningColorButton->setStyleSheet("background-color: rgb("+QString::number(warningColor.red())+", "
-                                              +QString::number(warningColor.green())+", "
-                                              +QString::number(warningColor.blue())+");"+
-                                              "selection-color: rgb("+QString::number(warningColor.red())+", "
-                                              +QString::number(warningColor.green())+", "
-                                              +QString::number(warningColor.blue())+");");
-        traceWindow->setWarningColor(htmlColor);
-    }
-
-    if(errorColor.isValid()){
-        htmlColor = "style=\"background-color:rgba("+QString::number(errorColor.red())+", "
-                +QString::number(errorColor.green())+", "
-                +QString::number(errorColor.blue())
-                +", "+transparency+")\"";
-
-        ui->errorColorButton->setStyleSheet("background-color: rgb("+QString::number(errorColor.red())+", "
-                                            +QString::number(errorColor.green())+", "
-                                            +QString::number(errorColor.blue())+");"+
-                                            "selection-color: rgb("+QString::number(errorColor.red())+", "
-                                            +QString::number(errorColor.green())+", "
-                                            +QString::number(errorColor.blue())+");");
-        traceWindow->setErrorColor(htmlColor);
-    }
-
-    if(warningColor.isValid()){
-        htmlColor = "style=\"background-color:rgba("+QString::number(warningColor.red())+", "
-                +QString::number(warningColor.green())+", "
-                +QString::number(warningColor.blue())
-                +", "+transparency+")\"";
-
-        ui->warningColorButton->setStyleSheet("background-color: rgb("+QString::number(warningColor.red())+", "
-                                              +QString::number(warningColor.green())+", "
-                                              +QString::number(warningColor.blue())+");"+
-                                              "selection-color: rgb("+QString::number(warningColor.red())+", "
-                                              +QString::number(warningColor.green())+", "
-                                              +QString::number(warningColor.blue())+");");
-        traceWindow->setWarningColor(htmlColor);
-    }
+tUINT32 TraceWindowSettings::isTraceColumnNeedToShow(){
+    return ui->traceCheckbox->checkState();
 }
+
+tUINT32 TraceWindowSettings::isSequenceColumnNeedToShow(){
+    return ui->sequenceCheckbox->checkState();
+}
+void TraceWindowSettings::InitColors(){
+    if(traceWindow->getTraceColor().isValid()){
+            ui->traceColorButton->setStyleSheet("background-color: rgb("+QString::number(traceWindow->getTraceColor().red())+", "
+                                                +QString::number(traceWindow->getTraceColor().green())+", "
+                                                +QString::number(traceWindow->getTraceColor().blue())+");"+
+                                                "selection-color: rgb("+QString::number(traceWindow->getTraceColor().red())+", "
+                                                +QString::number(traceWindow->getTraceColor().green())+", "
+                                                +QString::number(traceWindow->getTraceColor().blue())+");");
+        } else{
+            ui->traceColorButton->setStyleSheet("");
+        }
+
+        if(traceWindow->getDebugColor().isValid()){
+            ui->debugColorButton->setStyleSheet("background-color: rgb("+QString::number(traceWindow->getDebugColor().red())+", "
+                                                +QString::number(traceWindow->getDebugColor().green())+", "
+                                                +QString::number(traceWindow->getDebugColor().blue())+");"+
+
+                                                "selection-color: rgb("+QString::number(traceWindow->getDebugColor().red())+", "
+                                                +QString::number(traceWindow->getDebugColor().green())+", "
+                                                +QString::number(traceWindow->getDebugColor().blue())+");");
+        } else{
+            ui->debugColorButton->setStyleSheet("");
+        }
+
+        if(traceWindow->getInfoColor().isValid()){
+            ui->infoColorButton->setStyleSheet("background-color: rgb("+QString::number(traceWindow->getInfoColor().red())+", "
+                                               +QString::number(traceWindow->getInfoColor().green())+", "
+                                               +QString::number(traceWindow->getInfoColor().blue())+");"+
+                                               "selection-color: rgb("+QString::number(traceWindow->getInfoColor().red())+", "
+                                               +QString::number(traceWindow->getInfoColor().green())+", "
+                                               +QString::number(traceWindow->getInfoColor().blue())+");");
+        } else{
+            ui->infoColorButton->setStyleSheet("");
+        }
+
+        if(traceWindow->getWarningColor().isValid()){
+            ui->warningColorButton->setStyleSheet("background-color: rgb("+QString::number(traceWindow->getWarningColor().red())+", "
+                                                  +QString::number(traceWindow->getWarningColor().green())+", "
+                                                  +QString::number(traceWindow->getWarningColor().blue())+");"+
+                                                  "selection-color: rgb("+QString::number(traceWindow->getWarningColor().red())+", "
+                                                  +QString::number(traceWindow->getWarningColor().green())+", "
+                                                  +QString::number(traceWindow->getWarningColor().blue())+");");
+        } else{
+            ui->warningColorButton->setStyleSheet("");
+        }
+
+        if(traceWindow->getErrorColor().isValid()){
+            ui->errorColorButton->setStyleSheet("background-color: rgb("+QString::number(traceWindow->getErrorColor().red())+", "
+                                                +QString::number(traceWindow->getErrorColor().green())+", "
+                                                +QString::number(traceWindow->getErrorColor().blue())+");"+
+                                                "selection-color: rgb("+QString::number(traceWindow->getErrorColor().red())+", "
+                                                +QString::number(traceWindow->getErrorColor().green())+", "
+                                                +QString::number(traceWindow->getErrorColor().blue())+");");
+        } else{
+            ui->errorColorButton->setStyleSheet("");
+        }
+
+        if(traceWindow->getCriticalColor().isValid()){
+            ui->criticalColorButton->setStyleSheet("background-color: rgb("+QString::number(traceWindow->getCriticalColor().red())+", "
+                                                   +QString::number(traceWindow->getCriticalColor().green())+", "
+                                                   +QString::number(traceWindow->getCriticalColor().blue())+");"+
+                                                   "selection-color: rgb("+QString::number(traceWindow->getCriticalColor().red())+", "
+                                                   +QString::number(traceWindow->getCriticalColor().green())+", "
+                                                   +QString::number(traceWindow->getCriticalColor().blue())+");");
+        } else{
+            ui->criticalColorButton->setStyleSheet("");
+        }
+}
+
+void TraceWindowSettings::on_traceCheckBox_stateChanged(int arg1)
+{
+    traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_TRACE,arg1);
+}
+
+
+void TraceWindowSettings::on_debugCheckBox_stateChanged(int arg1)
+{
+    traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_DEBUG,arg1);
+}
+
+
+void TraceWindowSettings::on_infoCheckBox_stateChanged(int arg1)
+{
+    traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_INFO,arg1);
+}
+
+
+void TraceWindowSettings::on_warningCheckBox_stateChanged(int arg1)
+{
+    traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_WARNING,arg1);
+}
+
+
+void TraceWindowSettings::on_errorCheckBox_stateChanged(int arg1)
+{
+    traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_ERROR,arg1);
+}
+
+
+void TraceWindowSettings::on_criticalCheckBox_stateChanged(int arg1)
+{
+    traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_CRITICAL,arg1);
+}
+
