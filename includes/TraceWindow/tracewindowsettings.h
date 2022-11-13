@@ -29,8 +29,8 @@ public:
     //~Unique Traces List
 
     void SetWindowName(QString name);
-    tUINT32 isTraceColumnNeedToShow();
-    tUINT32 isSequenceColumnNeedToShow();
+    Qt::CheckState isTraceColumnNeedToShow();
+    Qt::CheckState isSequenceColumnNeedToShow();
 private slots:
     //Trace Colors
     void on_traceColorButton_clicked();
@@ -48,18 +48,16 @@ private slots:
     void on_clearCritical_clicked();
 
     void on_lineEdit_editingFinished();
-
     void on_traceCheckBox_stateChanged(int arg1);
-
     void on_debugCheckBox_stateChanged(int arg1);
-
     void on_infoCheckBox_stateChanged(int arg1);
-
     void on_warningCheckBox_stateChanged(int arg1);
-
     void on_errorCheckBox_stateChanged(int arg1);
-
     void on_criticalCheckBox_stateChanged(int arg1);
+
+    void on_sequenceCheckbox_stateChanged(int arg1);
+
+    void on_traceCheckbox_stateChanged(int arg1);
 
 private:
     //TraceColors

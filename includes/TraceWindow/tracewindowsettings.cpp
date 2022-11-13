@@ -236,11 +236,11 @@ void TraceWindowSettings::on_lineEdit_editingFinished()
     traceWindow->setTransparency(ui->lineEdit->text());
 }
 
-tUINT32 TraceWindowSettings::isTraceColumnNeedToShow(){
+Qt::CheckState TraceWindowSettings::isTraceColumnNeedToShow(){
     return ui->traceCheckbox->checkState();
 }
 
-tUINT32 TraceWindowSettings::isSequenceColumnNeedToShow(){
+Qt::CheckState TraceWindowSettings::isSequenceColumnNeedToShow(){
     return ui->sequenceCheckbox->checkState();
 }
 void TraceWindowSettings::InitColors(){
@@ -345,5 +345,21 @@ void TraceWindowSettings::on_errorCheckBox_stateChanged(int arg1)
 void TraceWindowSettings::on_criticalCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_CRITICAL,arg1);
+}
+
+
+void TraceWindowSettings::on_sequenceCheckbox_stateChanged(int arg1)
+{
+    if(traceWindow->isAutoscrollCheckd()==Qt::Unchecked){
+        traceWindow->ReloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_traceCheckbox_stateChanged(int arg1)
+{
+    if(traceWindow->isAutoscrollCheckd()==Qt::Unchecked){
+        traceWindow->ReloadTracesInsideWindow();
+    }
 }
 

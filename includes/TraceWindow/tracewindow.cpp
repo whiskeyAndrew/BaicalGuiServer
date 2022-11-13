@@ -1,7 +1,7 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 
-#define LINES_TO_SHOW 60
+#define LINES_TO_SHOW 75
 
 TraceWindow::TraceWindow(QDialog *parent) :
     QDialog(parent),
@@ -27,6 +27,10 @@ void TraceWindow::ReloadTracesInsideWindow(){
         }
         if(value<guiData.size()){
             GUIData g = guiData.value(value);
+            if(value==0){
+                return;
+            }
+
             if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
                 value--;
                 continue;
@@ -121,6 +125,21 @@ void TraceWindow::mousePressEvent(QMouseEvent *eventPress){
     ui->Autoscroll->setChecked(false);
 }
 
+bool TraceWindow::event(QEvent *event)
+{
+     if (event->type() == QEvent::KeyPress) {
+         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+         if (ke->key() == Qt::Key_F11) {
+             ui->groupBox_2->setVisible(!ui->groupBox_2->isVisible());
+             return true;
+         }
+     }
+     return QWidget::event(event);
+}
+
+Qt::CheckState TraceWindow::isAutoscrollCheckd(){
+    return ui->Autoscroll->checkState();
+}
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {

@@ -63,7 +63,9 @@ public:
     void changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state);
     const QString &getClientName() const;
 
+    Qt::CheckState isAutoscrollCheckd();
 private:
+    QCheckBox autoscroll;
     TraceWindowSettings *traceSettings;
 
     //"style=\"background-color:rgba(255, 0, 0, 0.4)\""
@@ -112,6 +114,7 @@ private:
 
     tUINT32 firstInitCounter = 0;
     QString GetGuiRow(GUIData g);
+    bool event(QEvent *event);
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
