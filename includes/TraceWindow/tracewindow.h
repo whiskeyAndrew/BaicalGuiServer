@@ -76,10 +76,9 @@ private:
     QColor errorColor = "";
     QColor criticalColor = "";
     QString transparency = "0.2";
-
-    time_t autoscrollTime = 0;
     QString traceLinkStart = "<a ";
     QString traceLinkHref = "href=\"";
+    //QString traceLinkMiddle = "\"color:#C0C0C0; text-decoration:none\">";
     QString traceLinkMiddle = "\"style=\"color:#C0C0C0\"style=\"text-decoration:none\">";
     QString traceLinkEnd = "</a>";
 
@@ -126,7 +125,6 @@ public slots:
 private slots:
     void AutoscrollStateChanged(tUINT32 stat);
     void on_expandButton_clicked(bool checked);
-    void on_pushButton_clicked();
     void on_verticalScrollBar_valueChanged(int value);
     void on_Disable_clicked();
     void on_infinite_line_stateChanged(int arg1);

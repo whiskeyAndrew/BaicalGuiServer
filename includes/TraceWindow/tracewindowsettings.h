@@ -5,6 +5,7 @@
 #include "../Trace.h"
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include "../confighandler.h"
 
 class TraceWindow;
 namespace Ui {
@@ -32,6 +33,7 @@ public:
     Qt::CheckState isTraceColumnNeedToShow();
     Qt::CheckState isSequenceColumnNeedToShow();
 private slots:
+
     //Trace Colors
     void on_traceColorButton_clicked();
     void on_debugColorButton_clicked();
@@ -47,7 +49,6 @@ private slots:
     void on_clearError_clicked();
     void on_clearCritical_clicked();
 
-    void on_lineEdit_editingFinished();
     void on_traceCheckBox_stateChanged(int arg1);
     void on_debugCheckBox_stateChanged(int arg1);
     void on_infoCheckBox_stateChanged(int arg1);
@@ -59,15 +60,20 @@ private slots:
 
     void on_traceCheckbox_stateChanged(int arg1);
 
+    void on_horizontalSlider_sliderReleased();
+
+    void on_horizontalSlider_sliderMoved(int position);
+
+    void on_checkAllUniqueTraces_clicked();
+
+    void on_uncheckAllUniqueTraces_clicked();
+
 private:
+    ConfigHandler *config;
     //TraceColors
+    QColor color;
     QColorDialog *colorDialog;
-    QColor traceColor;
-    QColor debugColor;
-    QColor infoColor;
-    QColor warningColor;
-    QColor errorColor;
-    QColor criticalColor;
+
 
     TraceWindow *traceWindow;
 

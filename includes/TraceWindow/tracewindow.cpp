@@ -1,7 +1,7 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 
-#define LINES_TO_SHOW 75
+#define LINES_TO_SHOW 100
 
 TraceWindow::TraceWindow(QDialog *parent) :
     QDialog(parent),
@@ -58,6 +58,7 @@ void TraceWindow::ReloadTracesInsideWindow(){
         }
 
     }
+
 }
 void TraceWindow::OpenHyperlink(const QUrl &link){
     ui->Autoscroll->setChecked(false);
@@ -196,9 +197,24 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
     if(ui->Autoscroll->isChecked()){
         GUIData g = guiData.value(ui->verticalScrollBar->value());
 
+        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW)
+        {
+            ReloadTracesInsideWindow();
+        }
+
+        while(ui->textBrowser->document()->blockCount()>LINES_TO_SHOW){
+            cursor = ui->textBrowser->textCursor();
+            cursor.movePosition(QTextCursor::Start);
+            cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
+            cursor.select(QTextCursor::LineUnderCursor);
+            cursor.removeSelectedText();
+            cursor.deleteChar();
+        }
+
         if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
             return;
         }
+
 
         if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
             return;
@@ -207,13 +223,9 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
         traceText = " "+g.trace;
         sequence = QString::number(g.sequence);
 
-        cursor = ui->textBrowser->textCursor();
-        cursor.movePosition(QTextCursor::Start);
-        cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
-        cursor.select(QTextCursor::LineUnderCursor);
-        cursor.removeSelectedText();
-        cursor.deleteChar();
+
         ui->textBrowser->append(GetGuiRow(g));
+        ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
         return;
     }
 
@@ -396,6 +408,9 @@ QColor TraceWindow::getTraceColor()
 void TraceWindow::setTraceColor(QColor newTraceColor)
 {
     traceColor = newTraceColor;
+    if(!ui->Autoscroll->isChecked()){
+        ReloadTracesInsideWindow();
+    }
 }
 
 QColor TraceWindow::getDebugColor()
@@ -406,6 +421,9 @@ QColor TraceWindow::getDebugColor()
 void TraceWindow::setDebugColor(QColor newDebugColor)
 {
     debugColor = newDebugColor;
+    if(!ui->Autoscroll->isChecked()){
+        ReloadTracesInsideWindow();
+    }
 }
 
 QColor TraceWindow::getInfoColor()
@@ -416,6 +434,9 @@ QColor TraceWindow::getInfoColor()
 void TraceWindow::setInfoColor(QColor newInfoColor)
 {
     infoColor = newInfoColor;
+    if(!ui->Autoscroll->isChecked()){
+        ReloadTracesInsideWindow();
+    }
 }
 
 QColor TraceWindow::getWarningColor()
@@ -426,6 +447,9 @@ QColor TraceWindow::getWarningColor()
 void TraceWindow::setWarningColor(QColor newWarningColor)
 {
     warningColor = newWarningColor;
+    if(!ui->Autoscroll->isChecked()){
+        ReloadTracesInsideWindow();
+    }
 }
 
 QColor TraceWindow::getErrorColor()
@@ -436,6 +460,9 @@ QColor TraceWindow::getErrorColor()
 void TraceWindow::setErrorColor(QColor newErrorColor)
 {
     errorColor = newErrorColor;
+    if(!ui->Autoscroll->isChecked()){
+        ReloadTracesInsideWindow();
+    }
 }
 
 QColor TraceWindow::getCriticalColor()
@@ -444,8 +471,11 @@ QColor TraceWindow::getCriticalColor()
 }
 
 void TraceWindow::setCriticalColor(QColor newCriticalColor)
-{
+{    
     criticalColor = newCriticalColor;
+    if(!ui->Autoscroll->isChecked()){
+        ReloadTracesInsideWindow();
+    }
 }
 
 QString TraceWindow::getTransparency() const
@@ -456,6 +486,9 @@ QString TraceWindow::getTransparency() const
 void TraceWindow::setTransparency(QString newTransparency)
 {
     transparency = newTransparency;
+    if(!ui->Autoscroll->isChecked()){
+        ReloadTracesInsideWindow();
+    }
 }
 
 void TraceWindow::on_WindowSettings_clicked()
