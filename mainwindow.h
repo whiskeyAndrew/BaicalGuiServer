@@ -28,10 +28,9 @@ public:
     QList<TraceWindow*> traceWindows;
 private:
     tUINT32 connectionsCounter = 0;
-    QString comboBoxText;
     Ui::MainWindow *ui;
     FileReader *fileReader;
-    void InitTraceWindow();
+    void InitTraceWindow(ConnectionName connectionName);
     QString styleSheet = "";
 
 public slots:

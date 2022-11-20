@@ -10,6 +10,8 @@
 #include <QDialog>
 #include "tracewindowsettings.h"
 
+
+
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -38,7 +40,7 @@ class TraceWindow : public QDialog
 
 public:
     QList<tUINT32> isNeedToShowByTraceLevel;
-    explicit TraceWindow(QDialog *parent = nullptr);
+    explicit TraceWindow(ConnectionName newClientName,QDialog *parent = nullptr);
     ~TraceWindow();
 
     void setStyle(QString newStyleSheet);
@@ -61,9 +63,9 @@ public:
     void setTransparency(QString newTransparency);
 
     void changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state);
-    const QString &getClientName() const;
+    const ConnectionName &getClientName() const;
 
-    Qt::CheckState isAutoscrollCheckd();
+    Qt::CheckState isAutoscrollChecked();
 private:
     QCheckBox autoscroll;
     TraceWindowSettings *traceSettings;
@@ -101,7 +103,7 @@ private:
                                  {5,"CRITICAL"}};
 
 
-    QString clientName;
+    ConnectionName clientName;
     QString styleSheet;
 
     void mousePressEvent(QMouseEvent *eventPress);

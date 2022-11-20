@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="uniqueTraces">
       <attribute name="title">
@@ -83,7 +83,7 @@
          <property name="title">
           <string/>
          </property>
-         <widget class="QCheckBox" name="traceCheckBox">
+         <widget class="QCheckBox" name="traceLevelCheckBox">
           <property name="geometry">
            <rect>
             <x>10</x>

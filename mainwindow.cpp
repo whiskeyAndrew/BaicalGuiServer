@@ -21,14 +21,11 @@ MainWindow::~MainWindow()
 void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packetHandler)
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
-    comboBoxText = inet_ntoa(newConnection.sin_addr);
-    comboBoxText.push_back(":"+QString::number(ntohs(newConnection.sin_port)));
-    comboBoxText.push_front("🟢");
-    // ui->comboBox->addItem(QString::number(ntohs(newConnection.sin_port)));
+    ConnectionName connectionName = {"🟩",inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
 
-    ui->comboBox->addItem(comboBoxText,connectionsCounter++);
+    ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
 
-    InitTraceWindow();
+    InitTraceWindow(connectionName);
 
     packetHandler->start();
 
@@ -36,16 +33,22 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packe
 
 void MainWindow::ChangeClientStatus(sockaddr_in client)
 {
-    QString clientName = inet_ntoa(client.sin_addr);
-    clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
-    clientName.push_front("🟢");
-    for(int i =0; i<comboBoxText.size();i++){
-        if(clientName==ui->comboBox->itemText(i)){
-            clientName.remove(0,2);
-            clientName.push_front("❌ ");
-            ui->comboBox->setItemText(i,clientName);
-        }
-    }
+//    QString clientName = inet_ntoa(client.sin_addr);
+//    clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
+//    clientName.push_front("🟢");
+//    for(int i =0; i<ui->comboBox->count();i++){
+//        if(clientName==ui->comboBox->itemText(i)){
+//            clientName.remove(0,2);
+//            clientName.push_front("❌ ");
+//            ui->comboBox->setItemText(i,clientName);
+//        }
+//    }
+
+//    for(int i =0;i<traceWindows.count();i++){
+//        if(traceWindows.at(i)->getClientName()==inet_ntoa(client.sin_addr)){
+
+//    }
+//    }
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -64,35 +67,31 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_pushButton_2_clicked()
 {
     //Чтение из файла
-    QString fileName = QFileDialog::getOpenFileName(this);
-    fileReader = new FileReader();
-    traceWindow = new TraceWindow();
+//    QString fileName = QFileDialog::getOpenFileName(this);
+//    fileReader = new FileReader();
+//    traceWindow = new TraceWindow();
 
-    fileReader->setTraceWindow(traceWindow);
-    fileReader->setFileName(fileName);
-    fileReader->start();
+//    fileReader->setTraceWindow(traceWindow);
+//    fileReader->setFileName(fileName);
+//    fileReader->start();
 
 
 }
 
-void MainWindow::InitTraceWindow()
+void MainWindow::InitTraceWindow(ConnectionName connectionName)
 {
-    //Говнокод, пофиксить надо потом
-    QString tempComboBoxText = ui->comboBox->currentText();
-    if(tempComboBoxText.startsWith("❌ ")){
+    //Говнокод, пофиксить надо потом0
+    if(connectionName.status=="❌"){
         QMessageBox mbx;
         mbx.setText("This connection was terminated");
         mbx.exec();
         return;
     }
 
-
-    traceWindow = new TraceWindow();
+    traceWindow = new TraceWindow(connectionName);
     traceWindows.append(traceWindow);
     tUINT32 index = traceWindows.size()-1;
     launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);
-
-    traceWindow->setClientName(comboBoxText);
 
     if(ui->checkBox->isChecked()){
         traceWindow->show();

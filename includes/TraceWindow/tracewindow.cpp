@@ -3,12 +3,13 @@
 
 #define LINES_TO_SHOW 100
 
-TraceWindow::TraceWindow(QDialog *parent) :
+TraceWindow::TraceWindow(ConnectionName newClientName, QDialog *parent) :
     QDialog(parent),
     ui(new Ui::TraceWindow)
 {
-    this->setWindowFlags(Qt::Window);
+    clientName = newClientName;
     ui->setupUi(this);
+    this->setWindowTitle(clientName.ip+":"+clientName.port);
     InitWindow();
 }
 
@@ -128,17 +129,17 @@ void TraceWindow::mousePressEvent(QMouseEvent *eventPress){
 
 bool TraceWindow::event(QEvent *event)
 {
-     if (event->type() == QEvent::KeyPress) {
-         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-         if (ke->key() == Qt::Key_F11) {
-             ui->groupBox_2->setVisible(!ui->groupBox_2->isVisible());
-             return true;
-         }
-     }
-     return QWidget::event(event);
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+        if (ke->key() == Qt::Key_F11) {
+            ui->groupBox_2->setVisible(!ui->groupBox_2->isVisible());
+            return true;
+        }
+    }
+    return QWidget::event(event);
 }
 
-Qt::CheckState TraceWindow::isAutoscrollCheckd(){
+Qt::CheckState TraceWindow::isAutoscrollChecked(){
     return ui->Autoscroll->checkState();
 }
 
@@ -197,7 +198,7 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
     if(ui->Autoscroll->isChecked()){
         GUIData g = guiData.value(ui->verticalScrollBar->value());
 
-        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW)
+        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && guiData.size()>LINES_TO_SHOW)
         {
             ReloadTracesInsideWindow();
         }
@@ -243,7 +244,7 @@ void TraceWindow::InitWindow(){
         isNeedToShowByTraceLevel.append(2);
     }
 
-    traceSettings = new TraceWindowSettings(this);
+    traceSettings = new TraceWindowSettings(this,&clientName);
 
     ui->verticalScrollBar->setMaximum(0);
 
@@ -271,12 +272,7 @@ void TraceWindow::InitWindow(){
 
 }
 
-void TraceWindow::setClientName(const QString &newClientName)
-{
-    clientName = newClientName;
-    this->setWindowTitle(clientName);
-    traceSettings->SetWindowName(clientName);
-}
+
 
 void TraceWindow::setStyle(QString newStyleSheet)
 {
@@ -394,7 +390,7 @@ void TraceWindow::changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state){
     }
 }
 
-const QString &TraceWindow::getClientName() const
+const ConnectionName &TraceWindow::getClientName() const
 {
     return clientName;
 }

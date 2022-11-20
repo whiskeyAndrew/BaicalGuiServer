@@ -7,6 +7,12 @@
 #include <QMessageBox>
 #include "../confighandler.h"
 
+struct ConnectionName{
+    QString status;
+    QString ip;
+    QString port;
+};
+
 class TraceWindow;
 namespace Ui {
 class TraceWindowSettings;
@@ -17,7 +23,7 @@ class TraceWindowSettings : public QWidget
     Q_OBJECT
 
 public:    
-    TraceWindowSettings(TraceWindow *newTraceWindow);
+    TraceWindowSettings(TraceWindow *newTraceWindow,ConnectionName *clientName);
     ~TraceWindowSettings();
 
     void createConnections();
@@ -49,16 +55,14 @@ private slots:
     void on_clearError_clicked();
     void on_clearCritical_clicked();
 
-    void on_traceCheckBox_stateChanged(int arg1);
     void on_debugCheckBox_stateChanged(int arg1);
     void on_infoCheckBox_stateChanged(int arg1);
     void on_warningCheckBox_stateChanged(int arg1);
     void on_errorCheckBox_stateChanged(int arg1);
     void on_criticalCheckBox_stateChanged(int arg1);
+    void on_traceLevelCheckBox_stateChanged(int arg1);
 
     void on_sequenceCheckbox_stateChanged(int arg1);
-
-    void on_traceCheckbox_stateChanged(int arg1);
 
     void on_horizontalSlider_sliderReleased();
 
@@ -68,7 +72,10 @@ private slots:
 
     void on_uncheckAllUniqueTraces_clicked();
 
+    void on_traceCheckbox_stateChanged(int arg1);
+
 private:
+    ConnectionName connectionName;
     ConfigHandler *config;
     //TraceColors
     QColor color;
@@ -82,6 +89,7 @@ private:
 
     void ReloadColors();
     void InitColors();
+    void InitTraceLevels();
 signals:
     //Unique Traces List
     void SendRowWID(tUINT32 wID, tUINT32 state);
