@@ -6,7 +6,6 @@ void PacketHandler::run()
 {
     //Нам надо один раз запустить и запомнить поток обработки чанков, это мы сделаем здесь
     chunkHandler.start();
-    connect(this,&PacketHandler::ConnectionLost,launcher,&Launcher::ConnectionLost);
 
     while(true)
     {

@@ -24,6 +24,7 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packe
     ConnectionName connectionName = {"🟩",inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
 
     ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
+    ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
 
     InitTraceWindow(connectionName);
 
@@ -33,22 +34,17 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packe
 
 void MainWindow::ChangeClientStatus(sockaddr_in client)
 {
-//    QString clientName = inet_ntoa(client.sin_addr);
-//    clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
-//    clientName.push_front("🟢");
-//    for(int i =0; i<ui->comboBox->count();i++){
-//        if(clientName==ui->comboBox->itemText(i)){
-//            clientName.remove(0,2);
-//            clientName.push_front("❌ ");
-//            ui->comboBox->setItemText(i,clientName);
-//        }
-//    }
+    QString clientName = inet_ntoa(client.sin_addr);
 
-//    for(int i =0;i<traceWindows.count();i++){
-//        if(traceWindows.at(i)->getClientName()==inet_ntoa(client.sin_addr)){
+    clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
 
-//    }
-//    }
+    for(int i =0; i<ui->comboBox->count();i++){
+        if(ui->comboBox->itemData(i,Qt::ToolTipRole)==clientName){
+            ConnectionName name = traceWindows.at(i)->getClientName();
+            ui->comboBox->setItemText(i,"❌ "+name.ip+":"+name.port);
+            return;
+        }
+    }
 }
 
 void MainWindow::on_pushButton_clicked()

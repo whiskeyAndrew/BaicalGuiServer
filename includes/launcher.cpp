@@ -15,7 +15,7 @@ void Launcher::run()
     //Инициализируем сокет
     while(!socketStarted)
     {
-        std::cout<<"Launcher:: Trying to init socket"<<std::endl;
+        std::cout<<"Launcher:: Trying to init s ocket"<<std::endl;
         socketStarted = InitSocket();
     }
 
@@ -90,13 +90,10 @@ void Launcher::SocketListener()
     }
 }
 
-void Launcher::ConnectionLost(sockaddr_in client){
-
-    emit ChangeClientStatus(client);
-}
-
 bool Launcher::FindClientInArray()
 {
+    //Надо полностью переписать структуру клиентов, она идеально работает, но написана через жёпу настолько, что я сам забыл как оно работает
+
     //Везде накидываем нтохсы потому что так правильно будет выводить пришедший порт
     //Ищем клиента в массиве клиентов, если он есть
     for(int i =0;i<clientsList->size();i++)

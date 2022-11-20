@@ -344,6 +344,7 @@ void TraceWindowSettings::InitColors(){
     } else{
         ui->criticalColorButton->setStyleSheet("");
     }
+    ui->horizontalSlider->setValue(config->transparency.toFloat()*100);
     traceWindow->setTransparency(config->transparency);
 
 }

@@ -154,10 +154,6 @@ public:
     bool InitData();
 
     time_t getLastPacketTime();
-
-signals:
-    void ConnectionLost(sockaddr_in client);
-
 };
 
 #endif // PACKETHANDLER_H
