@@ -1,7 +1,11 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
+#include <QTextBlock>
+#include <QTextBlockFormat>
+#include <QDateTime>
 
 
+<<<<<<< Updated upstream
 
 #define LINES_TO_SHOW 60
 
@@ -11,6 +15,17 @@ TraceWindow::TraceWindow(QDialog *parent) :
 {
     this->setWindowFlags(Qt::Window);
     ui->setupUi(this);
+=======
+TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler *newConfig, QDialog *parent) :
+    QDialog(parent),
+    ui(new Ui::TraceWindow)
+{
+    clientName = newClientName;
+    config = newConfig;
+    ui->setupUi(this);
+    this->setWindowFlags(Qt::Window);
+    this->setWindowTitle(clientName.ip+":"+clientName.port);
+>>>>>>> Stashed changes
     InitWindow();
 }
 
@@ -20,15 +35,28 @@ void TraceWindow::AddUniqueTrace(UniqueTraceData trace){
 
 void TraceWindow::ReloadTracesInsideWindow(){
     tUINT32 counter = 0;
-    tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW;
+    tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW-1;
     ui->textBrowser->setText("");
 
     while(counter<LINES_TO_SHOW){
+        if(value<0){
+            break;
+        }
         if(value>guiData.size()){
             value = guiData.size()-1;
         }
         if(value<guiData.size()){
+<<<<<<< Updated upstream
             GUIData g = guiData.value(value);
+=======
+            if(value<0){
+                return;
+            }
+
+            GUIData g = guiData.value(value);
+
+
+>>>>>>> Stashed changes
             if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
                 value--;
                 continue;
@@ -44,12 +72,12 @@ void TraceWindow::ReloadTracesInsideWindow(){
                 ui->textBrowser->insertPlainText("\n");
             }
             ui->textBrowser->insertHtml(GetGuiRow(g));
+
             value--;
             counter++;
         } else {
             break;
         }
-
     }
 }
 void TraceWindow::OpenHyperlink(const QUrl &link){
@@ -121,13 +149,15 @@ void TraceWindow::mousePressEvent(QMouseEvent *eventPress){
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
-    ui->verticalScrollBar->setMaximum(guiData.size()-1);
+    ui->verticalScrollBar->setMaximum(guiData.size());
     guiData.insert(ui->verticalScrollBar->maximum(),{trace.sequence,trace.trace,trace.wID,trace.bLevel});
 
     if(guiData.size()<LINES_TO_SHOW){
         GUIData g = guiData.value(ui->verticalScrollBar->maximum());
-
+        std::cout<<g.sequence<<std::endl;
+        //        ReloadTracesInsideWindow();
         ui->textBrowser->append(GetGuiRow(g));
+        return;
     }
 
     if(ui->Autoscroll->isChecked()){
@@ -170,7 +200,8 @@ void TraceWindow::on_pushButton_clicked()
 }
 
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
-{       
+{
+
     cursor = ui->textBrowser->textCursor();
 
     if(value>ui->verticalScrollBar->maximum()-LINES_TO_SHOW){
@@ -182,6 +213,26 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 
     if(ui->Autoscroll->isChecked()){
         GUIData g = guiData.value(ui->verticalScrollBar->value());
+<<<<<<< Updated upstream
+=======
+
+        // ui->verticalScrollBar->setMinimum(0);
+
+        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && guiData.size()>LINES_TO_SHOW)
+        {
+            ReloadTracesInsideWindow();
+        }
+
+        while(ui->textBrowser->document()->blockCount()>LINES_TO_SHOW){
+            cursor = ui->textBrowser->textCursor();
+            cursor.movePosition(QTextCursor::Start);
+            cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
+            cursor.select(QTextCursor::LineUnderCursor);
+            cursor.removeSelectedText();
+            cursor.deleteChar();
+        }
+
+>>>>>>> Stashed changes
         if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
             return;
         }
@@ -196,12 +247,21 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
         cursor.removeSelectedText();
         cursor.deleteChar();
         ui->textBrowser->append(GetGuiRow(g));
+<<<<<<< Updated upstream
+=======
+        //Переместить в самый низ скроллбар внутри textbrowser чтобы не было обрезания снизу
+        if(ui->Autoscroll->isChecked()){
+            ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
+        }
+        //        else{
+        //            ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->minimum());
+        //        }
+>>>>>>> Stashed changes
         return;
     }
 
     ui->textBrowser->setText("");
 
-    tUINT32 counter = 0;
     ReloadTracesInsideWindow();
 
 }
@@ -210,7 +270,17 @@ void TraceWindow::InitWindow(){
     traceSettings = new TraceWindowSettings(this);
     traceSettings->show();
 
+<<<<<<< Updated upstream
     ui->groupBox_3->setVisible(false);
+=======
+    //Инициализация списка по которому смотрим надо ли показывать трейс ПО bLevel
+    for(int i =0;i<6;i++){
+        isNeedToShowByTraceLevel.append(2);
+    }
+
+    traceSettings = new TraceWindowSettings(this,&clientName,config);
+
+>>>>>>> Stashed changes
     ui->verticalScrollBar->setMaximum(0);
 
     QPalette pallete = ui->textBrowser->palette();
@@ -270,7 +340,26 @@ bool TraceWindow::eventFilter(QObject *object, QEvent *event)
 
 void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state){
     //ui->textBrowser->clear();
-    on_verticalScrollBar_valueChanged(ui->verticalScrollBar->value());
+    if(state==Qt::Unchecked){
+
+        ui->moduleID->setText("");
+
+
+        ui->wID->setText("");
+        ui->line->setText("");
+
+        ui->argsLen->setText("");
+
+        ui->bLevel->setText("");
+        ui->bProcessor->setText("");
+        ui->threadID->setText("");
+        ui->dwSequence->setText("");
+
+        ui->traceText->setText("");
+        ui->traceDest->setText("");
+        ui->processName->setText("");
+    }
+    ReloadTracesInsideWindow();
 }
 
 void TraceWindow::on_Disable_clicked()
@@ -390,5 +479,31 @@ void TraceWindow::setCriticalColor(const QString &newCriticalColor)
 void TraceWindow::on_WindowSettings_clicked()
 {
     traceSettings->show();
+}
+
+
+void TracesToText::run()
+{
+    QFile file(QString::number(QDateTime::currentMSecsSinceEpoch())+".txt");
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
+        return;
+    }
+
+    QTextStream out(&file);
+    for(int i=0;i<data->size();i++){
+        GUIData dataToFile = data->value(i);
+        out<<QString::number(dataToFile.sequence)+" "+ dataToFile.trace;
+    }
+    file.close();
+}
+
+void TraceWindow::on_tracesToTxt_clicked()
+{
+    TracesToText *traces = new TracesToText();
+    traces->data = new QMap(guiData);
+    traces->start();
+
+    //Не уверен нужно ли удалять поток из памяти, скорее всего надо, чуть позже сделаю
 }
 

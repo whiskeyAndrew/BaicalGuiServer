@@ -590,7 +590,52 @@
      <property name="flat">
       <bool>false</bool>
      </property>
+<<<<<<< Updated upstream
      <widget class="QCheckBox" name="column0">
+=======
+     <widget class="QPushButton" name="expandButton">
+      <property name="geometry">
+       <rect>
+        <x>760</x>
+        <y>10</y>
+        <width>25</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>25</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>-&gt;</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="Disable">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>670</x>
+        <y>10</y>
+        <width>80</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Disable</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="Autoscroll">
+>>>>>>> Stashed changes
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -623,6 +668,19 @@
       </property>
       <property name="checked">
        <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="tracesToTxt">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>10</y>
+        <width>80</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save as .txt</string>
       </property>
      </widget>
     </widget>

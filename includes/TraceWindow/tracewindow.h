@@ -9,6 +9,11 @@
 #include <QTextCursor>
 #include <QDialog>
 #include "tracewindowsettings.h"
+<<<<<<< Updated upstream
+=======
+#include <QThread>
+
+>>>>>>> Stashed changes
 
 enum eP7Trace_Level
 {
@@ -37,7 +42,12 @@ class TraceWindow : public QDialog
     Q_OBJECT
 
 public:
+<<<<<<< Updated upstream
     explicit TraceWindow(QDialog *parent = nullptr);
+=======
+    QList<tUINT32> isNeedToShowByTraceLevel;
+    explicit TraceWindow(ConnectionName newClientName,ConfigHandler *newConfig, QDialog *parent = nullptr);
+>>>>>>> Stashed changes
     ~TraceWindow();
 
     void setStyle(QString newStyleSheet);
@@ -57,6 +67,11 @@ public:
     void setCriticalColor(const QString &newCriticalColor);
 
 private:
+<<<<<<< Updated upstream
+=======
+    ConfigHandler *config;
+    QCheckBox autoscroll;
+>>>>>>> Stashed changes
     TraceWindowSettings *traceSettings;
     QString traceColor = "";
     QString debugColor = "style=\"background-color:rgba(255, 203, 15, 0.2)\"";
@@ -70,7 +85,12 @@ private:
     time_t autoscrollTime = 0;
     QString traceLinkStart = "<a ";
     QString traceLinkHref = "href=\"";
+<<<<<<< Updated upstream
     QString traceLinkMiddle = "\"style=\"color:#C0C0C0\"style=\"text-decoration:none\">";
+=======
+    //QString traceLinkMiddle = "\"color:#C0C0C0; text-decoration:none\">";
+    QString traceLinkMiddle = "\"style=\"color:#C0C0C0;text-decoration:none;\">";
+>>>>>>> Stashed changes
     QString traceLinkEnd = "</a>";
 
     QString traceText;
@@ -123,6 +143,16 @@ private slots:
     void VerticalSliderReleased();
     void OpenHyperlink(const QUrl &link);
     void on_WindowSettings_clicked();
+
+
+    void on_tracesToTxt_clicked();
+};
+
+class TracesToText:public QThread{
+public:
+    QMap<tUINT32, GUIData> *data;
+private:
+    void run();
 };
 
 #endif // TRACEWINDOW_H

@@ -106,6 +106,7 @@ private:
     tUINT32 bytesLeft;
     tUINT32 chunkSize = 0;
 
+    tBOOL isRunning = true;
     std::vector<char>dataVector;
     std::vector<char> bufferVector;
 
@@ -154,10 +155,14 @@ public:
     bool InitData();
 
     time_t getLastPacketTime();
+<<<<<<< Updated upstream
 
 signals:
     void ConnectionLost(sockaddr_in client);
 
+=======
+    void setIsRunning(tBOOL newIsRunning);
+>>>>>>> Stashed changes
 };
 
 #endif // PACKETHANDLER_H

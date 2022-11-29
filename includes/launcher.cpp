@@ -1,5 +1,6 @@
 #include "launcher.h"
 #include "connectiontimeoutchecker.h"
+
 void Launcher::run()
 {
     connect(this,&Launcher::SendNewConnection,mainWindow,&MainWindow::GetNewConnection);
@@ -23,10 +24,22 @@ void Launcher::run()
     std::cout<<"Launcher:: Socket is ready!"<<std::endl;
     std::cout<<"Launcher:: Start listening for incoming connections"<<std::endl;
 
-    while(true)
+    while(!this->isInterruptionRequested())
     {
         SocketListener();
     }
+    connectionTimeoutChecker->requestInterruption();
+    connectionTimeoutChecker->wait();
+
+    for(int i =0;i<clientsList->size();i++){
+        clientsList->at(i).connectionThread->requestInterruption();
+
+    }
+    for(int i =0;i<clientsList->size();i++){
+        clientsList->at(i).connectionThread->wait();
+    }
+    std::cout<<"------"<<"Launcheris ending"<<"------"<<std::endl;
+    QApplication::quit();
 
 }
 
@@ -47,6 +60,9 @@ bool Launcher::InitSocket()
         return false;
     }
     setsockopt(socketIn,SOL_SOCKET,SO_RCVBUF,(char*)&iOptVal, iOptLen);
+    DWORD timeout = 1000;
+    setsockopt(socketIn, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+
     serverHint.sin_addr.S_un.S_addr = INADDR_ANY; //IP, указываем что можно использовать любую сетевую карту на машине
     serverHint.sin_family = AF_INET;
     serverHint.sin_port = htons(9009); //Convert from LE to BE, PORT
@@ -105,6 +121,12 @@ bool Launcher::FindClientInArray()
                 && (ntohs(client.sin_port) == ntohs(clientsList->at(i).clientIp.sin_port)))
         {
             packetHandler = clientsList->at(i).connectionThread;
+
+            //внезапно ловим соединение которое уже было, но с тем же самым айпишником и портом, проверяем по состоянию потока обработки пакетов
+            //не уверен что работает, но в теории должно, надеюсь?
+            if(packetHandler->isFinished()){
+                break;
+            }
             packetHandler->AppendQueue(packetBuffer,bytesIn);
             packetHandler->waitCondition.wakeOne();
 

@@ -10,12 +10,28 @@ void ChunkHandler::run()
 
     while((!chunks.empty()) || (fileEnded == false))
     {
+        if(this->isInterruptionRequested()){
+            std::cout<<"First interruption of chunkHandler"<<std::endl;
+            break;
+        }
 
         if(!GetChunkFromQueue()){
             continue;
         }
+
+        if(this->isInterruptionRequested()){
+            std::cout<<"Second interruption of chunkHandler"<<std::endl;
+            break;
+        }
+
         ProcessChunk();
+
+        if(this->isInterruptionRequested()){
+            std::cout<<"Thirs interruption of chunkHandler"<<std::endl;
+            break;
+        }
     }
+    std::cout<<"------"<<"ChunkHandler is ending"<<"------"<<std::endl;
     this->quit();
 }
 

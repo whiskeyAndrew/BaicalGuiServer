@@ -27,6 +27,7 @@ public:
     Launcher* launcher;
     QList<TraceWindow*> traceWindows;
 private:
+    ConfigHandler *config;
     tUINT32 connectionsCounter = 0;
     QString comboBoxText;
     Ui::MainWindow *ui;

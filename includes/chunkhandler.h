@@ -80,7 +80,6 @@ private:
     QMutex mutex;
     void run();
 
-
     std::vector<tINT8> chunkVector;
 
     tINT8* chunkBuffer;

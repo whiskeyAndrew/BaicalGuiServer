@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<PacketHandler*>("PacketHandler*");
     QApplication a(argc, argv);
 
+
     MainWindow mainWindow;
     Launcher launcher;
     mainWindow.launcher = &launcher;
@@ -32,6 +33,12 @@ int main(int argc, char *argv[])
 
     mainWindow.show();
 
-    return a.exec();
+    a.exec();
+
+    a.closeAllWindows();
+    launcher.requestInterruption();
+    launcher.wait();
+
+    std::cout<<"------"<<"Main thread closing"<<"------"<<std::endl;
 }
 

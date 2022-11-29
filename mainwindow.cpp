@@ -15,16 +15,22 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    std::cout<<"------"<<"Closing MainWindow thread"<<"------"<<std::endl;
     delete ui;
 }
 
 void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packetHandler)
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
+<<<<<<< Updated upstream
     comboBoxText = inet_ntoa(newConnection.sin_addr);
     comboBoxText.push_back(":"+QString::number(ntohs(newConnection.sin_port)));
     comboBoxText.push_front("🟢");
     // ui->comboBox->addItem(QString::number(ntohs(newConnection.sin_port)));
+=======
+    ConnectionName connectionName = {"🟩",inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
+        config = new ConfigHandler();
+>>>>>>> Stashed changes
 
     ui->comboBox->addItem(comboBoxText,connectionsCounter++);
 
@@ -80,8 +86,12 @@ void MainWindow::InitTraceWindow()
         return;
     }
 
+<<<<<<< Updated upstream
 
     traceWindow = new TraceWindow();
+=======
+    traceWindow = new TraceWindow(connectionName,config);
+>>>>>>> Stashed changes
     traceWindows.append(traceWindow);
     tUINT32 index = traceWindows.size()-1;
     launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);
