@@ -14,7 +14,7 @@
 #include <QMap>
 #include <QMutex>
 #include <QList>
-
+#include <QApplication>
 //std::vector<char> vectorChunk;
 //std::queue<std::vector<char>> queueChunks;
 struct ClientData

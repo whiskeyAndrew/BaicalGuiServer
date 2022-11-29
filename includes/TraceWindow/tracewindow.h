@@ -9,7 +9,7 @@
 #include <QTextCursor>
 #include <QDialog>
 #include "tracewindowsettings.h"
-
+#include <QThread>
 
 
 enum eP7Trace_Level
@@ -40,7 +40,7 @@ class TraceWindow : public QDialog
 
 public:
     QList<tUINT32> isNeedToShowByTraceLevel;
-    explicit TraceWindow(ConnectionName newClientName,QDialog *parent = nullptr);
+    explicit TraceWindow(ConnectionName newClientName,ConfigHandler *newConfig, QDialog *parent = nullptr);
     ~TraceWindow();
 
     void setStyle(QString newStyleSheet);
@@ -69,6 +69,7 @@ public:
 private:
     QCheckBox autoscroll;
     TraceWindowSettings *traceSettings;
+    ConfigHandler *config;
 
     //"style=\"background-color:rgba(255, 0, 0, 0.4)\""
     QColor traceColor = "";
@@ -81,7 +82,7 @@ private:
     QString traceLinkStart = "<a ";
     QString traceLinkHref = "href=\"";
     //QString traceLinkMiddle = "\"color:#C0C0C0; text-decoration:none\">";
-    QString traceLinkMiddle = "\"style=\"color:#C0C0C0\"style=\"text-decoration:none\">";
+    QString traceLinkMiddle = "\"style=\"color:#C0C0C0;text-decoration:none;\">";
     QString traceLinkEnd = "</a>";
 
     QString traceText;
@@ -134,6 +135,13 @@ private slots:
     void VerticalSliderReleased();
     void OpenHyperlink(const QUrl &link);
     void on_WindowSettings_clicked();
+    void on_traceToTxt_clicked();
 };
 
+class TracesToText:public QThread{
+public:
+    QMap<tUINT32, GUIData> *data;
+private:
+    void run();
+};
 #endif // TRACEWINDOW_H

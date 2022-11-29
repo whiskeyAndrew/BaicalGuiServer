@@ -1,13 +1,29 @@
 #include "confighandler.h"
 
+//На случай, если появится вопрос, зачем каждый раз пересоздавать сеттингс?
+//При изменении конфиг.ини ручками приложение не подтянет данные оттуда, потому что QSettings обращается к данным внутри себя, а не к файлу, если уже был создан
+//Создавая QSettings, он подгружает данные из конфига при старте, что позволяет курировать уже с данными из файла напрямую, а не с данными из объекта
+//Странная тема, особенно то, что нет методов на форсированное чтение данных из файла
+const QString &ConfigHandler::getConfigFileName() const
+{
+    return configFileName;
+}
+
 ConfigHandler::ConfigHandler(QString connectionName)
 {
     configName = connectionName;
-    settings = new QSettings(configName + "_config.ini", QSettings::IniFormat );
+    QSettings *settings = new QSettings(configName + "_config.ini", QSettings::IniFormat );
 
 }
 
+ConfigHandler::ConfigHandler()
+{
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    delete settings;
+}
+
 void ConfigHandler::SaveColors(){
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
     settings->beginGroup("RowsColors");
     settings->setValue("trace",QString::number(traceColor.red())+" "+QString::number(traceColor.green())+" "+QString::number(traceColor.blue()));
     settings->setValue("debug",QString::number(debugColor.red())+" "+QString::number(debugColor.green())+" "+QString::number(debugColor.blue()));
@@ -17,9 +33,11 @@ void ConfigHandler::SaveColors(){
     settings->setValue("critical",QString::number(criticalColor.red())+" "+QString::number(criticalColor.green())+" "+QString::number(criticalColor.blue()));
     settings->setValue("transparency",transparency);
     settings->endGroup();
+    delete settings;
 }
 
 void ConfigHandler::LoadColors(){
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
     settings->beginGroup("RowsColors");
     QStringList trace = settings->value("trace","").toString().split(" ");
     QStringList debug = settings->value("debug","").toString().split(" ");
@@ -48,9 +66,11 @@ void ConfigHandler::LoadColors(){
     if(critical.size()==3){
         criticalColor.setRgb(critical.at(0).toInt(),critical.at(1).toInt(),critical.at(2).toInt());
     }
+    delete settings;
 }
 
 void ConfigHandler::SaveTraceLevelsToShow(){
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
     settings->beginGroup("TraceLevelsToShow");
     settings->setValue("trace",traceLevel);
     settings->setValue("debug",debugLevel);
@@ -59,10 +79,11 @@ void ConfigHandler::SaveTraceLevelsToShow(){
     settings->setValue("error",errorLevel);
     settings->setValue("critical",traceLevel);
     settings->endGroup();
-
+    delete settings;
 }
 
 void ConfigHandler::LoadTraceLevelsToShow(){
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
     settings->beginGroup("TraceLevelsToShow");
     traceLevel = static_cast<Qt::CheckState>(settings->value("trace",2).toInt());
     debugLevel = static_cast<Qt::CheckState>(settings->value("debug",2).toInt());
@@ -71,5 +92,5 @@ void ConfigHandler::LoadTraceLevelsToShow(){
     errorLevel = static_cast<Qt::CheckState>(settings->value("error",2).toInt());
     criticalLevel =  static_cast<Qt::CheckState>(settings->value("critical",2).toInt());
     settings->endGroup();
-
+    delete settings;
 }

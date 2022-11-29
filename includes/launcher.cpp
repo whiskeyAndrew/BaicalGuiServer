@@ -23,11 +23,23 @@ void Launcher::run()
     std::cout<<"Launcher:: Socket is ready!"<<std::endl;
     std::cout<<"Launcher:: Start listening for incoming connections"<<std::endl;
 
-    while(true)
+    while(!this->isInterruptionRequested())
     {
         SocketListener();
     }
 
+    connectionTimeoutChecker->requestInterruption();
+    connectionTimeoutChecker->wait();
+
+    for(int i =0;i<clientsList->size();i++){
+        clientsList->at(i).connectionThread->requestInterruption();
+
+    }
+    for(int i =0;i<clientsList->size();i++){
+        clientsList->at(i).connectionThread->wait();
+    }
+    std::cout<<"------"<<"Launcheris ending"<<"------"<<std::endl;
+    QApplication::quit();
 }
 
 bool Launcher::InitSocket()
@@ -41,6 +53,8 @@ bool Launcher::InitSocket()
     }
 
     socketIn = socket(AF_INET, SOCK_DGRAM,0);
+    DWORD timeout = 1000;
+    setsockopt(socketIn, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
     if (socketIn == INVALID_SOCKET)
     {
         std::cout << "Can't create a socket! Quitting" << std::endl;
@@ -102,6 +116,12 @@ bool Launcher::FindClientInArray()
                 && (ntohs(client.sin_port) == ntohs(clientsList->at(i).clientIp.sin_port)))
         {
             packetHandler = clientsList->at(i).connectionThread;
+
+            //внезапно ловим соединение которое уже было, но с тем же самым айпишником и портом, проверяем по состоянию потока обработки пакетов
+            //не уверен что работает, но в теории должно, надеюсь?
+            if(packetHandler->isFinished()){
+                break;
+            }
             packetHandler->AppendQueue(packetBuffer,bytesIn);
             packetHandler->waitCondition.wakeOne();
 

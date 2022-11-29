@@ -33,6 +33,12 @@ int main(int argc, char *argv[])
 
     mainWindow.show();
 
-    return a.exec();
+    a.exec();
+
+    a.closeAllWindows();
+    launcher.requestInterruption();
+    launcher.wait();
+
+    std::cout<<"------"<<"Main thread closing"<<"------"<<std::endl;
 }
 

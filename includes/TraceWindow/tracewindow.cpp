@@ -3,15 +3,18 @@
 
 #define LINES_TO_SHOW 100
 
-TraceWindow::TraceWindow(ConnectionName newClientName, QDialog *parent) :
+TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler *newConfig, QDialog *parent) :
     QDialog(parent),
     ui(new Ui::TraceWindow)
 {
     clientName = newClientName;
+    config = newConfig;
     ui->setupUi(this);
+    this->setWindowFlags(Qt::Window);
     this->setWindowTitle(clientName.ip+":"+clientName.port);
     InitWindow();
 }
+
 
 void TraceWindow::AddUniqueTrace(UniqueTraceData trace){
     traceSettings->AppendUniqueTracesList(trace.traceLineData,trace.traceFormat.wID);
@@ -19,13 +22,14 @@ void TraceWindow::AddUniqueTrace(UniqueTraceData trace){
 
 void TraceWindow::ReloadTracesInsideWindow(){
     tUINT32 counter = 0;
-    tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW;
+    tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW-1;
     ui->textBrowser->setText("");
 
     while(counter<LINES_TO_SHOW){
         if(value>guiData.size()){
             value = guiData.size()-1;
         }
+
         if(value<guiData.size()){
             GUIData g = guiData.value(value);
             if(value==0){
@@ -145,7 +149,7 @@ Qt::CheckState TraceWindow::isAutoscrollChecked(){
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
-    ui->verticalScrollBar->setMaximum(guiData.size()-1);
+    ui->verticalScrollBar->setMaximum(guiData.size());
     guiData.insert(ui->verticalScrollBar->maximum(),{trace.sequence,trace.trace,trace.wID,trace.bLevel});
 
     if(guiData.size()<LINES_TO_SHOW){
@@ -494,5 +498,30 @@ void TraceWindow::on_WindowSettings_clicked()
         return;
     }
     traceSettings->show();
+}
+
+void TracesToText::run()
+{
+    QFile file(QString::number(QDateTime::currentMSecsSinceEpoch())+".txt");
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
+        return;
+    }
+
+    QTextStream out(&file);
+    for(int i=0;i<data->size();i++){
+        GUIData dataToFile = data->value(i);
+        out<<QString::number(dataToFile.sequence)+" "+ dataToFile.trace;
+    }
+    file.close();
+}
+
+void TraceWindow::on_traceToTxt_clicked()
+{
+    TracesToText *traces = new TracesToText();
+    traces->data = new QMap(guiData);
+    traces->start();
+
+    //Не уверен нужно ли удалять поток из памяти, скорее всего надо, чуть позже сделаю
 }
 

@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    std::cout<<"------"<<"Closing MainWindow thread"<<"------"<<std::endl;
     delete ui;
 }
 
@@ -22,12 +23,13 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packe
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     ConnectionName connectionName = {"🟩",inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
+    ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
+    ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
 
     ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
     ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
 
     InitTraceWindow(connectionName);
-
     packetHandler->start();
 
 }
@@ -35,9 +37,7 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packe
 void MainWindow::ChangeClientStatus(sockaddr_in client)
 {
     QString clientName = inet_ntoa(client.sin_addr);
-
     clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
-
     for(int i =0; i<ui->comboBox->count();i++){
         if(ui->comboBox->itemData(i,Qt::ToolTipRole)==clientName){
             ConnectionName name = traceWindows.at(i)->getClientName();
@@ -63,20 +63,19 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_pushButton_2_clicked()
 {
     //Чтение из файла
-//    QString fileName = QFileDialog::getOpenFileName(this);
-//    fileReader = new FileReader();
-//    traceWindow = new TraceWindow();
+    QString fileName = QFileDialog::getOpenFileName(this);
+    fileReader = new FileReader();
 
-//    fileReader->setTraceWindow(traceWindow);
-//    fileReader->setFileName(fileName);
-//    fileReader->start();
+    fileReader->setTraceWindow(traceWindow);
+    fileReader->setFileName(fileName);
+    fileReader->start();
 
 
 }
 
 void MainWindow::InitTraceWindow(ConnectionName connectionName)
 {
-    //Говнокод, пофиксить надо потом0
+    //Говнокод, пофиксить надо потом
     if(connectionName.status=="❌"){
         QMessageBox mbx;
         mbx.setText("This connection was terminated");
@@ -84,10 +83,11 @@ void MainWindow::InitTraceWindow(ConnectionName connectionName)
         return;
     }
 
-    traceWindow = new TraceWindow(connectionName);
+    traceWindow = new TraceWindow(connectionName,config);
     traceWindows.append(traceWindow);
     tUINT32 index = traceWindows.size()-1;
     launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);
+
 
     if(ui->checkBox->isChecked()){
         traceWindow->show();

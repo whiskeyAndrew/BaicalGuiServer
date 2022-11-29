@@ -7,7 +7,7 @@ void PacketHandler::run()
     //Нам надо один раз запустить и запомнить поток обработки чанков, это мы сделаем здесь
     chunkHandler.start();
 
-    while(true)
+    while(!this->isInterruptionRequested())
     {
         //Берем из очереди буфер
         lastPacketTime = GetCurrentTime();
@@ -23,6 +23,11 @@ void PacketHandler::run()
         }
         free(packetBuffer);
     }
+    std::cout<<"------"<<"Packet handler is ending"<<"------"<<std::endl;
+    chunkHandler.requestInterruption();
+    chunkHandler.waitCondition.wakeOne();
+    chunkHandler.wait();
+    this->exit();
 }
 
 void PacketHandler::AppendQueue(tUINT8* bufferPointer, tUINT32 bufferSize){

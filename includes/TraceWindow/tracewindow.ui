@@ -579,6 +579,19 @@ selection-background-color: rgb(243, 243, 243);</string>
        <string>Config</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="traceToTxt">
+      <property name="geometry">
+       <rect>
+        <x>480</x>
+        <y>10</y>
+        <width>80</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>to .txt</string>
+      </property>
+     </widget>
     </widget>
    </item>
   </layout>

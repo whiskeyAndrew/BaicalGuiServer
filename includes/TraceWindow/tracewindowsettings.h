@@ -6,6 +6,9 @@
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include "../confighandler.h"
+#include <QTextStream>
+#include <QFileDialog>
+#include <QDateTime>
 
 struct ConnectionName{
     QString status;
@@ -22,7 +25,7 @@ class TraceWindowSettings : public QWidget
 {
     Q_OBJECT
 
-public:    
+public:
     TraceWindowSettings(TraceWindow *newTraceWindow,ConnectionName *clientName);
     ~TraceWindowSettings();
 
@@ -74,12 +77,23 @@ private slots:
 
     void on_traceCheckbox_stateChanged(int arg1);
 
+    void on_tabWidget_tabBarClicked(int index);
+
+    void on_saveButton_clicked();
+
+    void on_LoadDataFromConfig_clicked();
+
+    void on_saveAsButton_clicked();
+
+    void on_loadButton_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;
     //TraceColors
     QColor color;
     QColorDialog *colorDialog;
+        QMessageBox mbx;
 
 
     TraceWindow *traceWindow;
@@ -90,6 +104,7 @@ private:
     void ReloadColors();
     void InitColors();
     void InitTraceLevels();
+    void LoadConfigFileAsText();
 signals:
     //Unique Traces List
     void SendRowWID(tUINT32 wID, tUINT32 state);

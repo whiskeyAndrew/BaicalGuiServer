@@ -7,7 +7,8 @@ class ConfigHandler
 {
 
 private:
-    QSettings *settings;
+    //QSettings *settings;
+    QString configFileName = "config.ini";
 
     //TraceSettings
 
@@ -30,10 +31,12 @@ public:
     Qt::CheckState errorLevel = Qt::Checked;
     Qt::CheckState criticalLevel = Qt::Checked;
     ConfigHandler(QString connectionName);
+    ConfigHandler();
     void SaveColors();
     void LoadColors();
     void SaveTraceLevelsToShow();
     void LoadTraceLevelsToShow();
+    const QString &getConfigFileName() const;
 };
 
 #endif // CONFIGHANDLER_H

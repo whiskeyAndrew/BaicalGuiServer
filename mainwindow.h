@@ -27,7 +27,10 @@ public:
     Launcher* launcher;
     QList<TraceWindow*> traceWindows;
 private:
+    ConnectionName connectionName;
+    ConfigHandler *config;
     tUINT32 connectionsCounter = 0;
+    QString comboBoxText;
     Ui::MainWindow *ui;
     FileReader *fileReader;
     void InitTraceWindow(ConnectionName connectionName);

@@ -439,4 +439,93 @@ void TraceWindowSettings::on_uncheckAllUniqueTraces_clicked()
 }
 
 
+void TraceWindowSettings::on_tabWidget_tabBarClicked(int index)
+{
+    if(index==2){
+        LoadConfigFileAsText();
+    }
+}
+
+void TraceWindowSettings::LoadConfigFileAsText(){
+    QFile file(config->getConfigFileName());
+
+    if (!file.open(QIODevice::ReadOnly |  QIODevice::Text)){
+        return;
+    }
+
+    ui->configText->setPlainText("");
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        ui->configText->appendPlainText(in.readLine());
+    }
+    file.close();
+}
+
+void TraceWindowSettings::on_loadButton_clicked()
+{
+    QString fileName= QFileDialog::getOpenFileName(this, "Load",config->getConfigFileName(),tr("Config files(*.ini)"));
+
+    if(fileName==""){
+        mbx.setText("Filename is empty");
+        mbx.exec();
+        return;
+    }
+
+    QFile file(fileName);
+
+    if (!file.open(QIODevice::ReadOnly |  QIODevice::Text)){
+        return;
+    }
+
+    ui->configText->setPlainText("");
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        ui->configText->appendPlainText(in.readLine());
+    }
+    file.close();
+}
+
+void TraceWindowSettings::on_saveButton_clicked()
+{
+    QFile file(config->getConfigFileName());
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
+        return;
+    }
+
+    QTextStream out(&file);
+    QString text = ui->configText->toPlainText();
+    std::cout<<text.toStdString()<<std::endl;
+    out<< text;
+    file.close();
+}
+
+void TraceWindowSettings::on_saveAsButton_clicked()
+{
+     QString fileName= QFileDialog::getSaveFileName(this, "Save As",config->getConfigFileName(),tr("Config files(*.ini"));
+
+     if(fileName==""){
+         mbx.setText("Filename is empty");
+         mbx.exec();
+         return;
+     }
+
+     QFile file(fileName);
+
+     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
+         return;
+     }
+
+     QTextStream out(&file);
+     QString text = ui->configText->toPlainText();
+     std::cout<<text.toStdString()<<std::endl;
+     out<< text;
+     file.close();
+}
+
+void TraceWindowSettings::on_LoadDataFromConfig_clicked()
+{
+    InitColors();
+    InitTraceLevels();
+}
 
