@@ -26,9 +26,6 @@ void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packe
     ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
     ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
 
-    ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
-    ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
-
     InitTraceWindow(connectionName);
     packetHandler->start();
 
@@ -50,6 +47,10 @@ void MainWindow::ChangeClientStatus(sockaddr_in client)
 void MainWindow::on_pushButton_clicked()
 {
     tUINT32 index = ui->comboBox->currentData().toString().toInt();
+
+    if(ui->comboBox->currentText()==""){
+        return;
+    }
 
     if(traceWindows.at(index)->isVisible()){
         traceWindows.at(index)->raise();

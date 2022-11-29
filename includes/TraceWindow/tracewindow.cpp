@@ -7,41 +7,122 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler *newConfig,
     QDialog(parent),
     ui(new Ui::TraceWindow)
 {
+    ui->setupUi(this);
+
+
     clientName = newClientName;
     config = newConfig;
-    ui->setupUi(this);
     this->setWindowFlags(Qt::Window);
     this->setWindowTitle(clientName.ip+":"+clientName.port);
     InitWindow();
 }
 
+void TraceWindow::GetTrace(TraceToGUI trace)
+{
+    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel};
+    ui->verticalScrollBar->setMaximum(++verticalBarSize);
+    guiData.insert(verticalBarSize,tempGuiData);
 
-void TraceWindow::AddUniqueTrace(UniqueTraceData trace){
-    traceSettings->AppendUniqueTracesList(trace.traceLineData,trace.traceFormat.wID);
+    if(verticalBarSize<LINES_TO_SHOW){
+        std::cout<<"less"<<std::endl;
+
+        QString row = GetGuiRow(tempGuiData);
+        std::cout<<row.toStdString()<<std::endl;
+        ui->textBrowser->append(row);
+        ui->textBrowser->verticalScrollBar()->setValue(0);
+
+        return;
+    }
+
+    if(ui->Autoscroll->isChecked()){
+        std::cout<<"more"<<std::endl;
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->maximum());
+    }
 }
 
+void TraceWindow::on_verticalScrollBar_valueChanged(int value)
+{
+    if(verticalBarSize<LINES_TO_SHOW){
+        return;
+    }
+    std::cout<<"value_changed"<<std::endl;
+    cursor = ui->textBrowser->textCursor();
+
+    if(value>ui->verticalScrollBar->maximum()-LINES_TO_SHOW){
+        ui->Autoscroll->setChecked(true);
+    }
+    else{
+        ui->Autoscroll->setChecked(false);
+    }
+
+    if(ui->Autoscroll->isChecked()){
+        GUIData g = guiData.value(ui->verticalScrollBar->value());
+
+        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && guiData.size()>LINES_TO_SHOW)
+        {
+            ReloadTracesInsideWindow();
+        }
+
+        while(ui->textBrowser->document()->blockCount()>LINES_TO_SHOW){
+            cursor = ui->textBrowser->textCursor();
+            cursor.movePosition(QTextCursor::Start);
+            cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
+            cursor.select(QTextCursor::LineUnderCursor);
+            cursor.removeSelectedText();
+            cursor.deleteChar();
+        }
+
+        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
+            return;
+        }
+
+
+        if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
+            return;
+        }
+
+        traceText = " "+g.trace;
+        sequence = QString::number(g.sequence);
+
+
+        ui->textBrowser->append(GetGuiRow(g));
+        ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
+        return;
+    }
+
+    ui->textBrowser->setText("");
+
+    tUINT32 counter = 0;
+    ReloadTracesInsideWindow();
+
+}
+
+
+//Попытки оптимизировать этот кривокод не получаются успешными
+//Так что чтож
+//Оставляю как есть, работает достаточно быстро, переделывать не стоит пока не упрусь в оптимизацию по этой штуке
 void TraceWindow::ReloadTracesInsideWindow(){
+    std::cout<<"reloading"<<std::endl;
     tUINT32 counter = 0;
     tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW-1;
     ui->textBrowser->setText("");
 
     while(counter<LINES_TO_SHOW){
+        if(value<1){
+            break;
+        }
         if(value>guiData.size()){
             value = guiData.size()-1;
         }
-
         if(value<guiData.size()){
             GUIData g = guiData.value(value);
-            if(value==0){
-                return;
-            }
 
             if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
                 value--;
                 continue;
             }
 
-            if(isNeedToShowByTraceLevel.at(g.bLevel)!=Qt::Checked){
+            if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
                 value--;
                 continue;
             }
@@ -56,15 +137,20 @@ void TraceWindow::ReloadTracesInsideWindow(){
                 ui->textBrowser->insertPlainText("\n");
             }
             ui->textBrowser->insertHtml(GetGuiRow(g));
+
             value--;
             counter++;
         } else {
             break;
         }
-
     }
-
 }
+
+
+void TraceWindow::AddUniqueTrace(UniqueTraceData trace){
+    traceSettings->AppendUniqueTracesList(trace.traceLineData,trace.traceFormat.wID);
+}
+
 void TraceWindow::OpenHyperlink(const QUrl &link){
     ui->Autoscroll->setChecked(false);
     tUINT32 sequence = link.toString().toInt();
@@ -118,7 +204,10 @@ void TraceWindow::AutoscrollStateChanged(tUINT32 stat){
     if(stat!=Qt::Checked){
         return;
     }
-    ReloadTracesInsideWindow();
+
+    if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW){
+        ReloadTracesInsideWindow();
+    }
 }
 
 TraceWindow::~TraceWindow()
@@ -147,21 +236,6 @@ Qt::CheckState TraceWindow::isAutoscrollChecked(){
     return ui->Autoscroll->checkState();
 }
 
-void TraceWindow::GetTrace(TraceToGUI trace)
-{
-    ui->verticalScrollBar->setMaximum(guiData.size());
-    guiData.insert(ui->verticalScrollBar->maximum(),{trace.sequence,trace.trace,trace.wID,trace.bLevel});
-
-    if(guiData.size()<LINES_TO_SHOW){
-        GUIData g = guiData.value(ui->verticalScrollBar->maximum());
-
-        ui->textBrowser->append(GetGuiRow(g));
-    }
-
-    if(ui->Autoscroll->isChecked()){
-        ui->verticalScrollBar->setValue(ui->verticalScrollBar->maximum());
-    }
-}
 
 void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
 
@@ -188,69 +262,23 @@ void TraceWindow::on_expandButton_clicked(bool checked)
 }
 
 
-void TraceWindow::on_verticalScrollBar_valueChanged(int value)
-{       
-    cursor = ui->textBrowser->textCursor();
 
-    if(value>ui->verticalScrollBar->maximum()-LINES_TO_SHOW){
-        ui->Autoscroll->setChecked(true);
-    }
-    else{
-        ui->Autoscroll->setChecked(false);
-    }
-
-    if(ui->Autoscroll->isChecked()){
-        GUIData g = guiData.value(ui->verticalScrollBar->value());
-
-        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && guiData.size()>LINES_TO_SHOW)
-        {
-            ReloadTracesInsideWindow();
-        }
-
-        while(ui->textBrowser->document()->blockCount()>LINES_TO_SHOW){
-            cursor = ui->textBrowser->textCursor();
-            cursor.movePosition(QTextCursor::Start);
-            cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
-            cursor.select(QTextCursor::LineUnderCursor);
-            cursor.removeSelectedText();
-            cursor.deleteChar();
-        }
-
-        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
-            return;
-        }
-
-
-        if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
-            return;
-        }
-
-        traceText = " "+g.trace;
-        sequence = QString::number(g.sequence);
-
-
-        ui->textBrowser->append(GetGuiRow(g));
-        ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
-        return;
-    }
-
-    ui->textBrowser->setText("");
-
-    tUINT32 counter = 0;
-    ReloadTracesInsideWindow();
-
-}
 
 void TraceWindow::InitWindow(){
+
+    //    traceSettings = new TraceWindowSettings(this,&clientName);
 
     //Инициализация списка по которому смотрим надо ли показывать трейс ПО bLevel
     for(int i =0;i<6;i++){
         isNeedToShowByTraceLevel.append(2);
     }
-
     traceSettings = new TraceWindowSettings(this,&clientName);
+    ui->textBrowser->setText("");
 
-    ui->verticalScrollBar->setMaximum(0);
+
+
+    ui->verticalScrollBar->setMaximum(1);
+    ui->verticalScrollBar->setMinimum(0);
 
     QPalette pallete = ui->textBrowser->palette();
     pallete.setColor(QPalette::Active, QPalette::Base, Qt::black);
@@ -374,22 +402,28 @@ QString TraceWindow::GetGuiRow(GUIData g){
         break;
     }
 
-    QString sequenceToGUI = "";
-    if(traceSettings->isSequenceColumnNeedToShow()){
-        sequenceToGUI = sequence;
+    QString sequenceToGUI = QString::number(g.sequence);
+    QString traceToGUI = " "+ g.trace;
+
+    if(traceSettings->isSequenceColumnNeedToShow()==Qt::Unchecked){
+        sequenceToGUI = "";
     }
-    if(!traceSettings->isTraceColumnNeedToShow()){
-        traceText="";
+    if(traceSettings->isTraceColumnNeedToShow()==Qt::Unchecked){
+        traceToGUI="";
     }
 
-    return traceLinkStart+color+traceLinkHref+sequence
+    //    std::cout<<(traceLinkStart+color+traceLinkHref+sequence
+    //                +traceLinkMiddle+sequenceToGUI
+    //                +traceToGUI+traceLinkEnd).toStdString()<<std::endl;
+
+    return traceLinkStart+color+traceLinkHref+sequenceToGUI
             +traceLinkMiddle+sequenceToGUI
-            +traceText+traceLinkEnd;
+            +traceToGUI+traceLinkEnd;
 }
 
 void TraceWindow::changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state){
     isNeedToShowByTraceLevel[id] = state;
-    if(ui->Autoscroll->isChecked()==Qt::Unchecked){
+    if(!ui->Autoscroll->isChecked()){
         ReloadTracesInsideWindow();
     }
 }

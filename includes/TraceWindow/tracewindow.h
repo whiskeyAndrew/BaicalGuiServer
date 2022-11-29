@@ -72,6 +72,8 @@ private:
     ConfigHandler *config;
 
     //"style=\"background-color:rgba(255, 0, 0, 0.4)\""
+
+
     QColor traceColor = "";
     QColor debugColor = "";
     QColor infoColor = "";
@@ -93,6 +95,8 @@ private:
     QCheckBox *infiniteLine;
 
     QMap<tUINT32, GUIData> guiData;
+
+    tUINT32 verticalBarSize = 0; //==guiData.size
 
     Trace *traceThread;
     Ui::TraceWindow *ui;

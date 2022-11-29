@@ -288,7 +288,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QLabel" name="warningLabel">
           <property name="geometry">
            <rect>
-            <x>250</x>
+            <x>300</x>
             <y>30</y>
             <width>51</width>
             <height>20</height>
@@ -301,7 +301,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="warningColorButton">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>360</x>
             <y>30</y>
             <width>121</width>
             <height>20</height>
@@ -324,7 +324,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QLabel" name="errorLabel">
           <property name="geometry">
            <rect>
-            <x>250</x>
+            <x>300</x>
             <y>60</y>
             <width>51</width>
             <height>20</height>
@@ -337,7 +337,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QLabel" name="criticalLabel">
           <property name="geometry">
            <rect>
-            <x>250</x>
+            <x>300</x>
             <y>90</y>
             <width>51</width>
             <height>20</height>
@@ -396,7 +396,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="errorColorButton">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>360</x>
             <y>60</y>
             <width>121</width>
             <height>20</height>
@@ -419,7 +419,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="criticalColorButton">
           <property name="geometry">
            <rect>
-            <x>310</x>
+            <x>360</x>
             <y>90</y>
             <width>121</width>
             <height>20</height>
@@ -469,6 +469,84 @@ selection-color: rgb(85, 255, 255);</string>
           </property>
           <property name="text">
            <string>Transparency</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearTrace">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>30</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearDebug">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>60</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearInfo">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>90</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearWarning">
+          <property name="geometry">
+           <rect>
+            <x>490</x>
+            <y>30</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearError">
+          <property name="geometry">
+           <rect>
+            <x>490</x>
+            <y>60</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearCritical">
+          <property name="geometry">
+           <rect>
+            <x>490</x>
+            <y>90</y>
+            <width>51</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear</string>
           </property>
          </widget>
         </widget>
