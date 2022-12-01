@@ -15,6 +15,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler *newConfig,
     this->setWindowFlags(Qt::Window);
     this->setWindowTitle(clientName.ip+":"+clientName.port);
     InitWindow();
+    initEnded = true;
 }
 
 void TraceWindow::GetTrace(TraceToGUI trace)
@@ -24,53 +25,43 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     guiData.insert(verticalBarSize,tempGuiData);
 
     if(verticalBarSize<LINES_TO_SHOW){
-        std::cout<<"less"<<std::endl;
-
+        ui->textBrowser->verticalScrollBar()->setValue(0);
         QString row = GetGuiRow(tempGuiData);
-        std::cout<<row.toStdString()<<std::endl;
         ui->textBrowser->append(row);
         ui->textBrowser->verticalScrollBar()->setValue(0);
-
         return;
     }
 
     if(ui->Autoscroll->isChecked()){
-        std::cout<<"more"<<std::endl;
+        //        ReloadTracesFromBelow(ui->verticalScrollBar->maximum());
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->maximum());
     }
 }
 
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {
-    if(verticalBarSize<LINES_TO_SHOW){
-        return;
-    }
-    std::cout<<"value_changed"<<std::endl;
-    cursor = ui->textBrowser->textCursor();
 
-    if(value>ui->verticalScrollBar->maximum()-LINES_TO_SHOW){
-        ui->Autoscroll->setChecked(true);
-    }
-    else{
-        ui->Autoscroll->setChecked(false);
-    }
+    std::cout<<"im in"<<std::endl;
+    ReloadTracesInsideWindow();
+}
+
+
+//Попытки оптимизировать этот кривокод не получаются успешными
+//Так что чтож
+//Оставляю как есть, работает достаточно быстро, переделывать не стоит пока не упрусь в оптимизацию по этой штуке
+void TraceWindow::ReloadTracesInsideWindow(){
+    tUINT32 value = ui->verticalScrollBar->value();
 
     if(ui->Autoscroll->isChecked()){
-        GUIData g = guiData.value(ui->verticalScrollBar->value());
-
-        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && guiData.size()>LINES_TO_SHOW)
+        std::cout<<"autoscrolling"<<std::endl;
+        //не нравится
+        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && verticalBarSize>LINES_TO_SHOW)
         {
-            ReloadTracesInsideWindow();
+            ReloadTracesFromBelow(value);
         }
+        //нравится
 
-        while(ui->textBrowser->document()->blockCount()>LINES_TO_SHOW){
-            cursor = ui->textBrowser->textCursor();
-            cursor.movePosition(QTextCursor::Start);
-            cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
-            cursor.select(QTextCursor::LineUnderCursor);
-            cursor.removeSelectedText();
-            cursor.deleteChar();
-        }
+        GUIData g = guiData.value(ui->verticalScrollBar->value());
 
         if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
             return;
@@ -81,71 +72,111 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
             return;
         }
 
-        traceText = " "+g.trace;
-        sequence = QString::number(g.sequence);
-
-
         ui->textBrowser->append(GetGuiRow(g));
         ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
+
+        //while - используется для ситуаций, где у нас требуется отображать строки не бесконечной линией
+        //мы можем удалять только строки текста, следовательно нужно удалять строки сверху до тех пор, пока их не станет столько, сколько надо
+        while(ui->textBrowser->document()->blockCount()>LINES_TO_SHOW){
+            cursor = ui->textBrowser->textCursor();
+            cursor.movePosition(QTextCursor::Start);
+            cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
+            cursor.select(QTextCursor::LineUnderCursor);
+            cursor.removeSelectedText();
+            cursor.deleteChar();
+        }
         return;
     }
 
-    ui->textBrowser->setText("");
 
-    tUINT32 counter = 0;
-    ReloadTracesInsideWindow();
-
+    //-1 для плавного перехода
+    if(value<=LINES_TO_SHOW){
+        ReloadTracesFromBelow(value);
+    }
+    else{
+        ReloadTracesFromAbove(value);
+    }
 }
 
+void TraceWindow::ReloadTracesFromBelow(int value){
+    std::cout<<"Reloading from Below"<<std::endl;
 
-//Попытки оптимизировать этот кривокод не получаются успешными
-//Так что чтож
-//Оставляю как есть, работает достаточно быстро, переделывать не стоит пока не упрусь в оптимизацию по этой штуке
-void TraceWindow::ReloadTracesInsideWindow(){
-    std::cout<<"reloading"<<std::endl;
     tUINT32 counter = 0;
-    tUINT32 value = ui->verticalScrollBar->value()+LINES_TO_SHOW-1;
+
+    ui->textBrowser->setText("");
+
+    while(counter<LINES_TO_SHOW){
+        //Выше данных нет
+        if(value>verticalBarSize){
+            ui->textBrowser->verticalScrollBar()->setValue(0);
+            return;
+        }
+
+        GUIData g = guiData.value(value);
+
+        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
+            value++;
+            continue;
+        }
+
+        if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
+            value++;
+            continue;
+        }
+
+        ui->textBrowser->append(GetGuiRow(g));
+        counter++;
+        value++;
+    }
+    ui->textBrowser->verticalScrollBar()->setValue(0);
+}
+
+void TraceWindow::ReloadTracesFromAbove(int value){
+    std::cout<<"Reloading from Above"<<std::endl;
+    tUINT32 counter = 0;
+    tUINT32 rememberValue = value;
     ui->textBrowser->setText("");
 
     while(counter<LINES_TO_SHOW){
         if(value<1){
-            break;
+            //Внезапно нам не хватает данных чтобы загрузить полностью страницу? Пробуем ее загрузить сверху!
+            ui->textBrowser->verticalScrollBar()->setValue(0);
+            return;
         }
-        if(value>guiData.size()){
-            value = guiData.size()-1;
+
+        if(value>verticalBarSize){
+            return;
         }
-        if(value<guiData.size()){
-            GUIData g = guiData.value(value);
 
-            if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
-                value--;
-                continue;
-            }
+        GUIData g = guiData.value(value);
 
-            if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
-                value--;
-                continue;
-            }
-
-            traceText = " "+g.trace;
-            sequence = QString::number(g.sequence);
-            cursor.movePosition(QTextCursor::Start);
-            ui->textBrowser->setTextCursor(cursor);
-            //<br> замедляет работу
-            //проверка избавляет от тупой пустой строки в самом верху
-            if(counter<LINES_TO_SHOW-1){
-                ui->textBrowser->insertPlainText("\n");
-            }
-            ui->textBrowser->insertHtml(GetGuiRow(g));
-
+        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
             value--;
-            counter++;
-        } else {
-            break;
+            continue;
         }
-    }
-}
 
+        if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
+            value--;
+            continue;
+        }
+
+        ui->textBrowser->moveCursor(QTextCursor::Start);
+        ui->textBrowser->insertPlainText("\n");
+        ui->textBrowser->insertHtml(GetGuiRow(g));
+        value--;
+        counter++;
+    }
+
+    //Удаляем в самом начале отступление
+    cursor = ui->textBrowser->textCursor();
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
+    cursor.select(QTextCursor::LineUnderCursor);
+    cursor.removeSelectedText();
+    cursor.deleteChar();
+
+    ui->textBrowser->verticalScrollBar()->setValue(0);
+}
 
 void TraceWindow::AddUniqueTrace(UniqueTraceData trace){
     traceSettings->AppendUniqueTracesList(trace.traceLineData,trace.traceFormat.wID);
@@ -201,11 +232,9 @@ void TraceWindow::VerticalSliderReleased(){
 }
 
 void TraceWindow::AutoscrollStateChanged(tUINT32 stat){
-    if(stat!=Qt::Checked){
+    if(stat==Qt::Unchecked){
         return;
-    }
-
-    if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW){
+    }else{
         ReloadTracesInsideWindow();
     }
 }
@@ -234,6 +263,11 @@ bool TraceWindow::event(QEvent *event)
 
 Qt::CheckState TraceWindow::isAutoscrollChecked(){
     return ui->Autoscroll->checkState();
+}
+
+tBOOL TraceWindow::isInitialized() const
+{
+    return initEnded;
 }
 
 
@@ -266,8 +300,6 @@ void TraceWindow::on_expandButton_clicked(bool checked)
 
 void TraceWindow::InitWindow(){
 
-    //    traceSettings = new TraceWindowSettings(this,&clientName);
-
     //Инициализация списка по которому смотрим надо ли показывать трейс ПО bLevel
     for(int i =0;i<6;i++){
         isNeedToShowByTraceLevel.append(2);
@@ -275,9 +307,7 @@ void TraceWindow::InitWindow(){
     traceSettings = new TraceWindowSettings(this,&clientName);
     ui->textBrowser->setText("");
 
-
-
-    ui->verticalScrollBar->setMaximum(1);
+    ui->verticalScrollBar->setMaximum(0);
     ui->verticalScrollBar->setMinimum(0);
 
     QPalette pallete = ui->textBrowser->palette();
@@ -299,7 +329,7 @@ void TraceWindow::InitWindow(){
 
     //По неведомым причинам перехват скролла верх не работает, он все равно скроллит само окно, а не переопределенный слайдер
     //Отключаем
-    ui->textBrowser->verticalScrollBar()->setDisabled(true);
+    //    ui->textBrowser->verticalScrollBar()->setDisabled(true);
     ui->infinite_line->setChecked(true);
 
 }
@@ -332,8 +362,7 @@ bool TraceWindow::eventFilter(QObject *object, QEvent *event)
 
 
 void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state){
-    //ui->textBrowser->clear();
-    on_verticalScrollBar_valueChanged(ui->verticalScrollBar->value());
+    ReloadTracesInsideWindow();
 }
 
 void TraceWindow::on_Disable_clicked()
@@ -348,8 +377,6 @@ void TraceWindow::on_Disable_clicked()
 
 void TraceWindow::on_infinite_line_stateChanged(int arg1)
 {
-    on_verticalScrollBar_valueChanged(ui->verticalScrollBar->value());
-
     if(arg1==Qt::Checked){
         ui->textBrowser->setLineWrapMode(QTextBrowser::LineWrapMode::NoWrap);
     }
@@ -441,8 +468,9 @@ QColor TraceWindow::getTraceColor()
 
 void TraceWindow::setTraceColor(QColor newTraceColor)
 {
+    //Надо иницализацию проверять, если не проинициализировались то и не перестраиваем ничего
     traceColor = newTraceColor;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -455,7 +483,7 @@ QColor TraceWindow::getDebugColor()
 void TraceWindow::setDebugColor(QColor newDebugColor)
 {
     debugColor = newDebugColor;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -468,7 +496,7 @@ QColor TraceWindow::getInfoColor()
 void TraceWindow::setInfoColor(QColor newInfoColor)
 {
     infoColor = newInfoColor;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -481,7 +509,7 @@ QColor TraceWindow::getWarningColor()
 void TraceWindow::setWarningColor(QColor newWarningColor)
 {
     warningColor = newWarningColor;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -494,7 +522,7 @@ QColor TraceWindow::getErrorColor()
 void TraceWindow::setErrorColor(QColor newErrorColor)
 {
     errorColor = newErrorColor;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -505,9 +533,9 @@ QColor TraceWindow::getCriticalColor()
 }
 
 void TraceWindow::setCriticalColor(QColor newCriticalColor)
-{    
+{
     criticalColor = newCriticalColor;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -520,7 +548,7 @@ QString TraceWindow::getTransparency() const
 void TraceWindow::setTransparency(QString newTransparency)
 {
     transparency = newTransparency;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -545,7 +573,7 @@ void TracesToText::run()
     QTextStream out(&file);
     for(int i=0;i<data->size();i++){
         GUIData dataToFile = data->value(i);
-        out<<QString::number(dataToFile.sequence)+" "+ dataToFile.trace;
+        out<<QString::number(dataToFile.sequence)+" "+ dataToFile.trace+"\n";
     }
     file.close();
 }

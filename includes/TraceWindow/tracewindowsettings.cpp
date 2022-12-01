@@ -16,8 +16,9 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     setWindowTitle(clientName->ip+":"+clientName->port +" config");
     config = new ConfigHandler(connectionName.ip);
 
-    InitColors();
     InitTraceLevels();
+    InitColors();
+
 }
 
 void TraceWindowSettings::SetWindowName(QString name){
@@ -271,7 +272,6 @@ void TraceWindowSettings::InitTraceLevels(){
 
 void TraceWindowSettings::InitColors(){
     config->LoadColors();
-
     if(config->traceColor.isValid()){
         ui->traceColorButton->setStyleSheet("background-color: rgb("+QString::number(config->traceColor.red())+", "
                                             +QString::number(config->traceColor.green())+", "
@@ -502,25 +502,25 @@ void TraceWindowSettings::on_saveButton_clicked()
 
 void TraceWindowSettings::on_saveAsButton_clicked()
 {
-     QString fileName= QFileDialog::getSaveFileName(this, "Save As",config->getConfigFileName(),tr("Config files(*.ini"));
+    QString fileName= QFileDialog::getSaveFileName(this, "Save As",config->getConfigFileName(),tr("Config files(*.ini"));
 
-     if(fileName==""){
-         mbx.setText("Filename is empty");
-         mbx.exec();
-         return;
-     }
+    if(fileName==""){
+        mbx.setText("Filename is empty");
+        mbx.exec();
+        return;
+    }
 
-     QFile file(fileName);
+    QFile file(fileName);
 
-     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
-         return;
-     }
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
+        return;
+    }
 
-     QTextStream out(&file);
-     QString text = ui->configText->toPlainText();
-     std::cout<<text.toStdString()<<std::endl;
-     out<< text;
-     file.close();
+    QTextStream out(&file);
+    QString text = ui->configText->toPlainText();
+    std::cout<<text.toStdString()<<std::endl;
+    out<< text;
+    file.close();
 }
 
 void TraceWindowSettings::on_LoadDataFromConfig_clicked()

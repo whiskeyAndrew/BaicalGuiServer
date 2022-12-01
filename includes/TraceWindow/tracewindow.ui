@@ -61,7 +61,7 @@ selection-color: rgb(63, 63, 63);
 selection-background-color: rgb(243, 243, 243);</string>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarAlwaysOn</enum>
      </property>
      <property name="lineWrapMode">
       <enum>QTextEdit::NoWrap</enum>
@@ -546,7 +546,7 @@ selection-background-color: rgb(243, 243, 243);</string>
      </widget>
      <widget class="QCheckBox" name="infinite_line">
       <property name="enabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>

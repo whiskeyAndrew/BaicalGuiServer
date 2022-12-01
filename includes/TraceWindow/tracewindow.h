@@ -66,6 +66,8 @@ public:
     const ConnectionName &getClientName() const;
 
     Qt::CheckState isAutoscrollChecked();
+    tBOOL isInitialized() const;
+
 private:
     QCheckBox autoscroll;
     TraceWindowSettings *traceSettings;
@@ -91,6 +93,12 @@ private:
     QString sequence;
 
     QTextCursor cursor;
+
+    tBOOL initEnded = false;
+
+    //Для дозаполнения данных если не хватает строк и для плавного перехода
+    tBOOL needToAppendFromBottom = false;
+    tUINT32 tempCounterToRemember;
 
     QCheckBox *infiniteLine;
 
@@ -121,6 +129,8 @@ private:
     tUINT32 firstInitCounter = 0;
     QString GetGuiRow(GUIData g);
     bool event(QEvent *event);
+    void ReloadTracesFromBelow(int value);
+    void ReloadTracesFromAbove(int value);
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
