@@ -10,7 +10,7 @@
 #include <QDialog>
 #include "tracewindowsettings.h"
 #include <QThread>
-
+#include "../tracestotxt.h"
 
 enum eP7Trace_Level
 {
@@ -24,12 +24,6 @@ enum eP7Trace_Level
     EP7TRACE_LEVEL_COUNT
 };
 
-struct GUIData{
-    tUINT32 sequence;
-    QString trace;
-    tUINT32 wID;
-    tUINT32 bLevel;
-};
 
 namespace Ui {
 class TraceWindow;
@@ -152,10 +146,5 @@ private slots:
     void on_traceToTxt_clicked();
 };
 
-class TracesToText:public QThread{
-public:
-    QMap<tUINT32, GUIData> *data;
-private:
-    void run();
-};
+
 #endif // TRACEWINDOW_H

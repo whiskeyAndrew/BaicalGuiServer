@@ -511,7 +511,7 @@ selection-background-color: rgb(243, 243, 243);</string>
      </widget>
      <widget class="QPushButton" name="Disable">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>

@@ -21,6 +21,13 @@
 
 #define SIZE_OF_ARG_END 5
 
+struct GUIData{
+    tUINT32 sequence;
+    QString trace;
+    tUINT32 wID;
+    tUINT32 bLevel;
+};
+
 struct p7Time{
     tUINT32        dwYear;            //year
     tUINT32        dwMonth;           //month

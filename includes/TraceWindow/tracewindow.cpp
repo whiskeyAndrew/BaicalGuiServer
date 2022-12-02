@@ -33,7 +33,6 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     }
 
     if(ui->Autoscroll->isChecked()){
-        //        ReloadTracesFromBelow(ui->verticalScrollBar->maximum());
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->maximum());
     }
 }
@@ -53,11 +52,11 @@ void TraceWindow::ReloadTracesInsideWindow(){
     tUINT32 value = ui->verticalScrollBar->value();
 
     if(ui->Autoscroll->isChecked()){
-        std::cout<<"autoscrolling"<<std::endl;
+
         //не нравится
         if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && verticalBarSize>LINES_TO_SHOW)
         {
-            ReloadTracesFromBelow(value);
+            ReloadTracesFromAbove(value);
         }
         //нравится
 
@@ -90,17 +89,16 @@ void TraceWindow::ReloadTracesInsideWindow(){
 
 
     //-1 для плавного перехода
-    if(value<=LINES_TO_SHOW){
+
+//    if(value<=verticalBarSize-LINES_TO_SHOW-1){
         ReloadTracesFromBelow(value);
-    }
-    else{
-        ReloadTracesFromAbove(value);
-    }
+//    }
+//    else{
+//        ReloadTracesFromAbove(value);
+//    }
 }
 
 void TraceWindow::ReloadTracesFromBelow(int value){
-    std::cout<<"Reloading from Below"<<std::endl;
-
     tUINT32 counter = 0;
 
     ui->textBrowser->setText("");
@@ -140,6 +138,7 @@ void TraceWindow::ReloadTracesFromAbove(int value){
     while(counter<LINES_TO_SHOW){
         if(value<1){
             //Внезапно нам не хватает данных чтобы загрузить полностью страницу? Пробуем ее загрузить сверху!
+            //Возможно этот код уже не нужен, надо будет перепроверить
             ui->textBrowser->verticalScrollBar()->setValue(0);
             return;
         }
@@ -270,11 +269,9 @@ tBOOL TraceWindow::isInitialized() const
     return initEnded;
 }
 
-
 void TraceWindow::GetTraceFromFile(std::queue<TraceToGUI> data){
 
 }
-
 
 void TraceWindow::SetTraceAsObject(Trace *trace)
 {
@@ -294,9 +291,6 @@ void TraceWindow::on_expandButton_clicked(bool checked)
         ui->expandButton->setText("->");
     }
 }
-
-
-
 
 void TraceWindow::InitWindow(){
 
@@ -334,8 +328,6 @@ void TraceWindow::InitWindow(){
 
 }
 
-
-
 void TraceWindow::setStyle(QString newStyleSheet)
 {
     setStyleSheet(newStyleSheet);
@@ -360,7 +352,6 @@ bool TraceWindow::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-
 void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state){
     ReloadTracesInsideWindow();
 }
@@ -372,8 +363,24 @@ void TraceWindow::on_Disable_clicked()
     }
     tUINT32 wID = ui->wID->text().toInt();
     traceSettings->DisableElement(wID);
-}
 
+    ui->moduleID->clear();
+
+
+    ui->wID->clear();
+    ui->line->clear();
+
+    ui->argsLen->clear();
+
+    ui->bLevel->clear();
+    ui->bProcessor->clear();
+    ui->threadID->clear();
+    ui->dwSequence->clear();
+
+    ui->traceText->clear();
+    ui->traceDest->clear();
+    ui->processName->clear();
+}
 
 void TraceWindow::on_infinite_line_stateChanged(int arg1)
 {
@@ -450,7 +457,7 @@ QString TraceWindow::GetGuiRow(GUIData g){
 
 void TraceWindow::changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state){
     isNeedToShowByTraceLevel[id] = state;
-    if(!ui->Autoscroll->isChecked()){
+    if(!ui->Autoscroll->isChecked() && initEnded){
         ReloadTracesInsideWindow();
     }
 }
@@ -562,26 +569,11 @@ void TraceWindow::on_WindowSettings_clicked()
     traceSettings->show();
 }
 
-void TracesToText::run()
-{
-    QFile file(QString::number(QDateTime::currentMSecsSinceEpoch())+".txt");
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
-        return;
-    }
-
-    QTextStream out(&file);
-    for(int i=0;i<data->size();i++){
-        GUIData dataToFile = data->value(i);
-        out<<QString::number(dataToFile.sequence)+" "+ dataToFile.trace+"\n";
-    }
-    file.close();
-}
 
 void TraceWindow::on_traceToTxt_clicked()
 {
-    TracesToText *traces = new TracesToText();
-    traces->data = new QMap(guiData);
+    TracesToText *traces = new TracesToText(new QMap(guiData));
     traces->start();
 
     //Не уверен нужно ли удалять поток из памяти, скорее всего надо, чуть позже сделаю

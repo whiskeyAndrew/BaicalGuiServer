@@ -12,14 +12,17 @@ const QString &ConfigHandler::getConfigFileName() const
 ConfigHandler::ConfigHandler(QString connectionName)
 {
     configName = connectionName;
-    QSettings *settings = new QSettings(configName + "_config.ini", QSettings::IniFormat );
 
+    //Надо разобраться как форсированно грузить данные из settings
+
+//    QSettings *settings = new QSettings(configName + "_config.ini", QSettings::IniFormat );
+//     delete settings;
 }
 
 ConfigHandler::ConfigHandler()
 {
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
-    delete settings;
+//    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+//    delete settings;
 }
 
 void ConfigHandler::SaveColors(){

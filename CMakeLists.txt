@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
         includes/connectiontimeoutchecker.h includes/connectiontimeoutchecker.cpp
         includes/TraceWindow/tracewindowsettings.h includes/TraceWindow/tracewindowsettings.cpp includes/TraceWindow/tracewindowsettings.ui
         includes/confighandler.h includes/confighandler.cpp
+        includes/tracestotxt.h includes/tracestotxt.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
