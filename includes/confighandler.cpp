@@ -80,7 +80,7 @@ void ConfigHandler::SaveTraceLevelsToShow(){
     settings->setValue("info",infoLevel);
     settings->setValue("warning",warningLevel);
     settings->setValue("error",errorLevel);
-    settings->setValue("critical",traceLevel);
+    settings->setValue("critical",criticalLevel);
     settings->endGroup();
     delete settings;
 }

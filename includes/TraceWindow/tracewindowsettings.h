@@ -88,6 +88,10 @@ private slots:
 
 
 
+    void on_saveAllTraceCheckboxes_clicked();
+
+    void on_saveAllColors_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;

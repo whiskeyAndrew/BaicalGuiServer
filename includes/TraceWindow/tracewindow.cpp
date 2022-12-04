@@ -196,6 +196,7 @@ void TraceWindow::OpenHyperlink(const QUrl &link){
     }
 
     ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
+    if(traceFormat.traceFormat.line)
     ui->line->setText(QString::number(traceFormat.traceFormat.line));
 
     ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
@@ -205,6 +206,7 @@ void TraceWindow::OpenHyperlink(const QUrl &link){
     ui->threadID->setText(QString::number(traceData.dwThreadID));
     ui->dwSequence->setText(QString::number(traceData.dwSequence));
 
+    //Нужно добваить игнорирование тэгов
     ui->traceText->setText(traceFormat.traceLineData);
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
@@ -454,6 +456,9 @@ QString TraceWindow::GetGuiRow(GUIData g){
     //                +traceLinkMiddle+sequenceToGUI
     //                +traceToGUI+traceLinkEnd).toStdString()<<std::endl;
 
+    if(traceToGUI.contains("\n")){
+        traceToGUI.replace("\n","<br>");
+    }
     return traceLinkStart+color+traceLinkHref+sequenceToGUI
             +traceLinkMiddle+sequenceToGUI
             +traceToGUI+traceLinkEnd;

@@ -71,7 +71,6 @@ void TraceWindowSettings::on_traceColorButton_clicked()
                                         +QString::number(color.blue())+");");
     traceWindow->setTraceColor(color);
     config->traceColor=color;
-    config->SaveColors();
 }
 
 
@@ -89,7 +88,6 @@ void TraceWindowSettings::on_debugColorButton_clicked()
                                         +QString::number(color.blue())+");");
     traceWindow->setDebugColor(color);
     config->debugColor=color;
-    config->SaveColors();
 }
 
 
@@ -107,7 +105,6 @@ void TraceWindowSettings::on_infoColorButton_clicked()
                                        +QString::number(color.blue())+");");
     traceWindow->setInfoColor(color);
     config->infoColor=color;
-    config->SaveColors();
 }
 
 
@@ -125,7 +122,6 @@ void TraceWindowSettings::on_warningColorButton_clicked()
                                           +QString::number(color.blue())+");");
     traceWindow->setWarningColor(color);
     config->warningColor=color;
-    config->SaveColors();
 }
 
 
@@ -143,7 +139,6 @@ void TraceWindowSettings::on_errorColorButton_clicked()
                                         +QString::number(color.blue())+");");
     traceWindow->setErrorColor(color);
     config->errorColor=color;
-    config->SaveColors();
 }
 
 
@@ -162,7 +157,6 @@ void TraceWindowSettings::on_criticalColorButton_clicked()
                                            +QString::number(color.blue())+");");
     traceWindow->setCriticalColor(color);
     config->criticalColor=traceWindow->getCriticalColor();
-    config->SaveColors();
 }
 
 
@@ -175,7 +169,6 @@ void TraceWindowSettings::on_clearTrace_clicked()
         traceWindow->setTraceColor("");
         config->traceColor = "";
         ui->traceColorButton->setStyleSheet("");
-        config->SaveColors();
     }
 
 }
@@ -190,7 +183,6 @@ void TraceWindowSettings::on_clearDebug_clicked()
         traceWindow->setDebugColor("");
         config->debugColor = "";
         ui->debugColorButton->setStyleSheet("");
-        config->SaveColors();
     }
 }
 
@@ -204,7 +196,6 @@ void TraceWindowSettings::on_clearInfo_clicked()
         traceWindow->setInfoColor("");
         config->infoColor = "";
         ui->infoColorButton->setStyleSheet("");
-        config->SaveColors();
     }
 }
 
@@ -218,7 +209,6 @@ void TraceWindowSettings::on_clearWarning_clicked()
         traceWindow->setWarningColor("");
         config->warningColor = "";
         ui->warningColorButton->setStyleSheet("");
-        config->SaveColors();
     }
 }
 
@@ -232,7 +222,6 @@ void TraceWindowSettings::on_clearError_clicked()
         traceWindow->setErrorColor("");
         config->errorColor = "";
         ui->errorColorButton->setStyleSheet("");
-        config->SaveColors();
     }
 }
 
@@ -246,7 +235,6 @@ void TraceWindowSettings::on_clearCritical_clicked()
         traceWindow->setCriticalColor("");
         config->criticalColor = "";
         ui->criticalColorButton->setStyleSheet("");
-        config->SaveColors();
     }
 }
 
@@ -353,7 +341,6 @@ void TraceWindowSettings::on_traceLevelCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_TRACE,arg1);
     config->traceLevel = static_cast<Qt::CheckState>(arg1);
-    config->SaveTraceLevelsToShow();
 }
 
 
@@ -361,7 +348,6 @@ void TraceWindowSettings::on_debugCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_DEBUG,arg1);
     config->debugLevel = static_cast<Qt::CheckState>(arg1);
-    config->SaveTraceLevelsToShow();
 }
 
 
@@ -369,7 +355,6 @@ void TraceWindowSettings::on_infoCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_INFO,arg1);
     config->infoLevel = static_cast<Qt::CheckState>(arg1);
-    config->SaveTraceLevelsToShow();
 }
 
 
@@ -377,7 +362,6 @@ void TraceWindowSettings::on_warningCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_WARNING,arg1);
     config->warningLevel = static_cast<Qt::CheckState>(arg1);
-    config->SaveTraceLevelsToShow();
 }
 
 
@@ -385,7 +369,6 @@ void TraceWindowSettings::on_errorCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_ERROR,arg1);
     config->errorLevel = static_cast<Qt::CheckState>(arg1);
-    config->SaveTraceLevelsToShow();
 }
 
 
@@ -393,7 +376,6 @@ void TraceWindowSettings::on_criticalCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_CRITICAL,arg1);
     config->criticalLevel = static_cast<Qt::CheckState>(arg1);
-    config->SaveTraceLevelsToShow();
 }
 
 
@@ -414,7 +396,6 @@ void TraceWindowSettings::on_traceCheckbox_stateChanged(int arg1)
 void TraceWindowSettings::on_horizontalSlider_sliderReleased()
 {
     config->transparency = QString::number(static_cast<float>(ui->horizontalSlider->value())/100);
-    config->SaveColors();
 }
 
 void TraceWindowSettings::on_horizontalSlider_sliderMoved(int position)
@@ -527,5 +508,17 @@ void TraceWindowSettings::on_uncheckAllUniqueTraces_clicked()
         for(int i=0;i<ui->listWidget->count();i++){
             ui->listWidget->item(i)->setCheckState(Qt::CheckState::Unchecked);
         }
+}
+
+
+void TraceWindowSettings::on_saveAllTraceCheckboxes_clicked()
+{
+    config->SaveTraceLevelsToShow();
+}
+
+
+void TraceWindowSettings::on_saveAllColors_clicked()
+{
+    config->SaveColors();
 }
 
