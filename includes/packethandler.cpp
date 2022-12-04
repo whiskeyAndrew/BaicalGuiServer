@@ -200,13 +200,16 @@ PacketHandler::~PacketHandler()
 
 bool PacketHandler::HandleHelloPacket()
 {
+    if(helloPacketInitialized){
+        return true;
+    }
     memcpy(&packetHello,packetCursor,sizeof(sH_Client_Hello));
     packetEnd = packetCursor+sizeof(sH_Client_Hello);
 
     packetCRC = Get_CRC32((unsigned char*)packetBuffer + CRC_OFFSET, packetSize-CRC_OFFSET);
     if(packetCRC!=packetHeader.dwCRC32)
     {
-        std::cout<<"CRC fucked up"<<std::endl;
+        std::cout<<"Wrong CRC in hello packet"<<std::endl;
         return false;
     }
 
@@ -248,6 +251,7 @@ bool PacketHandler::HandleHelloPacket()
         WSACleanup();
         return false;
     }
+    helloPacketInitialized = true;
     return true;
 }
 

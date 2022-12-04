@@ -32,6 +32,7 @@ void ChunkHandler::run()
         }
     }
     std::cout<<"------"<<"ChunkHandler is ending"<<"------"<<std::endl;
+    backupWriter.closeFile();
     this->quit();
 }
 
@@ -129,6 +130,10 @@ bool ChunkHandler::ProcessChunk()
         case EP7USER_TYPE_TRACE:
         {
             if(needBackup){
+                //Сделано немного не так как в байкале
+                //Байкал пишет чанки здоровенными кусками в файл и только потом их пишет
+                //Я пишу размер каждого пришедшего куска + сам кусок, когда байкал копит куски и потом их размер пишет
+                //Необязательно, но если бэкапы будут слишком жирными можно и пофиксить
                 backupWriter.writeChunk(chunkCursor,structSize);
             }
             switch(structSubtype){

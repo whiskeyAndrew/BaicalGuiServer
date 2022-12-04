@@ -80,6 +80,12 @@ bool Launcher::InitSocket()
     listen(socketIn,SOMAXCONN);
     //Создаем место для буфера клиента, сюда помещается информация о клиенте
     ZeroMemory(&client, sizeof(client));
+
+    //--DELETE LATER--//
+
+    ServerStatusSender *serverStatusSender = new ServerStatusSender(this);
+    serverStatusSender->start();
+    //--NOT DELETE LATER--//
     return true;
 }
 
@@ -87,7 +93,11 @@ void Launcher::SocketListener()
 {
     //Принимаем пакет
     bytesIn = recvfrom(socketIn, (tINT8*)packetBuffer, sizeof(packetBuffer), 0, (sockaddr*)&client, (tINT32*)&clientLength);
-    if(bytesIn==SOCKET_ERROR)
+    if(WSAGetLastError()==10060){
+        std::cout<<"Launcher:: no packets to read from UDP socket, trying again... "<<std::endl;
+        return;
+    }
+    else if(bytesIn==SOCKET_ERROR)
     {
         std::cout<<"Launcher:: recvfrom failed, error: "<<WSAGetLastError()<<std::endl;
         return;

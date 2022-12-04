@@ -15,13 +15,19 @@
 #include <QMutex>
 #include <QList>
 #include <QApplication>
+#include <QDebug>
+#include "serverstatussender.h"
+
+
 //std::vector<char> vectorChunk;
 //std::queue<std::vector<char>> queueChunks;
+#pragma pack(push,2)
 struct ClientData
 {
     sockaddr_in clientIp;
     PacketHandler *connectionThread;
 };
+#pragma pack(pop)
 
 class ConnectionTimeoutChecker;
 class Launcher:public QThread

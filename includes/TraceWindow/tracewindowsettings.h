@@ -72,7 +72,6 @@ private slots:
     void on_horizontalSlider_sliderMoved(int position);
 
     void on_checkAllUniqueTraces_clicked();
-
     void on_uncheckAllUniqueTraces_clicked();
 
     void on_traceCheckbox_stateChanged(int arg1);
@@ -87,13 +86,15 @@ private slots:
 
     void on_loadButton_clicked();
 
+
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;
     //TraceColors
     QColor color;
     QColorDialog *colorDialog;
-        QMessageBox mbx;
+    QMessageBox mbx;
 
 
     TraceWindow *traceWindow;

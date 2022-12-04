@@ -25,12 +25,14 @@ class TraceBackupWriter
 {
 private:
     sP7File_Header fileHeader;
+    QFile *file;
     tINT8* data;
     QString fileName;
 public:
     TraceBackupWriter();
     void setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
     void writeChunk(tINT8* chunk, tUINT32 size);
+    void closeFile();
 };
 
 #endif // TRACEBACKUPWRITER_H

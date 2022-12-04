@@ -431,14 +431,6 @@ void TraceWindowSettings::on_checkAllUniqueTraces_clicked()
 }
 
 
-void TraceWindowSettings::on_uncheckAllUniqueTraces_clicked()
-{
-    for(int i=0;i<ui->listWidget->count();i++){
-        ui->listWidget->item(i)->setCheckState(Qt::CheckState::Unchecked);
-    }
-}
-
-
 void TraceWindowSettings::on_tabWidget_tabBarClicked(int index)
 {
     if(index==2){
@@ -527,5 +519,13 @@ void TraceWindowSettings::on_LoadDataFromConfig_clicked()
 {
     InitColors();
     InitTraceLevels();
+}
+
+
+void TraceWindowSettings::on_uncheckAllUniqueTraces_clicked()
+{
+        for(int i=0;i<ui->listWidget->count();i++){
+            ui->listWidget->item(i)->setCheckState(Qt::CheckState::Unchecked);
+        }
 }
 

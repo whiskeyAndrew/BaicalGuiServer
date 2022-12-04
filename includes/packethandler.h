@@ -83,6 +83,7 @@ class PacketHandler:public QThread
 {
     Q_OBJECT
 private:
+    tBOOL helloPacketInitialized = false;
     time_t lastPacketTime;
     Launcher* launcher;
 

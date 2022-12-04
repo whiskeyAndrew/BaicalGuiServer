@@ -2,6 +2,7 @@
 
 void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
 {
+    std::cout<<"Backup Writer: Opening backup file"<<std::endl;
     if(!QDir( "Backups").exists()){
             QDir().mkdir("Backups");
     }
@@ -15,19 +16,18 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
 
     fileName ="Backups/"+formattedTime+".p7d";
 
-    QFile file(fileName);
+    file = new QFile(fileName);
     //временно, исправить
-    file.open(QFile::WriteOnly);
 
-    if(!file.open(QFile::WriteOnly))
+    if(!file->open(QFile::ReadWrite))
     {
     std::cout<<"File opening error"<<std::endl;
     }
 
     data = (tINT8*)malloc(FILE_HEADER_SIZE);
     memcpy(data,&fileHeader,FILE_HEADER_SIZE);
-    file.write(data,FILE_HEADER_SIZE);
-    file.flush();
+    file->write(data,FILE_HEADER_SIZE);
+    file->flush();
     //file.close();
 
     free(data);
@@ -36,11 +36,10 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
 void TraceBackupWriter::writeChunk(tINT8 *chunk, tUINT32 size)
 {
     //пишем размер чанка и сам чанк
-    QFile file(fileName);
 
-    if(!file.open(QFile::WriteOnly | QIODevice::Append))
-    {
-    std::cout<<"File opening error"<<std::endl;
+    if(!file->isOpen()){
+        std::cout<<"Backup file is not opened! Part of data will be erased"<<std::endl;
+        return;
     }
 
     tUINT32 chunkSize = size+4;
@@ -51,13 +50,16 @@ void TraceBackupWriter::writeChunk(tINT8 *chunk, tUINT32 size)
     memcpy(data,chunk,size);
     data-=4;
 
-    file.write(data,chunkSize);
-    file.flush();
-    file.close();
+    file->write(data,chunkSize);
+    file->flush();
     free(data);
 }
 
-
+void TraceBackupWriter::closeFile(){
+    std::cout<<"BackupWriter: closing backupFile"<<std::endl;
+    file->close();
+    delete file;
+}
 TraceBackupWriter::TraceBackupWriter()
 {
 

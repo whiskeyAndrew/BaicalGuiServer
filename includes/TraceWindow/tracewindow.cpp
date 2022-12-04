@@ -40,7 +40,7 @@ void TraceWindow::GetTrace(TraceToGUI trace)
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {
 
-    std::cout<<"im in"<<std::endl;
+//    std::cout<<"im in"<<std::endl;
     ReloadTracesInsideWindow();
 }
 
@@ -209,7 +209,7 @@ void TraceWindow::OpenHyperlink(const QUrl &link){
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
 
-    std::cout<<sequence<<std::endl;
+//    std::cout<<sequence<<std::endl;
 }
 
 void TraceWindow::resizeEvent(QResizeEvent* e){
@@ -298,6 +298,10 @@ void TraceWindow::InitWindow(){
     for(int i =0;i<6;i++){
         isNeedToShowByTraceLevel.append(2);
     }
+
+    //use a different layout for the contents so it has normal margins
+//    toolLayout->addLayout(contentsLayout);
+
     traceSettings = new TraceWindowSettings(this,&clientName);
     ui->textBrowser->setText("");
 
