@@ -5,6 +5,7 @@
 void PacketHandler::run()
 {
     //Нам надо один раз запустить и запомнить поток обработки чанков, это мы сделаем здесь
+    packetHello = {0,0,0,0,0,0};
     chunkHandler.start();
 
     while(!this->isInterruptionRequested())
@@ -93,6 +94,12 @@ bool PacketHandler::PacketProcessing()
     {
     case ETPT_CLIENT_DATA:
     {
+        if(packetHello.dwProcess_ID==0){
+            char buffer = '0';
+            sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
+            break;
+        }
+
         bool dataReady = InitData();
 
         if(dataReady==FALSE)
@@ -105,6 +112,12 @@ bool PacketHandler::PacketProcessing()
 
     case ETPT_CLIENT_DATA_REPORT:
     {
+        if(packetHello.dwProcess_ID==0){
+            char buffer = '0';
+            sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
+            break;
+        }
+
         if(!HandleReportPacket())
         {
             return false;
@@ -113,6 +126,12 @@ bool PacketHandler::PacketProcessing()
     }
     case ETPT_CLIENT_PING:
     {
+        if(packetHello.dwProcess_ID==0){
+            char buffer = '0';
+            sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
+            break;
+        }
+
         if(!HandlePingPacket())
         {
             return false;
@@ -129,6 +148,11 @@ bool PacketHandler::PacketProcessing()
     }
     case ETPT_CLIENT_BYE:
     {
+        if(packetHello.dwProcess_ID==0){
+            char buffer = '0';
+            sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
+            break;
+        }
         break;
     }
     default:

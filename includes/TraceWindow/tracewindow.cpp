@@ -1,8 +1,6 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 
-#define LINES_TO_SHOW 100
-
 TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler *newConfig, QDialog *parent) :
     QDialog(parent),
     ui(new Ui::TraceWindow)
@@ -24,7 +22,7 @@ void TraceWindow::GetTrace(TraceToGUI trace)
     ui->verticalScrollBar->setMaximum(++verticalBarSize);
     guiData.insert(verticalBarSize,tempGuiData);
 
-    if(verticalBarSize<LINES_TO_SHOW){
+    if(verticalBarSize<numberOfRowsToShow){
         ui->textBrowser->verticalScrollBar()->setValue(0);
         QString row = GetGuiRow(tempGuiData);
         ui->textBrowser->append(row);
@@ -40,7 +38,7 @@ void TraceWindow::GetTrace(TraceToGUI trace)
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {
 
-//    std::cout<<"im in"<<std::endl;
+    //    std::cout<<"im in"<<std::endl;
     ReloadTracesInsideWindow();
 }
 
@@ -54,7 +52,7 @@ void TraceWindow::ReloadTracesInsideWindow(){
     if(ui->Autoscroll->isChecked()){
 
         //не нравится
-        if(ui->textBrowser->document()->blockCount()<LINES_TO_SHOW && verticalBarSize>LINES_TO_SHOW)
+        if(ui->textBrowser->document()->blockCount()<numberOfRowsToShow && verticalBarSize>numberOfRowsToShow)
         {
             ReloadTracesFromAbove(value);
         }
@@ -76,7 +74,7 @@ void TraceWindow::ReloadTracesInsideWindow(){
 
         //while - используется для ситуаций, где у нас требуется отображать строки не бесконечной линией
         //мы можем удалять только строки текста, следовательно нужно удалять строки сверху до тех пор, пока их не станет столько, сколько надо
-        while(ui->textBrowser->document()->blockCount()>LINES_TO_SHOW){
+        while(ui->textBrowser->document()->blockCount()>numberOfRowsToShow){
             cursor = ui->textBrowser->textCursor();
             cursor.movePosition(QTextCursor::Start);
             cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
@@ -90,20 +88,18 @@ void TraceWindow::ReloadTracesInsideWindow(){
 
     //-1 для плавного перехода
 
-//    if(value<=verticalBarSize-LINES_TO_SHOW-1){
-        ReloadTracesFromBelow(value);
-//    }
-//    else{
-//        ReloadTracesFromAbove(value);
-//    }
+    //    if(value<=verticalBarSize-numberOfRowsToShow-1){
+    ReloadTracesFromBelow(value);
+    //    }
+    //    else{
+    //        ReloadTracesFromAbove(value);
+    //    }
 }
 
 void TraceWindow::ReloadTracesFromBelow(int value){
-    tUINT32 counter = 0;
-
     ui->textBrowser->setText("");
 
-    while(counter<LINES_TO_SHOW){
+    while(ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
         //Выше данных нет
         if(value>verticalBarSize){
             ui->textBrowser->verticalScrollBar()->setValue(0);
@@ -123,7 +119,6 @@ void TraceWindow::ReloadTracesFromBelow(int value){
         }
 
         ui->textBrowser->append(GetGuiRow(g));
-        counter++;
         value++;
     }
     ui->textBrowser->verticalScrollBar()->setValue(0);
@@ -131,11 +126,10 @@ void TraceWindow::ReloadTracesFromBelow(int value){
 
 void TraceWindow::ReloadTracesFromAbove(int value){
     std::cout<<"Reloading from Above"<<std::endl;
-    tUINT32 counter = 0;
     tUINT32 rememberValue = value;
     ui->textBrowser->setText("");
 
-    while(counter<LINES_TO_SHOW){
+    while(ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
         if(value<1){
             //Внезапно нам не хватает данных чтобы загрузить полностью страницу? Пробуем ее загрузить сверху!
             //Возможно этот код уже не нужен, надо будет перепроверить
@@ -163,7 +157,6 @@ void TraceWindow::ReloadTracesFromAbove(int value){
         ui->textBrowser->insertPlainText("\n");
         ui->textBrowser->insertHtml(GetGuiRow(g));
         value--;
-        counter++;
     }
 
     //Удаляем в самом начале отступление
@@ -197,7 +190,7 @@ void TraceWindow::OpenHyperlink(const QUrl &link){
 
     ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
     if(traceFormat.traceFormat.line)
-    ui->line->setText(QString::number(traceFormat.traceFormat.line));
+        ui->line->setText(QString::number(traceFormat.traceFormat.line));
 
     ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
 
@@ -211,19 +204,27 @@ void TraceWindow::OpenHyperlink(const QUrl &link){
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
 
-//    std::cout<<sequence<<std::endl;
+    //    std::cout<<sequence<<std::endl;
 }
 
 void TraceWindow::resizeEvent(QResizeEvent* e){
-    //    if(ui->Autoscroll->isChecked()==false){
-    //        for(int i =50;i>0;i--){
-    //            //ui->tableView->resizeRowToContents(i);
-    //        }
+    recountNumberOfRowsToShow();
+    traceSettings->SetTraceWindowSizeText();
+}
+void TraceWindow::recountNumberOfRowsToShow(){
+    if(traceSettings->getAutoTracesCount()->checkState()==Qt::CheckState::Checked){
+        numberOfRowsToShow = ui->textBrowser->height()/16;
+    } else{
+        numberOfRowsToShow = traceSettings->getRowsOnScreen().toInt();
+    }
+    ReloadTracesInsideWindow();
+    std::cout<<"Rows on screen: "<<numberOfRowsToShow<<std::endl;
 }
 
 void TraceWindow::OffAutoscroll(){
     ui->Autoscroll->setChecked(false);
 }
+
 
 void TraceWindow::VerticalSliderReleased(){
     if((ui->verticalScrollBar->value() > ui->verticalScrollBar->maximum() - ui->verticalScrollBar->maximum()*0.05)
@@ -294,6 +295,9 @@ void TraceWindow::on_expandButton_clicked(bool checked)
     }
 }
 
+void TraceWindow::SetActionStatusText(QString text){
+    ui->actionsStatusLabel->setText(text);
+}
 void TraceWindow::InitWindow(){
 
     //Инициализация списка по которому смотрим надо ли показывать трейс ПО bLevel
@@ -302,9 +306,10 @@ void TraceWindow::InitWindow(){
     }
 
     //use a different layout for the contents so it has normal margins
-//    toolLayout->addLayout(contentsLayout);
+    //    toolLayout->addLayout(contentsLayout);
 
     traceSettings = new TraceWindowSettings(this,&clientName);
+    recountNumberOfRowsToShow();
     ui->textBrowser->setText("");
 
     ui->verticalScrollBar->setMaximum(0);
@@ -582,9 +587,15 @@ void TraceWindow::on_WindowSettings_clicked()
 
 void TraceWindow::on_traceToTxt_clicked()
 {
-    TracesToText *traces = new TracesToText(new QMap(guiData));
+    TracesToText *traces = new TracesToText(new QMap(guiData),this);
     traces->start();
 
     //Не уверен нужно ли удалять поток из памяти, скорее всего надо, чуть позже сделаю
+}
+
+
+void TraceWindow::on_actionsStatusLabel_clicked()
+{
+    ui->actionsStatusLabel->setText("");
 }
 

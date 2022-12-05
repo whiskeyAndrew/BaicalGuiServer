@@ -7,13 +7,17 @@
 #include <QDateTime>
 #include <QTextStream>
 
+
 //Инклюд ради GUIData, надо будет переделать
 #include "Trace.h"
+
+class TraceWindow;
 class TracesToText:public QThread{
 public:
-    TracesToText(QMap<tUINT32, GUIData> *traces);
+    TracesToText(QMap<tUINT32, GUIData> *traces, TraceWindow *newTraceWindow);
     QMap<tUINT32, GUIData> *data;
 private:
+    TraceWindow *traceWindow;
     void run();
 };
 

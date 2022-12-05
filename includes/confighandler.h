@@ -23,6 +23,10 @@ public:
     QColor criticalColor;
     QString transparency;
 
+    tUINT32 traceWindow_x = 0;
+    tUINT32 traceWindow_y = 0;
+    tUINT32 traceSettingsWindow_x = 0;
+    tUINT32 traceSettingsWindow_y = 0;
 
     Qt::CheckState traceLevel = Qt::Checked;
     Qt::CheckState debugLevel = Qt::Checked;
@@ -37,6 +41,8 @@ public:
     void SaveTraceLevelsToShow();
     void LoadTraceLevelsToShow();
     const QString &getConfigFileName() const;
+    void SaveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 tsy);
+    void LoadWindowsSize();
 };
 
 #endif // CONFIGHANDLER_H

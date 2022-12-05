@@ -19,7 +19,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::GetNewConnection(sockaddr_in newConnection,PacketHandler *packetHandler)
+void MainWindow::GetNewConnection(sockaddr_in newConnection, PacketHandler *packetHandler)
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     ConnectionName connectionName = {"🟩",inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};

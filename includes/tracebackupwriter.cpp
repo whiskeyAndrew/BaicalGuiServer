@@ -14,7 +14,7 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
     QDateTime date = QDateTime::currentDateTime();
     QString formattedTime = date.toString("dd.MM.yyyy hh.mm.ss");
 
-    fileName ="Backups/"+formattedTime+".p7d";
+    fileName ="Backups/"+formattedTime+"_"+ QString::number(GetCurrentTime())+".p7d" ;
 
     file = new QFile(fileName);
     //временно, исправить

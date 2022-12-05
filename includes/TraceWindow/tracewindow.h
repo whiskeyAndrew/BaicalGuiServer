@@ -11,6 +11,7 @@
 #include "tracewindowsettings.h"
 #include <QThread>
 #include "../tracestotxt.h"
+#include <QIcon>
 
 enum eP7Trace_Level
 {
@@ -62,7 +63,10 @@ public:
     Qt::CheckState isAutoscrollChecked();
     tBOOL isInitialized() const;
 
+    void SetActionStatusText(QString text);
+    void recountNumberOfRowsToShow();
 private:
+    tUINT32 numberOfRowsToShow;
     QCheckBox autoscroll;
     TraceWindowSettings *traceSettings;
     ConfigHandler *config;
@@ -125,6 +129,7 @@ private:
     bool event(QEvent *event);
     void ReloadTracesFromBelow(int value);
     void ReloadTracesFromAbove(int value);
+
 public slots:
     void GetTrace(TraceToGUI trace);
     void SetTraceAsObject(Trace *trace);
@@ -144,6 +149,7 @@ private slots:
     void OpenHyperlink(const QUrl &link);
     void on_WindowSettings_clicked();
     void on_traceToTxt_clicked();
+    void on_actionsStatusLabel_clicked();
 };
 
 

@@ -7,6 +7,7 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     traceWindow = newTraceWindow;
     ui->setupUi(this);
 
+    autoTracesCount = ui->autoRowsCounter;
 
     connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::itemChanged);
     connect(this,&TraceWindowSettings::SendRowWID,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
@@ -18,7 +19,8 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
 
     InitTraceLevels();
     InitColors();
-
+    InitWindowsSize();
+    ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
 }
 
 void TraceWindowSettings::SetWindowName(QString name){
@@ -432,6 +434,19 @@ void TraceWindowSettings::LoadConfigFileAsText(){
         ui->configText->appendPlainText(in.readLine());
     }
     file.close();
+    traceWindow->SetActionStatusText("Config was loaded!");
+}
+
+void TraceWindowSettings::InitWindowsSize()
+{
+    config->LoadWindowsSize();
+    if(config->traceWindow_x!=0 || config->traceWindow_y!=0){
+        traceWindow->resize(config->traceWindow_x,config->traceWindow_y);
+    }
+
+    if(config->traceSettingsWindow_x!=0 ||config->traceSettingsWindow_y!=0){
+        this->resize(config->traceSettingsWindow_x,config->traceSettingsWindow_y);
+    }
 }
 
 void TraceWindowSettings::on_loadButton_clicked()
@@ -456,6 +471,7 @@ void TraceWindowSettings::on_loadButton_clicked()
         ui->configText->appendPlainText(in.readLine());
     }
     file.close();
+    traceWindow->SetActionStatusText("Config was loaded!");
 }
 
 void TraceWindowSettings::on_saveButton_clicked()
@@ -471,6 +487,7 @@ void TraceWindowSettings::on_saveButton_clicked()
     std::cout<<text.toStdString()<<std::endl;
     out<< text;
     file.close();
+    traceWindow->SetActionStatusText("Config was saved!");
 }
 
 void TraceWindowSettings::on_saveAsButton_clicked()
@@ -494,6 +511,7 @@ void TraceWindowSettings::on_saveAsButton_clicked()
     std::cout<<text.toStdString()<<std::endl;
     out<< text;
     file.close();
+    traceWindow->SetActionStatusText("Config was saved!");
 }
 
 void TraceWindowSettings::on_LoadDataFromConfig_clicked()
@@ -505,20 +523,71 @@ void TraceWindowSettings::on_LoadDataFromConfig_clicked()
 
 void TraceWindowSettings::on_uncheckAllUniqueTraces_clicked()
 {
-        for(int i=0;i<ui->listWidget->count();i++){
-            ui->listWidget->item(i)->setCheckState(Qt::CheckState::Unchecked);
-        }
+    for(int i=0;i<ui->listWidget->count();i++){
+        ui->listWidget->item(i)->setCheckState(Qt::CheckState::Unchecked);
+    }
 }
 
 
 void TraceWindowSettings::on_saveAllTraceCheckboxes_clicked()
 {
     config->SaveTraceLevelsToShow();
+    traceWindow->SetActionStatusText("Traces checkboxes was saved!");
 }
 
 
 void TraceWindowSettings::on_saveAllColors_clicked()
 {
     config->SaveColors();
+    traceWindow->SetActionStatusText("Traces colors was saved!");
+}
+
+
+void TraceWindowSettings::on_autoRowsCounter_stateChanged(int arg1)
+{
+    if(arg1==Qt::CheckState::Unchecked){
+        ui->rowsOnScreen->setEnabled(true);
+        if(ui->rowsOnScreen->text()!=""){
+            traceWindow->recountNumberOfRowsToShow();
+            return;
+        }
+    } else{
+        ui->rowsOnScreen->setEnabled(false);
+        traceWindow->recountNumberOfRowsToShow();
+    }
+}
+
+void TraceWindowSettings::resizeEvent(QResizeEvent* e){
+    ui->traceSx_size->setText(QString::number(this->size().width()));
+    ui->traceSy_size->setText(QString::number(this->size().height()));
+}
+
+void TraceWindowSettings::SetTraceWindowSizeText(){
+    ui->tracex_size->setText(QString::number(traceWindow->size().width()));
+    ui->tracey_size->setText(QString::number(traceWindow->size().height()));
+}
+
+QString TraceWindowSettings::getRowsOnScreen()
+{
+    return ui->rowsOnScreen->text();
+}
+
+QCheckBox *TraceWindowSettings::getAutoTracesCount() const
+{
+    return autoTracesCount;
+}
+
+
+
+
+void TraceWindowSettings::on_rowsOnScreen_editingFinished()
+{
+    traceWindow->recountNumberOfRowsToShow();
+}
+
+
+void TraceWindowSettings::on_saveWindowsProperties_clicked()
+{
+    config->SaveWindowsSize(traceWindow->size().width(),traceWindow->size().height(),this->size().width(),traceWindow->size().height());
 }
 

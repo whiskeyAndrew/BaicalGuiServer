@@ -6,7 +6,7 @@ void ConnectionTimeoutChecker::run(){
         for(int i=0;i<windowsList->size();i++){
             tUINT32 attempts = 0;
 tryAgain:
-            if(windowsList->at(i).connectionThread->isInterruptionRequested()){
+            if(windowsList->at(i).connectionThread->isFinished()){
                 continue;
             }
 
@@ -14,6 +14,8 @@ tryAgain:
                 std::cout<<"Connection lost from "<< ntohs(windowsList->at(i).clientIp.sin_port)<<std::endl;
                 emit ClientDisconnected(windowsList->at(i).connectionThread->client);
                 windowsList->at(i).connectionThread->requestInterruption();
+                windowsList->at(i).connectionThread->waitCondition.wakeAll();
+
                 continue;
             }
 

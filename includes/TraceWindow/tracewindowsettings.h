@@ -9,6 +9,7 @@
 #include <QTextStream>
 #include <QFileDialog>
 #include <QDateTime>
+#include <QCheckBox>
 
 struct ConnectionName{
     QString status;
@@ -41,6 +42,11 @@ public:
     void SetWindowName(QString name);
     Qt::CheckState isTraceColumnNeedToShow();
     Qt::CheckState isSequenceColumnNeedToShow();
+    QCheckBox *getAutoTracesCount() const;
+
+    QString getRowsOnScreen();
+
+    void SetTraceWindowSizeText();
 private slots:
 
     //Trace Colors
@@ -92,6 +98,12 @@ private slots:
 
     void on_saveAllColors_clicked();
 
+    void on_autoRowsCounter_stateChanged(int arg1);
+
+    void on_rowsOnScreen_editingFinished();
+
+    void on_saveWindowsProperties_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;
@@ -100,6 +112,8 @@ private:
     QColorDialog *colorDialog;
     QMessageBox mbx;
 
+    QString rowsOnScreen;
+    QCheckBox *autoTracesCount;
 
     TraceWindow *traceWindow;
 
@@ -110,6 +124,8 @@ private:
     void InitColors();
     void InitTraceLevels();
     void LoadConfigFileAsText();
+    void InitWindowsSize();
+    void resizeEvent(QResizeEvent *e);
 signals:
     //Unique Traces List
     void SendRowWID(tUINT32 wID, tUINT32 state);

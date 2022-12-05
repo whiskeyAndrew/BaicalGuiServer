@@ -130,7 +130,10 @@ bool Launcher::FindClientInArray()
             //внезапно ловим соединение которое уже было, но с тем же самым айпишником и портом, проверяем по состоянию потока обработки пакетов
             //не уверен что работает, но в теории должно, надеюсь?
             if(packetHandler->isFinished()){
-                break;
+                //Если приходит какое-то соединение с тем же айпишником и портом, а до этого у нас уже поток завершился, то скипаем существующий и тогда приложение создаст новый
+                //Если придет одинаковый айпишник и одинаковый порт на активные соединения то будем считать что это аномалия
+                //Но на самом деле в теории приложение будет оба обрабатывать как одно и есть риск захлебнуться если данных будет слишком много
+                continue;
             }
             packetHandler->AppendQueue(packetBuffer,bytesIn);
             packetHandler->waitCondition.wakeOne();
@@ -140,12 +143,12 @@ bool Launcher::FindClientInArray()
     }
 
     //Не нашли клиента, делаем нового
-    PacketHandler *packetHandler = new PacketHandler(client,this);
-    clientsList->append({client,packetHandler});
+    PacketHandler *newPacketHandler = new PacketHandler(client,this);
+    clientsList->append({client,newPacketHandler});
 
-    emit SendNewConnection(client,packetHandler);
-    packetHandler->AppendQueue(packetBuffer,bytesIn);
-    packetHandler->setSocketIn(socketIn);
+    emit SendNewConnection(client,newPacketHandler);
+    newPacketHandler->AppendQueue(packetBuffer,bytesIn);
+    newPacketHandler->setSocketIn(socketIn);
     return true;
 
 }

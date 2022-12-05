@@ -15,14 +15,14 @@ ConfigHandler::ConfigHandler(QString connectionName)
 
     //Надо разобраться как форсированно грузить данные из settings
 
-//    QSettings *settings = new QSettings(configName + "_config.ini", QSettings::IniFormat );
-//     delete settings;
+    //    QSettings *settings = new QSettings(configName + "_config.ini", QSettings::IniFormat );
+    //     delete settings;
 }
 
 ConfigHandler::ConfigHandler()
 {
-//    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
-//    delete settings;
+    //    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    //    delete settings;
 }
 
 void ConfigHandler::SaveColors(){
@@ -94,6 +94,35 @@ void ConfigHandler::LoadTraceLevelsToShow(){
     warningLevel = static_cast<Qt::CheckState>(settings->value("warning",2).toInt());
     errorLevel = static_cast<Qt::CheckState>(settings->value("error",2).toInt());
     criticalLevel =  static_cast<Qt::CheckState>(settings->value("critical",2).toInt());
+    settings->endGroup();
+    delete settings;
+}
+
+void ConfigHandler::SaveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 tsy){
+    traceWindow_x = tx;
+    traceWindow_y = ty;
+    traceSettingsWindow_x = tsx;
+    traceSettingsWindow_y = tsy;
+
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    settings->beginGroup("TraceWindowsSize");
+    settings->setValue("traceWindow_x",traceWindow_x);
+    settings->setValue("traceWindow_y",traceWindow_y);
+    settings->setValue("traceSettingsWindow_x",traceSettingsWindow_x);
+    settings->setValue("traceSettingsWindow_y",traceSettingsWindow_y);
+
+    settings->endGroup();
+    delete settings;
+}
+
+void ConfigHandler::LoadWindowsSize(){
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    settings->beginGroup("TraceWindowsSize");
+    traceWindow_x = settings->value("traceWindow_x").toInt();
+    traceWindow_y = settings->value("traceWindow_y").toInt();
+    traceSettingsWindow_x = settings->value("traceSettingsWindow_x").toInt();
+    traceSettingsWindow_y = settings->value("traceSettingsWindow_y").toInt();
+
     settings->endGroup();
     delete settings;
 }

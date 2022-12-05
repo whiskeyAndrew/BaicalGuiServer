@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
         includes/confighandler.h includes/confighandler.cpp
         includes/tracestotxt.h includes/tracestotxt.cpp
         includes/serverstatussender.h includes/serverstatussender.cpp
+        icons/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
