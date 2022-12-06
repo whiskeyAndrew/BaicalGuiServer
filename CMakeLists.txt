@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         includes/tracestotxt.h includes/tracestotxt.cpp
         includes/serverstatussender.h includes/serverstatussender.cpp
         icons/icons.qrc
+        includes/enumparser.h includes/enumparser.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

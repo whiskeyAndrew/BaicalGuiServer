@@ -104,6 +104,8 @@ private slots:
 
     void on_saveWindowsProperties_clicked();
 
+    void on_loadEnumsFromTXT_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;

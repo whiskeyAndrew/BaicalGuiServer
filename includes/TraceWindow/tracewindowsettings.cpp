@@ -1,6 +1,7 @@
 #include "tracewindowsettings.h"
 #include "ui_tracewindowsettings.h"
 #include "tracewindow.h"
+#include "../enumparser.h"
 
 TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, ConnectionName* clientName):ui(new Ui::TraceWindowSettings)
 {
@@ -589,5 +590,18 @@ void TraceWindowSettings::on_rowsOnScreen_editingFinished()
 void TraceWindowSettings::on_saveWindowsProperties_clicked()
 {
     config->SaveWindowsSize(traceWindow->size().width(),traceWindow->size().height(),this->size().width(),traceWindow->size().height());
+}
+
+
+void TraceWindowSettings::on_loadEnumsFromTXT_clicked()
+{
+    EnumParser *enumParser = new EnumParser(QFileDialog::getOpenFileName(this, "Save As",nullptr,tr("Text files(*.txt)")));
+    enumParser->readEnumsFromFile();
+    int enumId = 0;
+    for(QString key:enumParser->enums.keys()){
+        QListWidgetItem *item = new QListWidgetItem(key);
+        item->setData(Qt::ToolTipRole,++enumId);
+        ui->enumsList->addItem(item);
+    }
 }
 
