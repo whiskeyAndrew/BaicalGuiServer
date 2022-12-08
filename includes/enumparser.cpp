@@ -6,6 +6,7 @@ EnumParser::EnumParser()
 }
 
 void EnumParser::readEnumsFromFile(QString fileName){
+    enums.clear();
     file = new QFile(fileName);
     if (file->open(QIODevice::ReadOnly))
     {

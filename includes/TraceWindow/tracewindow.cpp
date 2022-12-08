@@ -221,6 +221,11 @@ void TraceWindow::recountNumberOfRowsToShow(){
     std::cout<<"Rows on screen: "<<numberOfRowsToShow<<std::endl;
 }
 
+TraceWindowSettings *TraceWindow::getTraceSettings() const
+{
+    return traceSettings;
+}
+
 void TraceWindow::OffAutoscroll(){
     ui->Autoscroll->setChecked(false);
 }

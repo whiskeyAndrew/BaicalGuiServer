@@ -5,7 +5,7 @@
 #include <vector>
 #include <QString>
 #include <QMap>
-
+#include "enumparser.h"
 #include <memory>
 
 #define TIME_OFFSET_1601_1970                            (116444736000000000ULL)
@@ -146,17 +146,19 @@ private:
     QMap<tUINT32,UniqueTraceData> uniqueTraces;
     QMap<tUINT32,sP7Trace_Data> traceToShow;
     QMap<tUINT32,sP7Trace_Module> modules;
-
+    QMap<tUINT32,tUINT32> tracesThatNeedEnumChange; //wID, enumId
     tINT64 arguments = 0;
     Args_ID argumentsData;
 
     SYSTEMTIME traceTime;
 
-    QString FormatVector(QString str, int argsCount, std::vector<tUINT64> args);
+    QString FormatVector(QString str, int argsCount, std::vector<tUINT64> args,tUINT32 wID);
     tINT8* ReadTraceText(tINT8* chunkCursor, UniqueTraceData *trace);
     p7Time CountTraceTime();
+    QList<likeEnum> *enums;
 public:
     //TraceLineData traceDataPerLine;
+    void Test();
     sP7Trace_Data GetTraceData(tUINT32 sequence);
     UniqueTraceData GetTraceFormat(tUINT32 wID);
 
@@ -170,5 +172,7 @@ public:
     TraceToGUI setTraceData(tINT8* chunkCursor);
 
     QString getModule(tUINT32 moduleID);
+    void SetEnumsList(QList<likeEnum> *newEnums);
+    void AppendTraceThatNeedEnumInsteadOfArgs(tUINT32 wID, tUINT32 enumId);
 };
 #endif // TRACE_H

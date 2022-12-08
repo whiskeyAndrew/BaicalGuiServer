@@ -7,7 +7,7 @@ void ChunkHandler::run()
     //временный костыль для того, чтобы AutoOpen успевал первые пакеты прогрузить внутри окна.
     //Нужно удалить из кода когда запилю чтение из мапы при открытии окна
     Sleep(200);
-
+    trace.SetEnumsList(&traceWindow->getTraceSettings()->getEnumParser()->enums);
     while((!chunks.empty()) || (fileEnded == false))
     {
         if(this->isInterruptionRequested()){

@@ -605,6 +605,7 @@ void TraceWindowSettings::on_loadEnumsFromTXT_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Save As",nullptr,tr("Text files(*.txt)"));
     LoadEnumsFromFile(fileName);
+    traceWindow->traceThread->SetEnumsList(&enumParser->enums);
 
 }
 
@@ -622,7 +623,7 @@ void TraceWindowSettings::LoadEnumsFromFile(QString fileName){
 
 void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
 {
-    tUINT32 rowId = item->data(Qt::ToolTipRole).toInt();
+    tUINT32 rowId = item->data(Qt::ToolTipRole).toInt()-1;
     likeEnum _enum = enumParser->enums.at(rowId);
     int enumId = 0;
     ui->enumsElements->clear();
@@ -637,6 +638,11 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
 
 void TraceWindowSettings::on_applyEnumToTraceById_clicked()
 {
+    traceWindow->traceThread->AppendTraceThatNeedEnumInsteadOfArgs(ui->traceIDforEnums->currentText().toInt(),ui->enumId->text().toInt());
+}
 
+EnumParser *TraceWindowSettings::getEnumParser() const
+{
+    return enumParser;
 }
 

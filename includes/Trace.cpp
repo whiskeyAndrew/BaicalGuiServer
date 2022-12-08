@@ -12,7 +12,7 @@ static __attribute__ ((unused)) void UnpackLocalTime(tUINT64  i_qwTime,
                                                      tUINT32 &o_rMilliseconds,
                                                      tUINT32 &o_rMicroseconds,
                                                      tUINT32 &o_rNanoseconds
-                                                    )
+                                                     )
 {
     tUINT32 l_dwReminder = i_qwTime % TIME_MLSC_100NS; //micro & 100xNanoseconds
     tUINT32 l_dwNano     = i_qwTime % 10;
@@ -75,7 +75,7 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
             argsValue.push_back(arguments);
             chunkCursor+=uniqueTrace.argsID[i].argSize;
         }
-        traceTextToGUI = FormatVector(uniqueTrace.traceLineData,uniqueTrace.traceFormat.args_Len,argsValue);
+        traceTextToGUI = FormatVector(uniqueTrace.traceLineData,uniqueTrace.traceFormat.args_Len,argsValue,uniqueTrace.traceFormat.wID);
     }
     else
     {
@@ -132,7 +132,7 @@ std::string string_format( const std::string& format, Args ... args )
 }
 
 //Переписать когда пройдет тильт
-QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> args)
+QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> args,tUINT32 wID)
 {
     char argEnd[] = {'i','d','u','f','X'};
     int index1;
@@ -156,6 +156,11 @@ QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> arg
                     str.remove(0,index2);
                     tempStringSTD = tempString.toStdString();
                     tempStringSTD = string_format(tempStringSTD,args[i]);
+                    if(tracesThatNeedEnumChange.contains(wID)){
+//                        tUINT32 lastArg = tempStringSTD.find_last_of(args[i]);
+                        tempStringSTD.erase(index1,tempStringSTD.size());
+                        tempStringSTD.append(enums->at(tracesThatNeedEnumChange.value(wID)).enums.at(i).name.toStdString());
+                    }
                     toOutput+=tempStringSTD;
                     found = true;
                     break;
@@ -198,7 +203,14 @@ p7Time Trace::CountTraceTime(){
     FileTimeToSystemTime(&creationTime,&toSystemTime);
     SystemTimeToTzSpecificLocalTime(NULL,&toSystemTime,&toSystemTime);
 
-   return time;
+    return time;
+}
+
+void Trace::Test()
+{
+    for(UniqueTraceData uq:uniqueTraces.values()){
+        std::cout<<uq.traceLineData.toStdString()<<std::endl;
+    }
 }
 
 void Trace::setTraceUTC(tINT8* chunkCursor)
@@ -230,6 +242,11 @@ void Trace::setTraceInfo(tINT8* chunkCursor)
 QString Trace::getModule(tUINT32 moduleID)
 {
     return QString(modules.value(moduleID).pName);
+}
+
+void Trace::SetEnumsList(QList<likeEnum> *newEnums)
+{
+    enums = newEnums;
 }
 
 sP7Trace_Data Trace::GetTraceData(tUINT32 sequence)
@@ -267,3 +284,7 @@ tINT8* Trace::ReadTraceText(tINT8* tempChunkCursor, UniqueTraceData *trace)
     return tempChunkCursor;
 }
 
+void Trace::AppendTraceThatNeedEnumInsteadOfArgs(tUINT32 wID, tUINT32 enumId){
+    tracesThatNeedEnumChange.insert(wID,enumId);
+    std::cout<<"Appended"<<std::endl;
+}

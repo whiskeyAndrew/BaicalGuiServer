@@ -48,6 +48,8 @@ public:
     QString getRowsOnScreen();
 
     void SetTraceWindowSizeText();
+    EnumParser *getEnumParser() const;
+
 private slots:
 
     //Trace Colors

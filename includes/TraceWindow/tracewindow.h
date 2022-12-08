@@ -67,6 +67,8 @@ public:
     void recountNumberOfRowsToShow();
 
     Trace *traceThread;
+    TraceWindowSettings *getTraceSettings() const;
+
 private:
     tUINT32 numberOfRowsToShow;
     QCheckBox autoscroll;
