@@ -109,6 +109,8 @@ private slots:
 
     void on_enumsList_itemClicked(QListWidgetItem *item);
 
+    void on_applyEnumToTraceById_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;

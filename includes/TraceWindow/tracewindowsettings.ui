@@ -815,7 +815,7 @@ selection-color: rgb(85, 255, 255);</string>
      </widget>
      <widget class="QWidget" name="enumsFromFile">
       <attribute name="title">
-       <string>Page</string>
+       <string>Enums</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
        <property name="sizeConstraint">
@@ -873,6 +873,29 @@ selection-color: rgb(85, 255, 255);</string>
           </property>
           <property name="text">
            <string/>
+          </property>
+         </widget>
+         <widget class="QComboBox" name="traceIDforEnums">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>60</y>
+            <width>101</width>
+            <height>24</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="applyEnumToTraceById">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>100</y>
+            <width>80</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Apply</string>
           </property>
          </widget>
         </widget>

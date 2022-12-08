@@ -65,6 +65,8 @@ public:
 
     void SetActionStatusText(QString text);
     void recountNumberOfRowsToShow();
+
+    Trace *traceThread;
 private:
     tUINT32 numberOfRowsToShow;
     QCheckBox autoscroll;
@@ -104,7 +106,7 @@ private:
 
     tUINT32 verticalBarSize = 0; //==guiData.size
 
-    Trace *traceThread;
+
     Ui::TraceWindow *ui;
     QMap<int,QString> bLevels = {{0,"TRACE"},
                                  {1,"DEBUG"},

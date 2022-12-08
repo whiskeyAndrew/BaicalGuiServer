@@ -22,10 +22,12 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     InitTraceLevels();
     InitColors();
     InitWindowsSize();
+
     QString enumsFile = config->LoadEnumsList(connectionName.ip);
     if(enumsFile!=""){
         LoadEnumsFromFile(enumsFile);
     }
+
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
 }
 
@@ -52,6 +54,7 @@ void TraceWindowSettings::AppendUniqueTracesList(QString text, tUINT32 wID)
     listItem->setData(Qt::ToolTipRole,wID);
     listItem->setCheckState(Qt::Checked);
     needToShow.insert(wID,Qt::Checked);
+    ui->traceIDforEnums->addItem(QString::number(wID));
 }
 
 void TraceWindowSettings::DisableElement(tUINT32 wID)
@@ -629,5 +632,11 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
         ui->enumsElements->addItem(item);
     }
     ui->enumId->setText(QString::number(rowId));
+}
+
+
+void TraceWindowSettings::on_applyEnumToTraceById_clicked()
+{
+
 }
 
