@@ -156,10 +156,10 @@ QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> arg
                     str.remove(0,index2);
                     tempStringSTD = tempString.toStdString();
                     tempStringSTD = string_format(tempStringSTD,args[i]);
-                    if(tracesThatNeedEnumChange.contains(wID)){
-//                        tUINT32 lastArg = tempStringSTD.find_last_of(args[i]);
+                    if(tracesThatNeedEnumChange.contains(wID) && enums->at(tracesThatNeedEnumChange.value(wID)).enums.size()>i){
                         tempStringSTD.erase(index1,tempStringSTD.size());
-                        tempStringSTD.append(enums->at(tracesThatNeedEnumChange.value(wID)).enums.at(i).name.toStdString());
+
+                        tempStringSTD.append(enums->at(tracesThatNeedEnumChange.value(wID)).enums.value(args[i]).name.toStdString());
                     }
                     toOutput+=tempStringSTD;
                     found = true;

@@ -627,8 +627,15 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
     likeEnum _enum = enumParser->enums.at(rowId);
     int enumId = 0;
     ui->enumsElements->clear();
-    for(int i =0;i<_enum.enums.size();i++){
-        QListWidgetItem *item = new QListWidgetItem(_enum.enums.at(i).name);
+
+//    for(int i =0;i<_enum.enums.size();i++){
+//        QListWidgetItem *item = new QListWidgetItem(_enum.enums.value(i).name+" "+QString::number(_enum.enums.ke));
+//        item->setData(Qt::ToolTipRole,++enumId);
+//        ui->enumsElements->addItem(item);
+//    }
+
+    for(tUINT32 key:_enum.enums.keys()){
+        QListWidgetItem *item = new QListWidgetItem(_enum.enums.value(key).name+" "+QString::number(key));
         item->setData(Qt::ToolTipRole,++enumId);
         ui->enumsElements->addItem(item);
     }
@@ -638,6 +645,7 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
 
 void TraceWindowSettings::on_applyEnumToTraceById_clicked()
 {
+
     traceWindow->traceThread->AppendTraceThatNeedEnumInsteadOfArgs(ui->traceIDforEnums->currentText().toInt(),ui->enumId->text().toInt());
 }
 

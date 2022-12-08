@@ -15,7 +15,7 @@ struct enumFromFile{
 
 struct likeEnum{
     QString name;
-    QList<enumFromFile> enums;
+    QMap<tUINT32,enumFromFile> enums;
 };
 
 class EnumParser

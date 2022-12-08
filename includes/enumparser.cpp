@@ -26,7 +26,7 @@ void EnumParser::readEnumsFromFile(QString fileName){
                 enumName = enumName.replace("enum","");
                 enumName = enumName.trimmed();
                 tUINT32 counter = 0;
-                QList <enumFromFile> tempEnums;
+                QMap<tUINT32,enumFromFile> tempEnums;
                 //нашли первую группу
                 while(!in.atEnd()){
                     line = in.readLine();
@@ -36,15 +36,18 @@ void EnumParser::readEnumsFromFile(QString fileName){
 
                     if(line.contains("=")){
                         subLine = line.mid(0,line.indexOf("="));
-                        QRegExp rx("= \\d+");
+                        QRegExp rx("\\=[ \t]+\\d");
                         rx.indexIn(line);
                         QStringList list = rx.capturedTexts();
-                        tUINT32 number = list.at(0).toInt();
-                        counter = number;
-                        tempEnums.append({subLine,""});
+                        QString number = list.at(0);
+                        counter = number.remove("=").trimmed().toInt();
+                        subLine = subLine.trimmed();
+                        tempEnums.insert(counter,{subLine,""});
+                        counter++;
                     } else{
                         line = line.replace(",","");
-                        tempEnums.append({line,""});
+                        line = line.trimmed();
+                        tempEnums.insert(counter,{line,""});
                         counter++;
                     }
                 }
