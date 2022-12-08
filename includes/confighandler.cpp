@@ -126,3 +126,20 @@ void ConfigHandler::LoadWindowsSize(){
     settings->endGroup();
     delete settings;
 }
+
+void ConfigHandler::SaveEnumsList(QString ip, QString fileName){
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    settings->beginGroup(ip);
+    settings->setValue("enums_file", fileName);
+    settings->endGroup();
+    delete settings;
+}
+
+QString ConfigHandler::LoadEnumsList(QString ip){
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    settings->beginGroup(ip);
+    QString fileName = settings->value("enums_file").toString();
+    settings->endGroup();
+    delete settings;
+    return fileName;
+}

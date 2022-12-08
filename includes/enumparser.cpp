@@ -1,11 +1,12 @@
 #include "enumparser.h"
 
-EnumParser::EnumParser(QString fileName)
+EnumParser::EnumParser()
 {
-    file = new QFile(fileName);
+
 }
 
-void EnumParser::readEnumsFromFile(){
+void EnumParser::readEnumsFromFile(QString fileName){
+    file = new QFile(fileName);
     if (file->open(QIODevice::ReadOnly))
     {
         QString line;
@@ -24,7 +25,7 @@ void EnumParser::readEnumsFromFile(){
                 enumName = enumName.replace("enum","");
                 enumName = enumName.trimmed();
                 tUINT32 counter = 0;
-                QMap<tUINT32, enumFromFile> tempEnumsMap;
+                QList <enumFromFile> tempEnums;
                 //нашли первую группу
                 while(!in.atEnd()){
                     line = in.readLine();
@@ -39,14 +40,14 @@ void EnumParser::readEnumsFromFile(){
                         QStringList list = rx.capturedTexts();
                         tUINT32 number = list.at(0).toInt();
                         counter = number;
-                        tempEnumsMap.insert(number,{subLine,""});
+                        tempEnums.append({subLine,""});
                     } else{
                         line = line.replace(",","");
-                        tempEnumsMap.insert(counter,{line,""});
+                        tempEnums.append({line,""});
                         counter++;
                     }
                 }
-                enums.insert(enumName,tempEnumsMap);
+                enums.append({enumName,tempEnums});
             }
         }
     }

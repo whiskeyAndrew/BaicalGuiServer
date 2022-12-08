@@ -43,6 +43,8 @@ public:
     const QString &getConfigFileName() const;
     void SaveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 tsy);
     void LoadWindowsSize();
+    void SaveEnumsList(QString ip, QString fileName);
+    QString LoadEnumsList(QString ip);
 };
 
 #endif // CONFIGHANDLER_H

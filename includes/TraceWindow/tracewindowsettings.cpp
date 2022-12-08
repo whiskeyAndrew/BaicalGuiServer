@@ -1,11 +1,12 @@
 #include "tracewindowsettings.h"
 #include "ui_tracewindowsettings.h"
 #include "tracewindow.h"
-#include "../enumparser.h"
+
 
 TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, ConnectionName* clientName):ui(new Ui::TraceWindowSettings)
 {
     traceWindow = newTraceWindow;
+    enumParser = new EnumParser();
     ui->setupUi(this);
 
     autoTracesCount = ui->autoRowsCounter;
@@ -21,6 +22,10 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     InitTraceLevels();
     InitColors();
     InitWindowsSize();
+    QString enumsFile = config->LoadEnumsList(connectionName.ip);
+    if(enumsFile!=""){
+        LoadEnumsFromFile(enumsFile);
+    }
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
 }
 
@@ -595,13 +600,34 @@ void TraceWindowSettings::on_saveWindowsProperties_clicked()
 
 void TraceWindowSettings::on_loadEnumsFromTXT_clicked()
 {
-    EnumParser *enumParser = new EnumParser(QFileDialog::getOpenFileName(this, "Save As",nullptr,tr("Text files(*.txt)")));
-    enumParser->readEnumsFromFile();
+    QString fileName = QFileDialog::getOpenFileName(this, "Save As",nullptr,tr("Text files(*.txt)"));
+    LoadEnumsFromFile(fileName);
+
+}
+
+void TraceWindowSettings::LoadEnumsFromFile(QString fileName){
+    enumParser->readEnumsFromFile(fileName);
     int enumId = 0;
-    for(QString key:enumParser->enums.keys()){
-        QListWidgetItem *item = new QListWidgetItem(key);
+    ui->enumsList->clear();
+    for(int i =0;i<enumParser->enums.size();i++){
+        QListWidgetItem *item = new QListWidgetItem(enumParser->enums.at(i).name);
         item->setData(Qt::ToolTipRole,++enumId);
         ui->enumsList->addItem(item);
     }
+    config->SaveEnumsList(connectionName.ip,fileName);
+}
+
+void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
+{
+    tUINT32 rowId = item->data(Qt::ToolTipRole).toInt();
+    likeEnum _enum = enumParser->enums.at(rowId);
+    int enumId = 0;
+    ui->enumsElements->clear();
+    for(int i =0;i<_enum.enums.size();i++){
+        QListWidgetItem *item = new QListWidgetItem(_enum.enums.at(i).name);
+        item->setData(Qt::ToolTipRole,++enumId);
+        ui->enumsElements->addItem(item);
+    }
+    ui->enumId->setText(QString::number(rowId));
 }
 

@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QDateTime>
 #include <QCheckBox>
+#include "../enumparser.h"
 
 struct ConnectionName{
     QString status;
@@ -106,9 +107,12 @@ private slots:
 
     void on_loadEnumsFromTXT_clicked();
 
+    void on_enumsList_itemClicked(QListWidgetItem *item);
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;
+    EnumParser *enumParser;
     //TraceColors
     QColor color;
     QColorDialog *colorDialog;
@@ -128,6 +132,7 @@ private:
     void LoadConfigFileAsText();
     void InitWindowsSize();
     void resizeEvent(QResizeEvent *e);
+    void LoadEnumsFromFile(QString fileName);
 signals:
     //Unique Traces List
     void SendRowWID(tUINT32 wID, tUINT32 state);
