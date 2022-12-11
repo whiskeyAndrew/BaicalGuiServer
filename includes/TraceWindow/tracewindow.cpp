@@ -18,7 +18,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler *newConfig,
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
-    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel};
+    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting};
     ui->verticalScrollBar->setMaximum(++verticalBarSize);
     guiData.insert(verticalBarSize,tempGuiData);
 
@@ -224,6 +224,11 @@ void TraceWindow::recountNumberOfRowsToShow(){
 TraceWindowSettings *TraceWindow::getTraceSettings() const
 {
     return traceSettings;
+}
+
+void TraceWindow::AppendArgsThatNeedToBeChangedByEnum(tUINT32 wID, QList<ArgsThatNeedToBeChangedByEnum> args)
+{
+    argsThatNeedToBeChangedByEnum.insert(wID,args);
 }
 
 void TraceWindow::OffAutoscroll(){
@@ -453,8 +458,18 @@ QString TraceWindow::GetGuiRow(GUIData g){
     }
 
     QString sequenceToGUI = QString::number(g.sequence);
-    QString traceToGUI = " "+ g.trace;
+    QString traceToGUI = g.trace;
 
+    if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
+        QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
+        for(int i =args.size()-1;i>=0;i--){
+
+            tUINT32 number = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart)).toInt();
+            traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
+        }
+    }
+
+    traceToGUI.insert(0," ");
     if(traceSettings->isSequenceColumnNeedToShow()==Qt::Unchecked){
         sequenceToGUI = "";
     }

@@ -56,6 +56,7 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
 {
     UniqueTraceData uniqueTrace;
     QString traceTextToGUI;
+            QList<ArgsPosition>* argsPosition = new QList<ArgsPosition>();
     //Не уникальный трейс
     //Читаем его структуру и записываем в TraceData
     memcpy(&traceData,chunkCursor,sizeof(sP7Trace_Data));
@@ -75,7 +76,8 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
             argsValue.push_back(arguments);
             chunkCursor+=uniqueTrace.argsID[i].argSize;
         }
-        traceTextToGUI = FormatVector(uniqueTrace.traceLineData,uniqueTrace.traceFormat.args_Len,argsValue,uniqueTrace.traceFormat.wID);
+
+        traceTextToGUI = FormatVector(&uniqueTrace,argsValue,argsPosition);
     }
     else
     {
@@ -86,8 +88,9 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
     traceToShow.insert(traceData.dwSequence,traceData);
 
     //traceTime = CountTraceTime();
-
-    return {traceTextToGUI,traceData.dwSequence,CountTraceTime(),uniqueTrace.traceFormat.wID,traceData.bLevel};
+    TraceToGUI traceToGUI = {traceTextToGUI,traceData.dwSequence,CountTraceTime(),uniqueTrace.traceFormat.wID,traceData.bLevel,*argsPosition};
+    delete argsPosition;
+    return traceToGUI;
 }
 
 UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)
@@ -132,8 +135,11 @@ std::string string_format( const std::string& format, Args ... args )
 }
 
 //Переписать когда пройдет тильт
-QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> args,tUINT32 wID)
+QString Trace::FormatVector(UniqueTraceData *uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition> *argsPosition)
 {
+    QString str = uniqueTrace->traceLineData;
+    tUINT32 argsCount = uniqueTrace->traceFormat.args_Len;
+    tUINT32 wID = uniqueTrace->traceFormat.wID;
     char argEnd[] = {'i','d','u','f','X'};
     int index1;
     int index2;
@@ -156,12 +162,9 @@ QString Trace::FormatVector(QString str, int argsCount, std::vector<tUINT64> arg
                     str.remove(0,index2);
                     tempStringSTD = tempString.toStdString();
                     tempStringSTD = string_format(tempStringSTD,args[i]);
-                    if(tracesThatNeedEnumChange.contains(wID) && enums->at(tracesThatNeedEnumChange.value(wID)).enums.size()>i){
-                        tempStringSTD.erase(index1,tempStringSTD.size());
-
-                        tempStringSTD.append(enums->at(tracesThatNeedEnumChange.value(wID)).enums.value(args[i]).name.toStdString());
-                    }
+                    tUINT32 toOutputSizeBeforeUpdate = toOutput.size();
                     toOutput+=tempStringSTD;
+                    argsPosition->append({toOutputSizeBeforeUpdate+index1,tUINT32(toOutput.length())});
                     found = true;
                     break;
                 }
@@ -284,7 +287,3 @@ tINT8* Trace::ReadTraceText(tINT8* tempChunkCursor, UniqueTraceData *trace)
     return tempChunkCursor;
 }
 
-void Trace::AppendTraceThatNeedEnumInsteadOfArgs(tUINT32 wID, tUINT32 enumId){
-    tracesThatNeedEnumChange.insert(wID,enumId);
-    std::cout<<"Appended"<<std::endl;
-}

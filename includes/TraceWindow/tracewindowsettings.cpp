@@ -1,7 +1,7 @@
 #include "tracewindowsettings.h"
 #include "ui_tracewindowsettings.h"
 #include "tracewindow.h"
-
+#include <QObject>
 
 TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, ConnectionName* clientName):ui(new Ui::TraceWindowSettings)
 {
@@ -646,10 +646,23 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
 }
 
 
-void TraceWindowSettings::on_applyEnumToTraceById_clicked()
-{
+void TraceWindowSettings::on_applyEnumToTraceById_clicked(){
+    if(ui->traceIDforEnums->currentText()==""){
+        return;
+    }
 
-    traceWindow->traceThread->AppendTraceThatNeedEnumInsteadOfArgs(ui->traceIDforEnums->currentText().toInt(),ui->enumId->text().toInt());
+    if(ui->rawTracesTable->rowCount()==0){
+        return;
+    }
+
+    QList<ArgsThatNeedToBeChangedByEnum> args;
+    for(int i =0;i<ui->rawTracesTable->rowCount();i++){
+        tUINT32 argId = ui->rawTracesTable->item(i,0)->text().toInt();
+        QComboBox *comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
+        tUINT32 enumId = comboBox->currentIndex();
+        args.append({argId,enumId});
+    }
+    traceWindow->AppendArgsThatNeedToBeChangedByEnum(ui->traceIDforEnums->currentText().toInt(),args);
 }
 
 EnumParser *TraceWindowSettings::getEnumParser() const

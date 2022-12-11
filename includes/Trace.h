@@ -7,7 +7,6 @@
 #include <QMap>
 #include "enumparser.h"
 #include <memory>
-
 #define TIME_OFFSET_1601_1970                            (116444736000000000ULL)
 
 #define TIME_HRS_100NS                                            36000000000ull
@@ -21,11 +20,18 @@
 
 #define SIZE_OF_ARG_END 5
 
+//Для применения енама мы запоминаем где хранятся аргументы внутри обработанной строки и будет заменять их на енамы
+struct ArgsPosition{
+    tUINT32 argStart;
+    tUINT32 argEnd;
+};
+
 struct GUIData{
     tUINT32 sequence;
     QString trace;
     tUINT32 wID;
     tUINT32 bLevel;
+    QList<ArgsPosition> argsPosition;
 };
 
 struct p7Time{
@@ -108,6 +114,8 @@ struct sP7Trace_Data
     tUINT64 qwTimer;
 };
 
+
+
 struct TraceToGUI
 {
     QString trace;
@@ -115,7 +123,9 @@ struct TraceToGUI
     p7Time traceTime;
     tUINT32 wID;
     tUINT32 bLevel;
+    QList<ArgsPosition> argsPositionAfterFormatting;
 };
+
 
 struct UniqueTraceData
 {
@@ -145,13 +155,12 @@ private:
     QMap<tUINT32, bool> needToShow;
     QMap<tUINT32,sP7Trace_Data> traceToShow;
     QMap<tUINT32,sP7Trace_Module> modules;
-    QMap<tUINT32,tUINT32> tracesThatNeedEnumChange; //wID, enumId
     tINT64 arguments = 0;
     Args_ID argumentsData;
 
     SYSTEMTIME traceTime;
 
-    QString FormatVector(QString str, int argsCount, std::vector<tUINT64> args,tUINT32 wID);
+    QString FormatVector(UniqueTraceData *uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition> *argsPosition);
     tINT8* ReadTraceText(tINT8* chunkCursor, UniqueTraceData *trace);
     p7Time CountTraceTime();
     QList<likeEnum> *enums;
@@ -173,6 +182,5 @@ public:
 
     QString getModule(tUINT32 moduleID);
     void SetEnumsList(QList<likeEnum> *newEnums);
-    void AppendTraceThatNeedEnumInsteadOfArgs(tUINT32 wID, tUINT32 enumId);
 };
 #endif // TRACE_H
