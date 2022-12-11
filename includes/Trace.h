@@ -143,7 +143,6 @@ private:
     std::vector<tUINT64> argsValue;
 
     QMap<tUINT32, bool> needToShow;
-    QMap<tUINT32,UniqueTraceData> uniqueTraces;
     QMap<tUINT32,sP7Trace_Data> traceToShow;
     QMap<tUINT32,sP7Trace_Module> modules;
     QMap<tUINT32,tUINT32> tracesThatNeedEnumChange; //wID, enumId
@@ -159,6 +158,7 @@ private:
 public:
     //TraceLineData traceDataPerLine;
     void Test();
+    QMap<tUINT32,UniqueTraceData> uniqueTraces;
     sP7Trace_Data GetTraceData(tUINT32 sequence);
     UniqueTraceData GetTraceFormat(tUINT32 wID);
 

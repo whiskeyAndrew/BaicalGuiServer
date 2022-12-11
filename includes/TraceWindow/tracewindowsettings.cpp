@@ -9,6 +9,13 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     enumParser = new EnumParser();
     ui->setupUi(this);
 
+    ui->traceIDforEnums->addItem("");
+
+    ui->rawTracesTable->insertColumn(0);
+    ui->rawTracesTable->setColumnWidth(0, ui->rawTracesTable->width()/10);
+    ui->rawTracesTable->insertColumn(1);
+    ui->rawTracesTable->horizontalHeader()->setStretchLastSection(true);
+
     autoTracesCount = ui->autoRowsCounter;
 
     connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::itemChanged);
@@ -24,10 +31,10 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     InitWindowsSize();
 
     QString enumsFile = config->LoadEnumsList(connectionName.ip);
-    if(enumsFile!=""){
-        LoadEnumsFromFile(enumsFile);
+    if(enumsFile==""){
+        return;
     }
-
+    LoadEnumsFromFile(enumsFile);
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
 }
 
@@ -463,8 +470,6 @@ void TraceWindowSettings::on_loadButton_clicked()
     QString fileName= QFileDialog::getOpenFileName(this, "Load",config->getConfigFileName(),tr("Config files(*.ini)"));
 
     if(fileName==""){
-        mbx.setText("Filename is empty");
-        mbx.exec();
         return;
     }
 
@@ -504,8 +509,6 @@ void TraceWindowSettings::on_saveAsButton_clicked()
     QString fileName= QFileDialog::getSaveFileName(this, "Save As",config->getConfigFileName(),tr("Config files(*.ini"));
 
     if(fileName==""){
-        mbx.setText("Filename is empty");
-        mbx.exec();
         return;
     }
 
@@ -628,11 +631,11 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
     int enumId = 0;
     ui->enumsElements->clear();
 
-//    for(int i =0;i<_enum.enums.size();i++){
-//        QListWidgetItem *item = new QListWidgetItem(_enum.enums.value(i).name+" "+QString::number(_enum.enums.ke));
-//        item->setData(Qt::ToolTipRole,++enumId);
-//        ui->enumsElements->addItem(item);
-//    }
+    //    for(int i =0;i<_enum.enums.size();i++){
+    //        QListWidgetItem *item = new QListWidgetItem(_enum.enums.value(i).name+" "+QString::number(_enum.enums.ke));
+    //        item->setData(Qt::ToolTipRole,++enumId);
+    //        ui->enumsElements->addItem(item);
+    //    }
 
     for(tUINT32 key:_enum.enums.keys()){
         QListWidgetItem *item = new QListWidgetItem(_enum.enums.value(key).name+" "+QString::number(key));
@@ -652,5 +655,32 @@ void TraceWindowSettings::on_applyEnumToTraceById_clicked()
 EnumParser *TraceWindowSettings::getEnumParser() const
 {
     return enumParser;
+}
+
+
+void TraceWindowSettings::on_traceIDforEnums_currentIndexChanged(int index)
+{
+    ui->rawTracesTable->setRowCount(0);
+    if(ui->traceIDforEnums->currentText()==""){
+        return;
+    }
+    tUINT32 wID = ui->traceIDforEnums->currentText().toInt();
+    Trace* traceHandler = traceWindow->traceThread;
+    for(int i =0;i<traceHandler->uniqueTraces.value(wID).argsID.size();i++){
+        if(traceHandler->uniqueTraces.value(wID).argsID.size()==0){
+            return;
+        }
+        int countNumber = ui->rawTracesTable->rowCount();
+        //Потанцевальная утечка памяти
+        QComboBox *comboBox = new QComboBox();
+        comboBox->addItem("");
+        for(int i =0;i<enumParser->enums.size();i++){
+            comboBox->addItem(enumParser->enums.at(i).name);
+        }
+        ui->rawTracesTable->insertRow(ui->rawTracesTable->rowCount());
+        ui->rawTracesTable->setItem(countNumber, 0, new QTableWidgetItem(QString::number(i+1)));
+        ui->rawTracesTable->setCellWidget(countNumber,1,comboBox);
+    }
+
 }
 

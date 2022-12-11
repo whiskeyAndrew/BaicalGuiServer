@@ -113,6 +113,8 @@ private slots:
 
     void on_applyEnumToTraceById_clicked();
 
+    void on_traceIDforEnums_currentIndexChanged(int index);
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;
@@ -120,7 +122,6 @@ private:
     //TraceColors
     QColor color;
     QColorDialog *colorDialog;
-    QMessageBox mbx;
 
     QString rowsOnScreen;
     QCheckBox *autoTracesCount;

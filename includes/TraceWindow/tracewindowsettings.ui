@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>566</width>
-    <height>545</height>
+    <height>669</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -821,7 +821,7 @@ selection-color: rgb(85, 255, 255);</string>
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
-       <item row="0" column="0" colspan="2">
+       <item row="0" column="0" colspan="3">
         <widget class="QListWidget" name="enumsList">
          <property name="verticalScrollMode">
           <enum>QAbstractItemView::ScrollPerPixel</enum>
@@ -831,20 +831,19 @@ selection-color: rgb(85, 255, 255);</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="loadEnumsFromTXT">
-         <property name="text">
-          <string>Load enums</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
+       <item row="4" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_4">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>100</height>
+          </size>
          </property>
          <property name="title">
           <string/>
@@ -878,8 +877,8 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QComboBox" name="traceIDforEnums">
           <property name="geometry">
            <rect>
-            <x>10</x>
-            <y>60</y>
+            <x>80</x>
+            <y>10</y>
             <width>101</width>
             <height>24</height>
            </rect>
@@ -888,8 +887,8 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="applyEnumToTraceById">
           <property name="geometry">
            <rect>
-            <x>10</x>
-            <y>100</y>
+            <x>450</x>
+            <y>50</y>
             <width>80</width>
             <height>24</height>
            </rect>
@@ -898,10 +897,45 @@ selection-color: rgb(85, 255, 255);</string>
            <string>Apply</string>
           </property>
          </widget>
+         <widget class="QPushButton" name="loadEnumsFromTXT">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>50</y>
+            <width>171</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Load enums</string>
+          </property>
+         </widget>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="1" column="0" colspan="3">
         <widget class="QListWidget" name="enumsElements"/>
+       </item>
+       <item row="2" column="0" colspan="3">
+        <widget class="QTableWidget" name="rawTracesTable">
+         <property name="autoScroll">
+          <bool>false</bool>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+         </property>
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderCascadingSectionResizes">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="verticalHeaderCascadingSectionResizes">
+          <bool>false</bool>
+         </attribute>
+        </widget>
        </item>
       </layout>
      </widget>
