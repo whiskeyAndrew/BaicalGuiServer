@@ -36,23 +36,28 @@ tryingAgain:
 
 void ServerStatusSender::run()
 {
+    tUINT32 msgNumber = 0;
     while (true)
     {
-        string msg = "";
+        QString msg = "";
+
 
         for(int i =0;i<launcher->clientsList->size();i++){
             msg.append(inet_ntoa(launcher->clientsList->at(i).clientIp.sin_addr));
-            msg.append(" queue size:");
-            msg.append(to_string( launcher->clientsList->at(i).connectionThread->packetQueue.size()));
+            msg.append("#"+QString::number(++msgNumber));
+            msg.append("#200");
+            msg.append("#packetHandler queue size:"+QString::number(launcher->clientsList->at(i).connectionThread->packetQueue.size()));
+            msg.append("#chunkHandler queue size:"+QString::number(launcher->clientsList->at(i).connectionThread->chunkHandler.chunks.size()));
             msg.append("\n ");
         }
-
+//        msg.insert(0,msg.size());
         if(launcher->clientsList->size()==0){
-            msg = "no connections";
+//            msg = "no connections";
+            continue;
         }
         msg.append("\0");
         char message[BUFLEN];
-        strcpy(message,msg.c_str());
+        strcpy(message,msg.toStdString().c_str());
 
         // send the message
         if (sendto(client_socket, message, strlen(message), 0, (sockaddr*)&server, sizeof(sockaddr_in)) == SOCKET_ERROR)
@@ -69,7 +74,7 @@ void ServerStatusSender::run()
         int slen = sizeof(sockaddr_in);
         int answer_length;
 
-//        cout<<"sended"<<endl;
+        //        cout<<"sended"<<endl;
         this->sleep(1);
     }
 

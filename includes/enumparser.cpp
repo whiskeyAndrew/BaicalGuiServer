@@ -5,7 +5,7 @@ EnumParser::EnumParser()
 
 }
 
-void EnumParser::readEnumsFromFile(QString fileName){
+tBOOL EnumParser::readEnumsFromFile(QString fileName){
     enums.clear();
     file = new QFile(fileName);
     if (file->open(QIODevice::ReadOnly))
@@ -54,7 +54,10 @@ void EnumParser::readEnumsFromFile(QString fileName){
                 enums.append({enumName,tempEnums});
             }
         }
+    } else{
+        return false;
     }
     file->close();
+    return true;
 }
 

@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QCheckBox>
 #include "../enumparser.h"
+#include <QComboBox>
 
 struct ConnectionName{
     QString status;
@@ -49,6 +50,7 @@ public:
 
     void SetTraceWindowSizeText();
     EnumParser *getEnumParser() const;
+    QList<tUINT32> enumsIdList;
 
 private slots:
 
@@ -115,6 +117,14 @@ private slots:
 
     void on_traceIDforEnums_currentIndexChanged(int index);
 
+    void on_saveAllSettings_clicked();
+
+    void on_saveEnumsToConfig_clicked();
+
+    void on_clearEnums_clicked();
+
+    void on_loadEnumsFromConfig_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler *config;
@@ -123,6 +133,7 @@ private:
     QColor color;
     QColorDialog *colorDialog;
 
+    QList<QComboBox*> comboBoxesToDelete;
     QString rowsOnScreen;
     QCheckBox *autoTracesCount;
 
@@ -137,7 +148,9 @@ private:
     void LoadConfigFileAsText();
     void InitWindowsSize();
     void resizeEvent(QResizeEvent *e);
-    void LoadEnumsFromFile(QString fileName);
+    tBOOL LoadEnumsFromFile(QString fileName);
+    void ReloadListOfArgsAndEnums();
+    void LoadEnumsFromConfig();
 signals:
     //Unique Traces List
     void SendRowWID(tUINT32 wID, tUINT32 state);

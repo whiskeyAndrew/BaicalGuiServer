@@ -18,8 +18,8 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler *newConfig,
 
 void TraceWindow::GetTrace(TraceToGUI trace)
 {
-    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting};
     ui->verticalScrollBar->setMaximum(++verticalBarSize);
+    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting};
     guiData.insert(verticalBarSize,tempGuiData);
 
     if(verticalBarSize<numberOfRowsToShow){
@@ -229,8 +229,23 @@ TraceWindowSettings *TraceWindow::getTraceSettings() const
 void TraceWindow::AppendArgsThatNeedToBeChangedByEnum(tUINT32 wID, QList<ArgsThatNeedToBeChangedByEnum> args)
 {
     argsThatNeedToBeChangedByEnum.insert(wID,args);
+    ReloadTracesInsideWindow();
 }
 
+void TraceWindow::ClearArgsThatNeedToBeChangedByEnumm(){
+    argsThatNeedToBeChangedByEnum.clear();
+    ReloadTracesInsideWindow();
+}
+
+QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > TraceWindow::getArgsThatNeedToBeChangedByEnum()
+{
+    return argsThatNeedToBeChangedByEnum;
+}
+
+void TraceWindow::setArgsThatNeedToBeChangedByEnum(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > newArgsThatNeedToBeChangedByEnum)
+{
+    argsThatNeedToBeChangedByEnum = newArgsThatNeedToBeChangedByEnum;
+}
 void TraceWindow::OffAutoscroll(){
     ui->Autoscroll->setChecked(false);
 }
@@ -464,7 +479,22 @@ QString TraceWindow::GetGuiRow(GUIData g){
         QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
         for(int i =args.size()-1;i>=0;i--){
 
+            //0 - ничего ставить не надо
+            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==0){
+                continue;
+            }
+
+            //на случай если айдишника енама нет в списке енамов то скипаем
+            if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)){
+                continue;
+            }
+
             tUINT32 number = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart)).toInt();
+
+
+            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.contains(number)){
+                continue;
+            }
             traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
         }
     }

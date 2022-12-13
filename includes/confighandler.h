@@ -3,6 +3,11 @@
 #include <QSettings>
 #include <QColor>
 #include "GTypes.h"
+
+struct ArgsThatNeedToBeChangedByEnum{
+    tUINT32 argId;
+    tUINT32 enumId;
+};
 class ConfigHandler
 {
 
@@ -45,6 +50,8 @@ public:
     void LoadWindowsSize();
     void SaveEnumsList(QString ip, QString fileName);
     QString LoadEnumsList(QString ip);
+    tUINT32 SaveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > args, QString ip);
+    QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > LoadEnums(QString ip);
 };
 
 #endif // CONFIGHANDLER_H

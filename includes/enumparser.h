@@ -26,7 +26,7 @@ public:
     EnumParser();
     //QHash <QString, QMap<tUINT32,enumFromFile>> enums;
     QList<likeEnum> enums;
-    void readEnumsFromFile(QString fileName);
+    tBOOL readEnumsFromFile(QString fileName);
 };
 
 #endif // ENUMPARSER_H

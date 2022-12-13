@@ -1,5 +1,6 @@
 #include "confighandler.h"
 
+
 //На случай, если появится вопрос, зачем каждый раз пересоздавать сеттингс?
 //При изменении конфиг.ини ручками приложение не подтянет данные оттуда, потому что QSettings обращается к данным внутри себя, а не к файлу, если уже был создан
 //Создавая QSettings, он подгружает данные из конфига при старте, что позволяет курировать уже с данными из файла напрямую, а не с данными из объекта
@@ -142,4 +143,45 @@ QString ConfigHandler::LoadEnumsList(QString ip){
     settings->endGroup();
     delete settings;
     return fileName;
+}
+
+tUINT32 ConfigHandler::SaveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> args, QString ip){
+
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    tUINT32 enumsSaved = 0;
+    settings->beginGroup(ip);
+    if(args.size()==0){
+        settings->remove("");
+    } else{
+        for(tUINT32 wID:args.keys()){
+            QList<ArgsThatNeedToBeChangedByEnum> argsList = args.value(wID);
+            QString toOutput = "";
+            for(int j = 0;j<argsList.size();j++){
+                toOutput+=QString::number(argsList.at(j).enumId)+" ";
+            }
+            settings->setValue(QString::number(wID), toOutput);
+            enumsSaved++;
+        }
+    }
+    settings->endGroup();
+    delete settings;
+    return enumsSaved;
+}
+
+QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> ConfigHandler::LoadEnums(QString ip){
+    QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> enums;
+    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    settings->beginGroup(ip);
+    for(QString t_wID:settings->allKeys()){
+        tUINT32 wID = t_wID.toInt();
+        QStringList t_values = settings->value(t_wID).toString().split(" ");
+        QList<ArgsThatNeedToBeChangedByEnum> values;
+        for(tUINT32 i =0;i<t_values.size();i++){
+            values.append({i,t_values.at(i).toUInt()});
+        }
+        enums.insert(wID,values);
+    }
+    settings->endGroup();
+    delete settings;
+    return enums;
 }

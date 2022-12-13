@@ -60,7 +60,7 @@
      </widget>
      <widget class="QWidget" name="RowColor">
       <attribute name="title">
-       <string>Trace Color</string>
+       <string>Settings</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
@@ -234,13 +234,13 @@
           <property name="geometry">
            <rect>
             <x>460</x>
-            <y>160</y>
+            <y>220</y>
             <width>80</width>
             <height>24</height>
            </rect>
           </property>
           <property name="text">
-           <string>Save All</string>
+           <string>Save Levels</string>
           </property>
          </widget>
          <widget class="QCheckBox" name="autoRowsCounter">
@@ -625,13 +625,13 @@ selection-color: rgb(85, 255, 255);</string>
           <property name="geometry">
            <rect>
             <x>460</x>
-            <y>160</y>
-            <width>80</width>
+            <y>220</y>
+            <width>91</width>
             <height>24</height>
            </rect>
           </property>
           <property name="text">
-           <string>Save All</string>
+           <string>Save Colors</string>
           </property>
          </widget>
         </widget>
@@ -652,12 +652,12 @@ selection-color: rgb(85, 255, 255);</string>
            <rect>
             <x>460</x>
             <y>40</y>
-            <width>80</width>
+            <width>91</width>
             <height>24</height>
            </rect>
           </property>
           <property name="text">
-           <string>Save All</string>
+           <string>Save Windows</string>
           </property>
          </widget>
          <widget class="QLabel" name="label_4">
@@ -766,6 +766,13 @@ selection-color: rgb(85, 255, 255);</string>
          </widget>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="saveAllSettings">
+         <property name="text">
+          <string>Save All</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab">
@@ -819,18 +826,8 @@ selection-color: rgb(85, 255, 255);</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
        <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
+        <enum>QLayout::SetMaximumSize</enum>
        </property>
-       <item row="0" column="0" colspan="3">
-        <widget class="QListWidget" name="enumsList">
-         <property name="verticalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
-         </property>
-         <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_4">
          <property name="sizePolicy">
@@ -888,7 +885,7 @@ selection-color: rgb(85, 255, 255);</string>
           <property name="geometry">
            <rect>
             <x>450</x>
-            <y>50</y>
+            <y>70</y>
             <width>80</width>
             <height>24</height>
            </rect>
@@ -897,17 +894,55 @@ selection-color: rgb(85, 255, 255);</string>
            <string>Apply</string>
           </property>
          </widget>
-         <widget class="QPushButton" name="loadEnumsFromTXT">
+         <widget class="QLabel" name="uniqueTraceLabel">
+          <property name="geometry">
+           <rect>
+            <x>200</x>
+            <y>10</y>
+            <width>331</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignJustify|Qt::AlignTop</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearEnums">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>50</y>
-            <width>171</width>
+            <y>70</y>
+            <width>71</width>
             <height>24</height>
            </rect>
           </property>
           <property name="text">
-           <string>Load enums</string>
+           <string>Clear</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="enumsStatus">
+          <property name="geometry">
+           <rect>
+            <x>98</x>
+            <y>60</y>
+            <width>341</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
           </property>
          </widget>
         </widget>
@@ -935,6 +970,37 @@ selection-color: rgb(85, 255, 255);</string>
          <attribute name="verticalHeaderCascadingSectionResizes">
           <bool>false</bool>
          </attribute>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="QListWidget" name="enumsList">
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QPushButton" name="saveEnumsToConfig">
+         <property name="text">
+          <string>Save Enums to config</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QPushButton" name="loadEnumsFromConfig">
+         <property name="text">
+          <string>Load enums from config</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QPushButton" name="loadEnumsFromTXT">
+         <property name="text">
+          <string>Load enums from .txt</string>
+         </property>
         </widget>
        </item>
       </layout>

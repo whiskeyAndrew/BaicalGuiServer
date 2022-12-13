@@ -25,10 +25,7 @@ enum eP7Trace_Level
     EP7TRACE_LEVEL_COUNT
 };
 
-struct ArgsThatNeedToBeChangedByEnum{
-    tUINT32 argId;
-    tUINT32 enumId;
-};
+
 
 namespace Ui {
 class TraceWindow;
@@ -73,6 +70,11 @@ public:
     Trace *traceThread;
     TraceWindowSettings *getTraceSettings() const;
     void AppendArgsThatNeedToBeChangedByEnum(tUINT32 wID, QList<ArgsThatNeedToBeChangedByEnum> args);
+
+    void ClearArgsThatNeedToBeChangedByEnumm();
+    QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > getArgsThatNeedToBeChangedByEnum();
+
+    void setArgsThatNeedToBeChangedByEnum(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > newArgsThatNeedToBeChangedByEnum);
 
 private:
     tUINT32 numberOfRowsToShow;

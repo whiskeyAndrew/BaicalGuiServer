@@ -31,10 +31,12 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     InitWindowsSize();
 
     QString enumsFile = config->LoadEnumsList(connectionName.ip);
-    if(enumsFile==""){
-        return;
+    if(enumsFile!=""){
+        if(LoadEnumsFromFile(enumsFile)){
+            LoadEnumsFromConfig();
+        }
     }
-    LoadEnumsFromFile(enumsFile);
+
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
 }
 
@@ -607,21 +609,29 @@ void TraceWindowSettings::on_saveWindowsProperties_clicked()
 void TraceWindowSettings::on_loadEnumsFromTXT_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Save As",nullptr,tr("Text files(*.txt)"));
-    LoadEnumsFromFile(fileName);
-    traceWindow->traceThread->SetEnumsList(&enumParser->enums);
-
+    if(LoadEnumsFromFile(fileName)){
+        traceWindow->traceThread->SetEnumsList(&enumParser->enums);
+    }
 }
 
-void TraceWindowSettings::LoadEnumsFromFile(QString fileName){
-    enumParser->readEnumsFromFile(fileName);
-    int enumId = 0;
+tBOOL TraceWindowSettings::LoadEnumsFromFile(QString fileName){
+    if(!enumParser->readEnumsFromFile(fileName)){
+        ui->enumsStatus->setText("Can't load enum from config");
+        return false;
+    }
+    enumsIdList.clear();
+    int enumId = 1;
     ui->enumsList->clear();
     for(int i =0;i<enumParser->enums.size();i++){
         QListWidgetItem *item = new QListWidgetItem(enumParser->enums.at(i).name);
-        item->setData(Qt::ToolTipRole,++enumId);
+        item->setData(Qt::ToolTipRole,enumId);
         ui->enumsList->addItem(item);
+        enumsIdList.append(enumId);
+        enumId++;
     }
     config->SaveEnumsList(connectionName.ip,fileName);
+    ui->enumsStatus->setText("Loaded enums from " + fileName +": " +QString::number(enumParser->enums.size()));
+    return true;
 }
 
 void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
@@ -662,7 +672,9 @@ void TraceWindowSettings::on_applyEnumToTraceById_clicked(){
         tUINT32 enumId = comboBox->currentIndex();
         args.append({argId,enumId});
     }
+
     traceWindow->AppendArgsThatNeedToBeChangedByEnum(ui->traceIDforEnums->currentText().toInt(),args);
+    ui->enumsStatus->setText("Applied");
 }
 
 EnumParser *TraceWindowSettings::getEnumParser() const
@@ -673,20 +685,85 @@ EnumParser *TraceWindowSettings::getEnumParser() const
 
 void TraceWindowSettings::on_traceIDforEnums_currentIndexChanged(int index)
 {
+    ReloadListOfArgsAndEnums();
+}
+
+
+void TraceWindowSettings::on_saveAllSettings_clicked()
+{
+    config->SaveColors();
+    traceWindow->SetActionStatusText("Traces colors was saved!");
+    config->SaveTraceLevelsToShow();
+    traceWindow->SetActionStatusText("Traces checkboxes was saved!");
+    config->SaveWindowsSize(traceWindow->size().width(),traceWindow->size().height(),this->size().width(),traceWindow->size().height());
+}
+
+
+void TraceWindowSettings::on_saveEnumsToConfig_clicked()
+{
+    ui->enumsStatus->setText("Saved enums: " + QString::number(config->SaveEnums(traceWindow->getArgsThatNeedToBeChangedByEnum(),connectionName.ip)));
+}
+
+
+void TraceWindowSettings::on_clearEnums_clicked()
+{
+    ui->enumsStatus->setText("Cleared enums: "+ QString::number(traceWindow->getArgsThatNeedToBeChangedByEnum().size()));
+    for(int i =0;i<ui->rawTracesTable->rowCount();i++){
+        QComboBox *comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
+        comboBox->setCurrentIndex(0);
+    }
+    traceWindow->ClearArgsThatNeedToBeChangedByEnumm();
+}
+
+void TraceWindowSettings::ReloadListOfArgsAndEnums(){
     ui->rawTracesTable->setRowCount(0);
+
     if(ui->traceIDforEnums->currentText()==""){
         return;
     }
+
+    for(int i =0;i<comboBoxesToDelete.size();i++){
+        QComboBox *comboBox = comboBoxesToDelete.at(i);
+        delete comboBox;
+    }
+    comboBoxesToDelete.clear();
+
     tUINT32 wID = ui->traceIDforEnums->currentText().toInt();
     Trace* traceHandler = traceWindow->traceThread;
+    ui->uniqueTraceLabel->setText(traceWindow->traceThread->uniqueTraces.value(wID).traceLineData);
+
+    if(traceWindow->getArgsThatNeedToBeChangedByEnum().contains(wID)){
+        for(int i =0;i<traceHandler->uniqueTraces.value(wID).argsID.size();i++){
+            int countNumber = ui->rawTracesTable->rowCount();
+            QComboBox *comboBox = new QComboBox();
+            comboBox->addItem("");
+            comboBoxesToDelete.append(comboBox);
+
+            for(int i =0;i<enumParser->enums.size();i++){
+                comboBox->addItem(enumParser->enums.at(i).name);
+            }
+
+            comboBox->setCurrentIndex(traceWindow->getArgsThatNeedToBeChangedByEnum().value(wID).at(i).enumId);
+
+            ui->rawTracesTable->insertRow(ui->rawTracesTable->rowCount());
+            ui->rawTracesTable->setItem(countNumber, 0, new QTableWidgetItem(QString::number(i+1)));
+            ui->rawTracesTable->setCellWidget(countNumber,1,comboBox);
+        }
+        return;
+    }
+
+
+
     for(int i =0;i<traceHandler->uniqueTraces.value(wID).argsID.size();i++){
         if(traceHandler->uniqueTraces.value(wID).argsID.size()==0){
             return;
         }
         int countNumber = ui->rawTracesTable->rowCount();
-        //Потанцевальная утечка памяти
+        //так как по новой генерируем каждый раз комбобокс, надо запоминать те комбобоксы которые у нас есть и удалять их из памяти
+        //после каждого обновления списка
         QComboBox *comboBox = new QComboBox();
         comboBox->addItem("");
+        comboBoxesToDelete.append(comboBox);
         for(int i =0;i<enumParser->enums.size();i++){
             comboBox->addItem(enumParser->enums.at(i).name);
         }
@@ -694,6 +771,22 @@ void TraceWindowSettings::on_traceIDforEnums_currentIndexChanged(int index)
         ui->rawTracesTable->setItem(countNumber, 0, new QTableWidgetItem(QString::number(i+1)));
         ui->rawTracesTable->setCellWidget(countNumber,1,comboBox);
     }
+}
 
+void TraceWindowSettings::LoadEnumsFromConfig(){
+    if(ui->enumsList->count()==0){
+        QMessageBox msg;
+        msg.setWindowTitle("Ошибка");
+        msg.setText("Загрузите файл enum-ов в первую очередь");
+        msg.exec();
+        return;
+    }
+    traceWindow->setArgsThatNeedToBeChangedByEnum(config->LoadEnums(connectionName.ip));
+    ui->enumsStatus->setText("Loaded rows from config: "+QString::number(traceWindow->getArgsThatNeedToBeChangedByEnum().size()));
+    ReloadListOfArgsAndEnums();
+}
+void TraceWindowSettings::on_loadEnumsFromConfig_clicked()
+{
+    LoadEnumsFromConfig();
 }
 
