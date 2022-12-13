@@ -3,12 +3,19 @@
 #include "tracewindow.h"
 #include <QObject>
 
-TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, ConnectionName* clientName):ui(new Ui::TraceWindowSettings)
+TraceWindowSettings::TraceWindowSettings(TraceWindow* newTraceWindow, ConnectionName* clientName):ui(new Ui::TraceWindowSettings)
 {
+    ui->setupUi(this);
     traceWindow = newTraceWindow;
     enumParser = new EnumParser();
-    ui->setupUi(this);
+    connectionName =*clientName;
 
+    initWindow();
+}
+
+void TraceWindowSettings::initWindow()
+{
+    setWindowTitle(connectionName.ip+":"+connectionName.port +" settings");
     ui->traceIDforEnums->addItem("");
 
     ui->rawTracesTable->insertColumn(0);
@@ -19,54 +26,49 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow *newTraceWindow, Connection
     autoTracesCount = ui->autoRowsCounter;
 
     connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::itemChanged);
-    connect(this,&TraceWindowSettings::SendRowWID,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
-    colorDialog = new QColorDialog();
+    connect(this,&TraceWindowSettings::sendRowWID,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
 
-    connectionName = *clientName;
-    setWindowTitle(clientName->ip+":"+clientName->port +" config");
+    colorDialog = new QColorDialog();
     config = new ConfigHandler(connectionName.ip);
 
-    InitTraceLevels();
-    InitColors();
-    InitWindowsSize();
+    initTraceLevels();
+    initColors();
+    initWindowsSize();
 
-    QString enumsFile = config->LoadEnumsList(connectionName.ip);
+    QString enumsFile = config->loadEnumsList(connectionName.ip);
     if(enumsFile!=""){
-        if(LoadEnumsFromFile(enumsFile)){
-            LoadEnumsFromConfig();
+        if(loadEnumsFromFile(enumsFile)){
+            loadEnumsFromConfig();
         }
     }
 
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
 }
 
-void TraceWindowSettings::SetWindowName(QString name){
-
-}
 TraceWindowSettings::~TraceWindowSettings()
 {
     delete ui;
 }
 
-void TraceWindowSettings::itemChanged(QListWidgetItem *item)
+void TraceWindowSettings::itemChanged(QListWidgetItem* item)
 {
     tUINT32 wID = item->data(Qt::ToolTipRole).toInt();
     tUINT32 state = item->checkState();
     needToShow.insert(wID,state);
-    emit SendRowWID(wID,state);
+    emit sendRowWID(wID,state);
 }
 
-void TraceWindowSettings::AppendUniqueTracesList(QString text, tUINT32 wID)
+void TraceWindowSettings::appendUniqueTracesList(QString text, tUINT32 wID)
 {
     ui->listWidget->addItem(text);
-    QListWidgetItem *listItem = ui->listWidget->item(ui->listWidget->count()-1);
+    QListWidgetItem* listItem = ui->listWidget->item(ui->listWidget->count()-1);
     listItem->setData(Qt::ToolTipRole,wID);
     listItem->setCheckState(Qt::Checked);
     needToShow.insert(wID,Qt::Checked);
     ui->traceIDforEnums->addItem(QString::number(wID));
 }
 
-void TraceWindowSettings::DisableElement(tUINT32 wID)
+void TraceWindowSettings::disableElement(tUINT32 wID)
 {
     needToShow.insert(wID,Qt::Unchecked);
     for(int i =0;i<ui->listWidget->count();i++){
@@ -93,7 +95,6 @@ void TraceWindowSettings::on_traceColorButton_clicked()
     config->traceColor=color;
 }
 
-
 void TraceWindowSettings::on_debugColorButton_clicked()
 {
     color = colorDialog->getColor();
@@ -109,7 +110,6 @@ void TraceWindowSettings::on_debugColorButton_clicked()
     traceWindow->setDebugColor(color);
     config->debugColor=color;
 }
-
 
 void TraceWindowSettings::on_infoColorButton_clicked()
 {
@@ -127,7 +127,6 @@ void TraceWindowSettings::on_infoColorButton_clicked()
     config->infoColor=color;
 }
 
-
 void TraceWindowSettings::on_warningColorButton_clicked()
 {
     color = colorDialog->getColor();
@@ -144,7 +143,6 @@ void TraceWindowSettings::on_warningColorButton_clicked()
     config->warningColor=color;
 }
 
-
 void TraceWindowSettings::on_errorColorButton_clicked()
 {
     color = colorDialog->getColor();
@@ -160,7 +158,6 @@ void TraceWindowSettings::on_errorColorButton_clicked()
     traceWindow->setErrorColor(color);
     config->errorColor=color;
 }
-
 
 void TraceWindowSettings::on_criticalColorButton_clicked()
 {
@@ -179,7 +176,6 @@ void TraceWindowSettings::on_criticalColorButton_clicked()
     config->criticalColor=traceWindow->getCriticalColor();
 }
 
-
 void TraceWindowSettings::on_clearTrace_clicked()
 {
     QMessageBox::StandardButton reply;
@@ -193,7 +189,6 @@ void TraceWindowSettings::on_clearTrace_clicked()
 
 }
 
-
 void TraceWindowSettings::on_clearDebug_clicked()
 {
     QMessageBox::StandardButton reply;
@@ -205,7 +200,6 @@ void TraceWindowSettings::on_clearDebug_clicked()
         ui->debugColorButton->setStyleSheet("");
     }
 }
-
 
 void TraceWindowSettings::on_clearInfo_clicked()
 {
@@ -219,7 +213,6 @@ void TraceWindowSettings::on_clearInfo_clicked()
     }
 }
 
-
 void TraceWindowSettings::on_clearWarning_clicked()
 {
     QMessageBox::StandardButton reply;
@@ -231,7 +224,6 @@ void TraceWindowSettings::on_clearWarning_clicked()
         ui->warningColorButton->setStyleSheet("");
     }
 }
-
 
 void TraceWindowSettings::on_clearError_clicked()
 {
@@ -245,7 +237,6 @@ void TraceWindowSettings::on_clearError_clicked()
     }
 }
 
-
 void TraceWindowSettings::on_clearCritical_clicked()
 {
     QMessageBox::StandardButton reply;
@@ -258,17 +249,19 @@ void TraceWindowSettings::on_clearCritical_clicked()
     }
 }
 
-
-Qt::CheckState TraceWindowSettings::isTraceColumnNeedToShow(){
+Qt::CheckState TraceWindowSettings::isTraceColumnNeedToShow()
+{
     return ui->traceCheckbox->checkState();
 }
 
-Qt::CheckState TraceWindowSettings::isSequenceColumnNeedToShow(){
+Qt::CheckState TraceWindowSettings::isSequenceColumnNeedToShow()
+{
     return ui->sequenceCheckbox->checkState();
 }
 
-void TraceWindowSettings::InitTraceLevels(){
-    config->LoadTraceLevelsToShow();
+void TraceWindowSettings::initTraceLevels()
+{
+    config->loadTraceLevelsToShow();
     ui->traceLevelCheckBox->setCheckState(config->traceLevel);
     ui->debugCheckBox->setCheckState(config->debugLevel);
     ui->infoCheckBox->setCheckState(config->infoLevel);
@@ -278,8 +271,9 @@ void TraceWindowSettings::InitTraceLevels(){
 
 }
 
-void TraceWindowSettings::InitColors(){
-    config->LoadColors();
+void TraceWindowSettings::initColors()
+{
+    config->loadColors();
     if(config->traceColor.isValid()){
         ui->traceColorButton->setStyleSheet("background-color: rgb("+QString::number(config->traceColor.red())+", "
                                             +QString::number(config->traceColor.green())+", "
@@ -402,14 +396,14 @@ void TraceWindowSettings::on_criticalCheckBox_stateChanged(int arg1)
 void TraceWindowSettings::on_sequenceCheckbox_stateChanged(int arg1)
 {
     if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->ReloadTracesInsideWindow();
+        traceWindow->reloadTracesInsideWindow();
     }
 }
 
 void TraceWindowSettings::on_traceCheckbox_stateChanged(int arg1)
 {
     if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->ReloadTracesInsideWindow();
+        traceWindow->reloadTracesInsideWindow();
     }
 }
 
@@ -423,7 +417,6 @@ void TraceWindowSettings::on_horizontalSlider_sliderMoved(int position)
     traceWindow->setTransparency(QString::number(static_cast<float>(position)/100));
 }
 
-
 void TraceWindowSettings::on_checkAllUniqueTraces_clicked()
 {
     for(int i=0;i<ui->listWidget->count();i++){
@@ -431,15 +424,14 @@ void TraceWindowSettings::on_checkAllUniqueTraces_clicked()
     }
 }
 
-
 void TraceWindowSettings::on_tabWidget_tabBarClicked(int index)
 {
     if(index==2){
-        LoadConfigFileAsText();
+        loadConfigFileAsText();
     }
 }
 
-void TraceWindowSettings::LoadConfigFileAsText(){
+void TraceWindowSettings::loadConfigFileAsText(){
     QFile file(config->getConfigFileName());
 
     if (!file.open(QIODevice::ReadOnly |  QIODevice::Text)){
@@ -452,12 +444,12 @@ void TraceWindowSettings::LoadConfigFileAsText(){
         ui->configText->appendPlainText(in.readLine());
     }
     file.close();
-    traceWindow->SetActionStatusText("Config was loaded!");
+    traceWindow->setActionStatusText("Config was loaded!");
 }
 
-void TraceWindowSettings::InitWindowsSize()
+void TraceWindowSettings::initWindowsSize()
 {
-    config->LoadWindowsSize();
+    config->loadWindowsSize();
     if(config->traceWindow_x!=0 || config->traceWindow_y!=0){
         traceWindow->resize(config->traceWindow_x,config->traceWindow_y);
     }
@@ -487,7 +479,7 @@ void TraceWindowSettings::on_loadButton_clicked()
         ui->configText->appendPlainText(in.readLine());
     }
     file.close();
-    traceWindow->SetActionStatusText("Config was loaded!");
+    traceWindow->setActionStatusText("Config was loaded!");
 }
 
 void TraceWindowSettings::on_saveButton_clicked()
@@ -503,7 +495,7 @@ void TraceWindowSettings::on_saveButton_clicked()
     std::cout<<text.toStdString()<<std::endl;
     out<< text;
     file.close();
-    traceWindow->SetActionStatusText("Config was saved!");
+    traceWindow->setActionStatusText("Config was saved!");
 }
 
 void TraceWindowSettings::on_saveAsButton_clicked()
@@ -525,13 +517,13 @@ void TraceWindowSettings::on_saveAsButton_clicked()
     std::cout<<text.toStdString()<<std::endl;
     out<< text;
     file.close();
-    traceWindow->SetActionStatusText("Config was saved!");
+    traceWindow->setActionStatusText("Config was saved!");
 }
 
 void TraceWindowSettings::on_LoadDataFromConfig_clicked()
 {
-    InitColors();
-    InitTraceLevels();
+    initColors();
+    initTraceLevels();
 }
 
 
@@ -542,20 +534,17 @@ void TraceWindowSettings::on_uncheckAllUniqueTraces_clicked()
     }
 }
 
-
 void TraceWindowSettings::on_saveAllTraceCheckboxes_clicked()
 {
-    config->SaveTraceLevelsToShow();
-    traceWindow->SetActionStatusText("Traces checkboxes was saved!");
+    config->saveTraceLevelsToShow();
+    traceWindow->setActionStatusText("Traces checkboxes was saved!");
 }
-
 
 void TraceWindowSettings::on_saveAllColors_clicked()
 {
-    config->SaveColors();
-    traceWindow->SetActionStatusText("Traces colors was saved!");
+    config->saveColors();
+    traceWindow->setActionStatusText("Traces colors was saved!");
 }
-
 
 void TraceWindowSettings::on_autoRowsCounter_stateChanged(int arg1)
 {
@@ -576,7 +565,7 @@ void TraceWindowSettings::resizeEvent(QResizeEvent* e){
     ui->traceSy_size->setText(QString::number(this->size().height()));
 }
 
-void TraceWindowSettings::SetTraceWindowSizeText(){
+void TraceWindowSettings::setTraceWindowSizeText(){
     ui->tracex_size->setText(QString::number(traceWindow->size().width()));
     ui->tracey_size->setText(QString::number(traceWindow->size().height()));
 }
@@ -586,13 +575,10 @@ QString TraceWindowSettings::getRowsOnScreen()
     return ui->rowsOnScreen->text();
 }
 
-QCheckBox *TraceWindowSettings::getAutoTracesCount() const
+QCheckBox* TraceWindowSettings::getAutoTracesCount() const
 {
     return autoTracesCount;
 }
-
-
-
 
 void TraceWindowSettings::on_rowsOnScreen_editingFinished()
 {
@@ -602,19 +588,17 @@ void TraceWindowSettings::on_rowsOnScreen_editingFinished()
 
 void TraceWindowSettings::on_saveWindowsProperties_clicked()
 {
-    config->SaveWindowsSize(traceWindow->size().width(),traceWindow->size().height(),this->size().width(),traceWindow->size().height());
+    config->saveWindowsSize(traceWindow->size().width(),traceWindow->size().height(),this->size().width(),traceWindow->size().height());
 }
 
 
 void TraceWindowSettings::on_loadEnumsFromTXT_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Save As",nullptr,tr("Text files(*.txt)"));
-    if(LoadEnumsFromFile(fileName)){
-        traceWindow->traceThread->SetEnumsList(&enumParser->enums);
-    }
+    loadEnumsFromFile(fileName);
 }
 
-tBOOL TraceWindowSettings::LoadEnumsFromFile(QString fileName){
+tBOOL TraceWindowSettings::loadEnumsFromFile(QString fileName){
     if(!enumParser->readEnumsFromFile(fileName)){
         ui->enumsStatus->setText("Can't load enum from config");
         return false;
@@ -623,18 +607,18 @@ tBOOL TraceWindowSettings::LoadEnumsFromFile(QString fileName){
     int enumId = 1;
     ui->enumsList->clear();
     for(int i =0;i<enumParser->enums.size();i++){
-        QListWidgetItem *item = new QListWidgetItem(enumParser->enums.at(i).name);
+        QListWidgetItem* item = new QListWidgetItem(enumParser->enums.at(i).name);
         item->setData(Qt::ToolTipRole,enumId);
         ui->enumsList->addItem(item);
         enumsIdList.append(enumId);
         enumId++;
     }
-    config->SaveEnumsList(connectionName.ip,fileName);
+    config->saveEnumsList(connectionName.ip,fileName);
     ui->enumsStatus->setText("Loaded enums from " + fileName +": " +QString::number(enumParser->enums.size()));
     return true;
 }
 
-void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
+void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem* item)
 {
     tUINT32 rowId = item->data(Qt::ToolTipRole).toInt()-1;
     likeEnum _enum = enumParser->enums.at(rowId);
@@ -642,13 +626,13 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem *item)
     ui->enumsElements->clear();
 
     //    for(int i =0;i<_enum.enums.size();i++){
-    //        QListWidgetItem *item = new QListWidgetItem(_enum.enums.value(i).name+" "+QString::number(_enum.enums.ke));
+    //        QListWidgetItem* item = new QListWidgetItem(_enum.enums.value(i).name+" "+QString::number(_enum.enums.ke));
     //        item->setData(Qt::ToolTipRole,++enumId);
     //        ui->enumsElements->addItem(item);
     //    }
 
     for(tUINT32 key:_enum.enums.keys()){
-        QListWidgetItem *item = new QListWidgetItem(_enum.enums.value(key).name+" "+QString::number(key));
+        QListWidgetItem* item = new QListWidgetItem(_enum.enums.value(key).name+" "+QString::number(key));
         item->setData(Qt::ToolTipRole,++enumId);
         ui->enumsElements->addItem(item);
     }
@@ -668,16 +652,16 @@ void TraceWindowSettings::on_applyEnumToTraceById_clicked(){
     QList<ArgsThatNeedToBeChangedByEnum> args;
     for(int i =0;i<ui->rawTracesTable->rowCount();i++){
         tUINT32 argId = ui->rawTracesTable->item(i,0)->text().toInt();
-        QComboBox *comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
+        QComboBox* comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
         tUINT32 enumId = comboBox->currentIndex();
         args.append({argId,enumId});
     }
 
-    traceWindow->AppendArgsThatNeedToBeChangedByEnum(ui->traceIDforEnums->currentText().toInt(),args);
+    traceWindow->appendArgsThatNeedToBeChangedByEnum(ui->traceIDforEnums->currentText().toInt(),args);
     ui->enumsStatus->setText("Applied");
 }
 
-EnumParser *TraceWindowSettings::getEnumParser() const
+EnumParser* TraceWindowSettings::getEnumParser() const
 {
     return enumParser;
 }
@@ -685,23 +669,23 @@ EnumParser *TraceWindowSettings::getEnumParser() const
 
 void TraceWindowSettings::on_traceIDforEnums_currentIndexChanged(int index)
 {
-    ReloadListOfArgsAndEnums();
+    reloadListOfArgsAndEnums();
 }
 
 
 void TraceWindowSettings::on_saveAllSettings_clicked()
 {
-    config->SaveColors();
-    traceWindow->SetActionStatusText("Traces colors was saved!");
-    config->SaveTraceLevelsToShow();
-    traceWindow->SetActionStatusText("Traces checkboxes was saved!");
-    config->SaveWindowsSize(traceWindow->size().width(),traceWindow->size().height(),this->size().width(),traceWindow->size().height());
+    config->saveColors();
+    traceWindow->setActionStatusText("Traces colors was saved!");
+    config->saveTraceLevelsToShow();
+    traceWindow->setActionStatusText("Traces checkboxes was saved!");
+    config->saveWindowsSize(traceWindow->size().width(),traceWindow->size().height(),this->size().width(),traceWindow->size().height());
 }
 
 
 void TraceWindowSettings::on_saveEnumsToConfig_clicked()
 {
-    ui->enumsStatus->setText("Saved enums: " + QString::number(config->SaveEnums(traceWindow->getArgsThatNeedToBeChangedByEnum(),connectionName.ip)));
+    ui->enumsStatus->setText("Saved enums: " + QString::number(config->saveEnums(traceWindow->getArgsThatNeedToBeChangedByEnum(),connectionName.ip)));
 }
 
 
@@ -709,13 +693,13 @@ void TraceWindowSettings::on_clearEnums_clicked()
 {
     ui->enumsStatus->setText("Cleared enums: "+ QString::number(traceWindow->getArgsThatNeedToBeChangedByEnum().size()));
     for(int i =0;i<ui->rawTracesTable->rowCount();i++){
-        QComboBox *comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
+        QComboBox* comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
         comboBox->setCurrentIndex(0);
     }
-    traceWindow->ClearArgsThatNeedToBeChangedByEnumm();
+    traceWindow->clearArgsThatNeedToBeChangedByEnumm();
 }
 
-void TraceWindowSettings::ReloadListOfArgsAndEnums(){
+void TraceWindowSettings::reloadListOfArgsAndEnums(){
     ui->rawTracesTable->setRowCount(0);
 
     if(ui->traceIDforEnums->currentText()==""){
@@ -723,7 +707,7 @@ void TraceWindowSettings::ReloadListOfArgsAndEnums(){
     }
 
     for(int i =0;i<comboBoxesToDelete.size();i++){
-        QComboBox *comboBox = comboBoxesToDelete.at(i);
+        QComboBox* comboBox = comboBoxesToDelete.at(i);
         delete comboBox;
     }
     comboBoxesToDelete.clear();
@@ -735,7 +719,7 @@ void TraceWindowSettings::ReloadListOfArgsAndEnums(){
     if(traceWindow->getArgsThatNeedToBeChangedByEnum().contains(wID)){
         for(int i =0;i<traceHandler->uniqueTraces.value(wID).argsID.size();i++){
             int countNumber = ui->rawTracesTable->rowCount();
-            QComboBox *comboBox = new QComboBox();
+            QComboBox* comboBox = new QComboBox();
             comboBox->addItem("");
             comboBoxesToDelete.append(comboBox);
 
@@ -761,7 +745,7 @@ void TraceWindowSettings::ReloadListOfArgsAndEnums(){
         int countNumber = ui->rawTracesTable->rowCount();
         //так как по новой генерируем каждый раз комбобокс, надо запоминать те комбобоксы которые у нас есть и удалять их из памяти
         //после каждого обновления списка
-        QComboBox *comboBox = new QComboBox();
+        QComboBox* comboBox = new QComboBox();
         comboBox->addItem("");
         comboBoxesToDelete.append(comboBox);
         for(int i =0;i<enumParser->enums.size();i++){
@@ -773,7 +757,7 @@ void TraceWindowSettings::ReloadListOfArgsAndEnums(){
     }
 }
 
-void TraceWindowSettings::LoadEnumsFromConfig(){
+void TraceWindowSettings::loadEnumsFromConfig(){
     if(ui->enumsList->count()==0){
         QMessageBox msg;
         msg.setWindowTitle("Ошибка");
@@ -781,12 +765,16 @@ void TraceWindowSettings::LoadEnumsFromConfig(){
         msg.exec();
         return;
     }
-    traceWindow->setArgsThatNeedToBeChangedByEnum(config->LoadEnums(connectionName.ip));
+    traceWindow->setArgsThatNeedToBeChangedByEnum(config->loadEnums(connectionName.ip));
     ui->enumsStatus->setText("Loaded rows from config: "+QString::number(traceWindow->getArgsThatNeedToBeChangedByEnum().size()));
-    ReloadListOfArgsAndEnums();
+    reloadListOfArgsAndEnums();
+
+    if(traceWindow->isInitialized()){
+        traceWindow->reloadTracesInsideWindow();
+    }
 }
 void TraceWindowSettings::on_loadEnumsFromConfig_clicked()
 {
-    LoadEnumsFromConfig();
+    loadEnumsFromConfig();
 }
 

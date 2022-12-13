@@ -5,7 +5,7 @@
 //При изменении конфиг.ини ручками приложение не подтянет данные оттуда, потому что QSettings обращается к данным внутри себя, а не к файлу, если уже был создан
 //Создавая QSettings, он подгружает данные из конфига при старте, что позволяет курировать уже с данными из файла напрямую, а не с данными из объекта
 //Странная тема, особенно то, что нет методов на форсированное чтение данных из файла
-const QString &ConfigHandler::getConfigFileName() const
+QString ConfigHandler::getConfigFileName()
 {
     return configFileName;
 }
@@ -14,20 +14,16 @@ ConfigHandler::ConfigHandler(QString connectionName)
 {
     configName = connectionName;
 
-    //Надо разобраться как форсированно грузить данные из settings
-
-    //    QSettings *settings = new QSettings(configName + "_config.ini", QSettings::IniFormat );
-    //     delete settings;
 }
 
 ConfigHandler::ConfigHandler()
 {
-    //    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
-    //    delete settings;
+
 }
 
-void ConfigHandler::SaveColors(){
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+void ConfigHandler::saveColors()
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup("RowsColors");
     settings->setValue("trace",QString::number(traceColor.red())+" "+QString::number(traceColor.green())+" "+QString::number(traceColor.blue()));
     settings->setValue("debug",QString::number(debugColor.red())+" "+QString::number(debugColor.green())+" "+QString::number(debugColor.blue()));
@@ -40,8 +36,9 @@ void ConfigHandler::SaveColors(){
     delete settings;
 }
 
-void ConfigHandler::LoadColors(){
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+void ConfigHandler::loadColors()
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup("RowsColors");
     QStringList trace = settings->value("trace","").toString().split(" ");
     QStringList debug = settings->value("debug","").toString().split(" ");
@@ -73,8 +70,9 @@ void ConfigHandler::LoadColors(){
     delete settings;
 }
 
-void ConfigHandler::SaveTraceLevelsToShow(){
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+void ConfigHandler::saveTraceLevelsToShow()
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup("TraceLevelsToShow");
     settings->setValue("trace",traceLevel);
     settings->setValue("debug",debugLevel);
@@ -86,8 +84,9 @@ void ConfigHandler::SaveTraceLevelsToShow(){
     delete settings;
 }
 
-void ConfigHandler::LoadTraceLevelsToShow(){
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+void ConfigHandler::loadTraceLevelsToShow()
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup("TraceLevelsToShow");
     traceLevel = static_cast<Qt::CheckState>(settings->value("trace",2).toInt());
     debugLevel = static_cast<Qt::CheckState>(settings->value("debug",2).toInt());
@@ -99,13 +98,14 @@ void ConfigHandler::LoadTraceLevelsToShow(){
     delete settings;
 }
 
-void ConfigHandler::SaveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 tsy){
+void ConfigHandler::saveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 tsy)
+{
     traceWindow_x = tx;
     traceWindow_y = ty;
     traceSettingsWindow_x = tsx;
     traceSettingsWindow_y = tsy;
 
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup("TraceWindowsSize");
     settings->setValue("traceWindow_x",traceWindow_x);
     settings->setValue("traceWindow_y",traceWindow_y);
@@ -116,8 +116,9 @@ void ConfigHandler::SaveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 
     delete settings;
 }
 
-void ConfigHandler::LoadWindowsSize(){
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+void ConfigHandler::loadWindowsSize()
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup("TraceWindowsSize");
     traceWindow_x = settings->value("traceWindow_x").toInt();
     traceWindow_y = settings->value("traceWindow_y").toInt();
@@ -128,16 +129,18 @@ void ConfigHandler::LoadWindowsSize(){
     delete settings;
 }
 
-void ConfigHandler::SaveEnumsList(QString ip, QString fileName){
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+void ConfigHandler::saveEnumsList(QString ip, QString fileName)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup(ip);
     settings->setValue("enums_file", fileName);
     settings->endGroup();
     delete settings;
 }
 
-QString ConfigHandler::LoadEnumsList(QString ip){
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+QString ConfigHandler::loadEnumsList(QString ip)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup(ip);
     QString fileName = settings->value("enums_file").toString();
     settings->endGroup();
@@ -145,15 +148,20 @@ QString ConfigHandler::LoadEnumsList(QString ip){
     return fileName;
 }
 
-tUINT32 ConfigHandler::SaveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> args, QString ip){
+tUINT32 ConfigHandler::saveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> args, QString ip)
+{
 
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     tUINT32 enumsSaved = 0;
     settings->beginGroup(ip);
     if(args.size()==0){
         settings->remove("");
     } else{
         for(tUINT32 wID:args.keys()){
+            //Итерация начниается зачем-то с нуля
+            if(wID==0){
+                continue;
+            }
             QList<ArgsThatNeedToBeChangedByEnum> argsList = args.value(wID);
             QString toOutput = "";
             for(int j = 0;j<argsList.size();j++){
@@ -168,9 +176,10 @@ tUINT32 ConfigHandler::SaveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEn
     return enumsSaved;
 }
 
-QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> ConfigHandler::LoadEnums(QString ip){
+QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> ConfigHandler::loadEnums(QString ip)
+{
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> enums;
-    QSettings *settings = new QSettings("config.ini", QSettings::IniFormat );
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup(ip);
     for(QString t_wID:settings->allKeys()){
         tUINT32 wID = t_wID.toInt();

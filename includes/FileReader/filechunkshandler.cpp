@@ -6,14 +6,14 @@ FileChunksHandler::FileChunksHandler()
 
 }
 
-void FileChunksHandler::SetTraceWindow(TraceWindow *newTraceWindow){
+void FileChunksHandler::SetTraceWindow(TraceWindow* newTraceWindow){
     traceWindow = newTraceWindow;
     connect(this,&FileChunksHandler::SendTraceFromFile,
-            traceWindow,&TraceWindow::GetTraceFromFile);
+            traceWindow,&TraceWindow::getTraceFromFile);
     //Для вывода данных по  трейсу через клик по строке нужно окно обращается к объекту Trace
     //Господи как же все не по ООПшному, надо когда-нибудь это все переделать, как же я говнокодил когда это делал
     connect(this,&FileChunksHandler::SendTraceAsObject,
-            traceWindow,&TraceWindow::SetTraceAsObject);
+            traceWindow,&TraceWindow::setTraceAsObject);
     emit(SendTraceAsObject(&trace));
 }
 
@@ -71,9 +71,9 @@ bool FileChunksHandler::ProcessChunk()
     chunkCursor+=sizeof(tUINT32);
     while(chunkCursor<chunkEnd)
     {
-        memcpy(&Ext_Raw,chunkCursor,sizeof(tUINT32));
-        structSubtype = GET_EXT_HEADER_SUBTYPE(Ext_Raw);
-        structSize = GET_EXT_HEADER_SIZE(Ext_Raw);
+        memcpy(&ext_Raw,chunkCursor,sizeof(tUINT32));
+        structSubtype = GET_EXT_HEADER_SUBTYPE(ext_Raw);
+        structSize = GET_EXT_HEADER_SIZE(ext_Raw);
 
 
         switch(structSubtype){

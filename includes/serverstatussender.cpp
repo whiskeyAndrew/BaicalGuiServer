@@ -2,7 +2,7 @@
 #include "launcher.h"
 //DELETE AFTER PROD DEPLOY
 
-ServerStatusSender::ServerStatusSender(Launcher *newLauncher)
+ServerStatusSender::ServerStatusSender(Launcher* newLauncher)
 {
     launcher = newLauncher;
 tryingAgain:
@@ -11,8 +11,7 @@ tryingAgain:
 
     // initialise winsock
     printf("Initialising Winsock...");
-    if (WSAStartup(MAKEWORD(2, 2), &ws) != 0)
-    {
+    if (WSAStartup(MAKEWORD(2, 2), &ws) != 0){
         printf("Failed. Error Code: %d", WSAGetLastError());
         goto tryingAgain;
     }
@@ -20,9 +19,8 @@ tryingAgain:
 
     // create socket
 
-    if ((client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == SOCKET_ERROR) // <<< UDP socket
-    {
-        printf("socket() failed with error code: %d", WSAGetLastError());
+    if ((client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == SOCKET_ERROR){ // <<< UDP socket
+           printf("socket() failed with error code: %d", WSAGetLastError());
         goto tryingAgain;
     }
 

@@ -4,7 +4,7 @@
 #include "includes/launcher.h"
 #include "includes/packethandler.h"
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 
@@ -19,19 +19,18 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::GetNewConnection(sockaddr_in newConnection, PacketHandler *packetHandler)
+void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* packetHandler)
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     ConnectionName connectionName = {"🟩",inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
     ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
     ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
 
-    InitTraceWindow(connectionName);
+    initTraceWindow(connectionName);
     packetHandler->start();
-
 }
 
-void MainWindow::ChangeClientStatus(sockaddr_in client)
+void MainWindow::changeClientStatus(sockaddr_in client)
 {
     QString clientName = inet_ntoa(client.sin_addr);
     clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
@@ -60,7 +59,6 @@ void MainWindow::on_pushButton_clicked()
     traceWindows.at(index)->show();
 }
 
-
 void MainWindow::on_pushButton_2_clicked()
 {
     //Чтение из файла
@@ -70,11 +68,9 @@ void MainWindow::on_pushButton_2_clicked()
     fileReader->setTraceWindow(traceWindow);
     fileReader->setFileName(fileName);
     fileReader->start();
-
-
 }
 
-void MainWindow::InitTraceWindow(ConnectionName connectionName)
+void MainWindow::initTraceWindow(ConnectionName connectionName)
 {
     //Говнокод, пофиксить надо потом
     if(connectionName.status=="❌"){
@@ -89,8 +85,7 @@ void MainWindow::InitTraceWindow(ConnectionName connectionName)
     tUINT32 index = traceWindows.size()-1;
     launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);
 
-
-    if(ui->checkBox->isChecked()){
+    if(ui->autoOpen->isChecked()){
         traceWindow->show();
     }
 
@@ -106,7 +101,6 @@ void MainWindow::on_actionHigh_Contrast_Black_triggered()
     }
 }
 
-
 void MainWindow::on_actionLike_in_QT_triggered()
 {
     styleSheet = "color: white; background-color: rgb(42,43,44);";
@@ -115,7 +109,6 @@ void MainWindow::on_actionLike_in_QT_triggered()
         traceWindows.at(i)->setStyle(styleSheet);
     }
 }
-
 
 void MainWindow::on_actionWhite_triggered()
 {

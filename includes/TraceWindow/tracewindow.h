@@ -25,8 +25,6 @@ enum eP7Trace_Level
     EP7TRACE_LEVEL_COUNT
 };
 
-
-
 namespace Ui {
 class TraceWindow;
 }
@@ -36,7 +34,7 @@ class TraceWindow : public QDialog
 
 public:
     QList<tUINT32> isNeedToShowByTraceLevel;
-    explicit TraceWindow(ConnectionName newClientName,ConfigHandler *newConfig, QDialog *parent = nullptr);
+    explicit TraceWindow(ConnectionName newClientName,ConfigHandler* newConfig, QDialog* parent = nullptr);
     ~TraceWindow();
 
     void setStyle(QString newStyleSheet);
@@ -64,14 +62,14 @@ public:
     Qt::CheckState isAutoscrollChecked();
     tBOOL isInitialized() const;
 
-    void SetActionStatusText(QString text);
+    void setActionStatusText(QString text);
     void recountNumberOfRowsToShow();
 
-    Trace *traceThread;
-    TraceWindowSettings *getTraceSettings() const;
-    void AppendArgsThatNeedToBeChangedByEnum(tUINT32 wID, QList<ArgsThatNeedToBeChangedByEnum> args);
+    Trace* traceThread;
+    TraceWindowSettings* getTraceSettings() const;
+    void appendArgsThatNeedToBeChangedByEnum(tUINT32 wID, QList<ArgsThatNeedToBeChangedByEnum> args);
 
-    void ClearArgsThatNeedToBeChangedByEnumm();
+    void clearArgsThatNeedToBeChangedByEnumm();
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > getArgsThatNeedToBeChangedByEnum();
 
     void setArgsThatNeedToBeChangedByEnum(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > newArgsThatNeedToBeChangedByEnum);
@@ -80,10 +78,8 @@ private:
     tUINT32 numberOfRowsToShow;
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> argsThatNeedToBeChangedByEnum;
     QCheckBox autoscroll;
-    TraceWindowSettings *traceSettings;
-    ConfigHandler *config;
-
-    //"style=\"background-color:rgba(255, 0, 0, 0.4)\""
+    TraceWindowSettings* traceSettings;
+    ConfigHandler* config;
 
 
     QColor traceColor = "";
@@ -94,8 +90,9 @@ private:
     QColor criticalColor = "";
     QString transparency = "0.2";
     QString traceLinkStart = "<a ";
+
+    //"style=\"background-color:rgba(255, 0, 0, 0.4)\""
     QString traceLinkHref = "href=\"";
-    //QString traceLinkMiddle = "\"color:#C0C0C0; text-decoration:none\">";
     QString traceLinkMiddle = "\"style=\"color:#C0C0C0;text-decoration:none;\">";
     QString traceLinkEnd = "</a>";
 
@@ -110,14 +107,13 @@ private:
     tBOOL needToAppendFromBottom = false;
     tUINT32 tempCounterToRemember;
 
-    QCheckBox *infiniteLine;
+    QCheckBox* infiniteLine;
 
     QMap<tUINT32, GUIData> guiData;
 
     tUINT32 verticalBarSize = 0; //==guiData.size
 
-
-    Ui::TraceWindow *ui;
+    Ui::TraceWindow* ui;
     QMap<int,QString> bLevels = {{0,"TRACE"},
                                  {1,"DEBUG"},
                                  {2,"INFO"},
@@ -125,44 +121,42 @@ private:
                                  {4,"ERROR"},
                                  {5,"CRITICAL"}};
 
-
     ConnectionName clientName;
     QString styleSheet;
 
-    void mousePressEvent(QMouseEvent *eventPress);
-    void wheelEvent(QWheelEvent *event);
-    void resizeEvent(QResizeEvent *e);
-    void InitWindow();
+    void mousePressEvent(QMouseEvent* eventPress);
+    void wheelEvent(QWheelEvent* event);
+    void resizeEvent(QResizeEvent* e);
+    void initWindow();
 
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject* object, QEvent* event);
 
     tUINT32 firstInitCounter = 0;
-    QString GetGuiRow(GUIData g);
-    bool event(QEvent *event);
-    void ReloadTracesFromBelow(int value);
-    void ReloadTracesFromAbove(int value);
+    QString getGuiRow(GUIData g);
+    bool event(QEvent* event);
+    void reloadTracesFromBelow(int value);
+    void reloadTracesFromAbove(int value);
 
 public slots:
-    void GetTrace(TraceToGUI trace);
-    void SetTraceAsObject(Trace *trace);
-    void GetTraceFromFile(std::queue<TraceToGUI>);
+    void getTrace(TraceToGUI trace);
+    void setTraceAsObject(Trace* trace);
+    void getTraceFromFile(std::queue<TraceToGUI>);
     void traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state);
-    void AddUniqueTrace(UniqueTraceData trace);
+    void addUniqueTrace(UniqueTraceData trace);
 
-    void ReloadTracesInsideWindow();
+    void reloadTracesInsideWindow();
 private slots:
-    void AutoscrollStateChanged(tUINT32 stat);
+    void autoscrollStateChanged(tUINT32 stat);
     void on_expandButton_clicked(bool checked);
     void on_verticalScrollBar_valueChanged(int value);
     void on_Disable_clicked();
     void on_infinite_line_stateChanged(int arg1);
-    void OffAutoscroll();
-    void VerticalSliderReleased();
-    void OpenHyperlink(const QUrl &link);
+    void offAutoscroll();
+    void verticalSliderReleased();
+    void openHyperlink(const QUrl &link);
     void on_WindowSettings_clicked();
     void on_traceToTxt_clicked();
     void on_actionsStatusLabel_clicked();
 };
-
 
 #endif // TRACEWINDOW_H

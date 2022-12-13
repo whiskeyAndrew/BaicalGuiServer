@@ -25,7 +25,7 @@
 struct ClientData
 {
     sockaddr_in clientIp;
-    PacketHandler *connectionThread;
+    PacketHandler* connectionThread;
 };
 #pragma pack(pop)
 
@@ -48,13 +48,13 @@ private:
     tUINT32 winsockStatus;
 
     SOCKET socketIn;
-    MainWindow *mainWindow;
+    MainWindow* mainWindow;
     //Клиент
     sockaddr_in serverHint;
     sockaddr_in client;
     static const tUINT32 clientListSize = 30;
 
-    PacketHandler *packetHandler;
+    PacketHandler* packetHandler;
 
     tUINT32 clientLength = sizeof(client);
     tUINT8* ipClient;
@@ -63,26 +63,20 @@ private:
     //Буффер пакета
     tUINT8 packetBuffer[65280]; //65280 - максимальный размер входящих даных
 
-    ConnectionTimeoutChecker *connectionTimeoutChecker;
-public:
-    QList<ClientData> *clientsList;
-    //ClientData clientsList[clientListSize];
-    Launcher()
-    {
-
-    }
+    ConnectionTimeoutChecker* connectionTimeoutChecker;
+    bool initSocket();
+    void listenSocket();
     void run();
-    bool FindClientInArray();
-    bool InitSocket();
-    void SocketListener();
-    void SetMainWindow(MainWindow *mw)
-    {
-        mainWindow = mw;
-    }
+
+public:
+    QList<ClientData>* clientsList;
+    Launcher(MainWindow* mw);
+
+    bool findClientInArray();
 
 signals:
-    void SendNewConnection(sockaddr_in newConnection,PacketHandler *packetHandler);
-    void ChangeClientStatus(sockaddr_in client);
+    void sendNewConnection(sockaddr_in newConnection,PacketHandler* packetHandler);
+    void changeClientStatus(sockaddr_in client);
 
 };
 

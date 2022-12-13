@@ -2,7 +2,6 @@
 #define TRACEWINDOWSETTINGS_H
 #include <QWidget>
 #include <QColorDialog>
-#include "../Trace.h"
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include "../confighandler.h"
@@ -29,31 +28,28 @@ class TraceWindowSettings : public QWidget
     Q_OBJECT
 
 public:
-    TraceWindowSettings(TraceWindow *newTraceWindow,ConnectionName *clientName);
+    TraceWindowSettings(TraceWindow* newTraceWindow,ConnectionName* clientName);
     ~TraceWindowSettings();
 
-    void createConnections();
 
     //Unique Traces List
-    void itemChanged(QListWidgetItem * item);
-    void AppendUniqueTracesList(QString text, tUINT32 wID);
+    void itemChanged(QListWidgetItem*  item);
+    void appendUniqueTracesList(QString text, tUINT32 wID);
     QMap<tUINT32,tUINT32> needToShow;
-    void DisableElement(tUINT32 wID);
+    void disableElement(tUINT32 wID);
     //~Unique Traces List
 
-    void SetWindowName(QString name);
     Qt::CheckState isTraceColumnNeedToShow();
     Qt::CheckState isSequenceColumnNeedToShow();
-    QCheckBox *getAutoTracesCount() const;
+    QCheckBox* getAutoTracesCount() const;
 
     QString getRowsOnScreen();
 
-    void SetTraceWindowSizeText();
-    EnumParser *getEnumParser() const;
+    void setTraceWindowSizeText();
+    EnumParser* getEnumParser() const;
     QList<tUINT32> enumsIdList;
 
 private slots:
-
     //Trace Colors
     void on_traceColorButton_clicked();
     void on_debugColorButton_clicked();
@@ -111,7 +107,7 @@ private slots:
 
     void on_loadEnumsFromTXT_clicked();
 
-    void on_enumsList_itemClicked(QListWidgetItem *item);
+    void on_enumsList_itemClicked(QListWidgetItem* item);
 
     void on_applyEnumToTraceById_clicked();
 
@@ -127,33 +123,34 @@ private slots:
 
 private:
     ConnectionName connectionName;
-    ConfigHandler *config;
-    EnumParser *enumParser;
+    ConfigHandler* config;
+    EnumParser* enumParser;
     //TraceColors
     QColor color;
-    QColorDialog *colorDialog;
+    QColorDialog* colorDialog;
 
     QList<QComboBox*> comboBoxesToDelete;
     QString rowsOnScreen;
-    QCheckBox *autoTracesCount;
+    QCheckBox* autoTracesCount;
 
-    TraceWindow *traceWindow;
+    TraceWindow* traceWindow;
 
-    Ui::TraceWindowSettings *ui;
+    Ui::TraceWindowSettings* ui;
 
+    void reloadColors();
+    void initColors();
+    void initTraceLevels();
+    void loadConfigFileAsText();
+    void initWindowsSize();
+    void resizeEvent(QResizeEvent* e);
+    void reloadListOfArgsAndEnums();
+    void loadEnumsFromConfig();
+    void initWindow();
 
-    void ReloadColors();
-    void InitColors();
-    void InitTraceLevels();
-    void LoadConfigFileAsText();
-    void InitWindowsSize();
-    void resizeEvent(QResizeEvent *e);
-    tBOOL LoadEnumsFromFile(QString fileName);
-    void ReloadListOfArgsAndEnums();
-    void LoadEnumsFromConfig();
+    tBOOL loadEnumsFromFile(QString fileName);
 signals:
     //Unique Traces List
-    void SendRowWID(tUINT32 wID, tUINT32 state);
+    void sendRowWID(tUINT32 wID, tUINT32 state);
 };
 
 #endif // TRACEWINDOWSETTINGS_H

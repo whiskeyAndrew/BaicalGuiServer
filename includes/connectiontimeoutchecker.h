@@ -5,7 +5,6 @@
 #include <QThread>
 #include <QList>
 #include "launcher.h"
-#include "chunkhandler.h"
 
 #define TIMEOUT_MSECS 3000
 
@@ -13,18 +12,14 @@ class ConnectionTimeoutChecker:public QThread
 {
     Q_OBJECT
 public:
-    QList <ClientData>* windowsList;
-    MainWindow *mainWindow;
-    ConnectionTimeoutChecker(QList<ClientData>* windowsList,MainWindow *mainWindow){
-        this->windowsList = windowsList;
-        this->mainWindow = mainWindow;
-        connect(this,&ConnectionTimeoutChecker::ClientDisconnected,this->mainWindow,&MainWindow::ChangeClientStatus);
-    };
+    ConnectionTimeoutChecker(QList<ClientData>* newWindowsList,MainWindow* newMainWindow);
 
 private:
+    QList <ClientData>* windowsList;
+    MainWindow* mainWindow;
     void run();
 signals:
-    void ClientDisconnected(sockaddr_in client);
+    void clientDisconnected(sockaddr_in client);
 };
 
 #endif // CONECTIONTIMEOUTCHECKER_H

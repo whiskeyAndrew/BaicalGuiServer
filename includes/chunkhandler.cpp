@@ -7,7 +7,6 @@ void ChunkHandler::run()
     //временный костыль для того, чтобы AutoOpen успевал первые пакеты прогрузить внутри окна.
     //Нужно удалить из кода когда запилю чтение из мапы при открытии окна
     Sleep(200);
-    trace.SetEnumsList(&traceWindow->getTraceSettings()->getEnumParser()->enums);
     while((!chunks.empty()) || (fileEnded == false))
     {
         if(this->isInterruptionRequested()){
@@ -15,7 +14,7 @@ void ChunkHandler::run()
             break;
         }
 
-        if(!GetChunkFromQueue()){
+        if(!getChunkFromQueue()){
             continue;
         }
 
@@ -24,7 +23,7 @@ void ChunkHandler::run()
             break;
         }
 
-        ProcessChunk();
+        processChunk();
 
         if(this->isInterruptionRequested()){
             std::cout<<"Thirs interruption of chunkHandler"<<std::endl;
@@ -36,19 +35,17 @@ void ChunkHandler::run()
     this->quit();
 }
 
-bool ChunkHandler::ProcessChunk()
+bool ChunkHandler::processChunk()
 {
     //В метод мы передаем буфер с 4 байтами в самом начале, которые являются размером чанка. На всякий случай
     //Поэтому скипаем их
-
-
     chunkCursor+=sizeof(tUINT32);
     while(chunkCursor<chunkEnd)
     {
-        memcpy(&Ext_Raw,chunkCursor,sizeof(tUINT32));
-        structType = GET_EXT_HEADER_TYPE(Ext_Raw);
-        structSubtype = GET_EXT_HEADER_SUBTYPE(Ext_Raw);
-        structSize = GET_EXT_HEADER_SIZE(Ext_Raw);
+        memcpy(&ext_Raw,chunkCursor,sizeof(tUINT32));
+        structType = GET_EXT_HEADER_TYPE(ext_Raw);
+        structSubtype = GET_EXT_HEADER_SUBTYPE(ext_Raw);
+        structSize = GET_EXT_HEADER_SIZE(ext_Raw);
 
         switch(structType)
         {
@@ -94,15 +91,15 @@ bool ChunkHandler::ProcessChunk()
                 break;
             }
 
-                //ext_raw and all?
+                //ext_Raw and all?
             case EP7TEL_TYPE_CLOSE:
             {
-                chunkCursor+=structSize; //вроде как оно просто Ext_Raw прокидывает
+                chunkCursor+=structSize; //вроде как оно просто ext_Raw прокидывает
                 //std::cout<<"V2 EP7TEL_TYPE_CLOSE skipped"<<std::endl;
                 break;
             }
 
-                //ext_raw and all?
+                //ext_Raw and all?
             case EP7TEL_TYPE_DELETE:
             {
                 chunkCursor+=structSize; //вроде как оно просто ExT_
@@ -119,7 +116,7 @@ bool ChunkHandler::ProcessChunk()
             }
             default:
             {
-                //std::cout<<"V2 Tele default enter, Ext_Raw: "<<Ext_Raw<<std::endl;
+                //std::cout<<"V2 Tele default enter, ext_Raw: "<<ext_Raw<<std::endl;
                 break;
             }
 
@@ -138,12 +135,12 @@ bool ChunkHandler::ProcessChunk()
             }
             switch(structSubtype){
             case EP7TRACE_TYPE_DATA:
-            {                //Не уникальный трейс
-
+            {
+                //Не уникальный трейс
                 traceToGUI = trace.setTraceData(chunkCursor);
-                if(getWindowOpened())
+                if(isWindowOpened)
                 {
-                    emit SendTrace(traceToGUI);
+                    emit sendTrace(traceToGUI);
                 }
                 chunkCursor = chunkCursor+structSize;
                 break;
@@ -155,10 +152,14 @@ bool ChunkHandler::ProcessChunk()
 
                 //По какой-то причине инициализация соединений происходит позже, чем начинается обработка данных. Пока временный костыль
                 if(!connectionEstablished){
-                    connect(this,&ChunkHandler::SendUniqueTrace,traceWindow,&TraceWindow::AddUniqueTrace);
+                    connect(this,&ChunkHandler::sendUniqueTrace,traceWindow,&TraceWindow::addUniqueTrace);
                     connectionEstablished = true;
                 }
-                emit SendUniqueTrace(uTrace);
+                if(isWindowOpened)
+                {
+                emit sendUniqueTrace(uTrace);
+                }
+
                 chunkCursor = chunkCursor+structSize;
                 break;
             }
@@ -200,7 +201,13 @@ bool ChunkHandler::ProcessChunk()
             }
             case EP7TRACE_TYPE_CLOSE:
             {
-                //Пока непонятно что это
+                //Закрытие соединения
+                //Обычно происходит если приложение завершило работу
+                //Наш сервак сам закроет соединение
+                break;
+            }
+            default:
+            {
                 break;
             }
             }
@@ -224,29 +231,27 @@ ChunkHandler::ChunkHandler()
 }
 
 
-void ChunkHandler::setTraceWindow(TraceWindow *newTraceWindow)
+void ChunkHandler::setTraceWindow(TraceWindow* newTraceWindow)
 {
     //Происходит позже чем обработка данных, исправить позже
     traceWindow = newTraceWindow;
-    connect(this, &ChunkHandler::SendTrace,
-            traceWindow, &TraceWindow::GetTrace);
-    connect(this,&ChunkHandler::SendTraceAsObject,traceWindow,&TraceWindow::SetTraceAsObject);
-    emit SendTraceAsObject(&trace);
-    //Дайте окну прогрузиться пожалуйста
-
-    windowOpened = true;
+    connect(this, &ChunkHandler::sendTrace,
+            traceWindow, &TraceWindow::getTrace);
+    connect(this,&ChunkHandler::sendTraceAsObject,traceWindow,&TraceWindow::setTraceAsObject);
+    emit sendTraceAsObject(&trace);
+    isWindowOpened = true;
 
 }
 
 
-bool ChunkHandler::AppendChunksQueue(std::vector<tINT8> newVector)
+void ChunkHandler::appendChunksQueue(std::vector<tINT8> newVector)
 {
     mutex.tryLock(-1);
     chunks.push(newVector);
     mutex.unlock();
 }
 
-bool ChunkHandler::GetChunkFromQueue()
+bool ChunkHandler::getChunkFromQueue()
 {
     if(fileEnded==true && chunks.empty())
     {
@@ -273,9 +278,6 @@ bool ChunkHandler::GetChunkFromQueue()
     return true;
 }
 
-bool ChunkHandler::getWindowOpened(){
-    return windowOpened;
-}
 
 void ChunkHandler::setNeedBackup(bool newNeedBackup)
 {
@@ -287,7 +289,7 @@ void ChunkHandler::setFileEnded(bool fileEnded)
     this->fileEnded = fileEnded;
 }
 
-void ChunkHandler::InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
+void ChunkHandler::initBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
 {
     backupWriter.setFileHeader(dwProcess_ID,dwProcess_Start_Time_Hi,dwProcess_Start_Time_Lo);
 }

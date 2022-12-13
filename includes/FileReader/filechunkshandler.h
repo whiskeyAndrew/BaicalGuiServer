@@ -13,7 +13,7 @@ class FileChunksHandler: public QThread
 
 public:
     FileChunksHandler();
-    void SetTraceWindow(TraceWindow *traceWindow);
+    void SetTraceWindow(TraceWindow* traceWindow);
     void AppendChunks(std::vector<tINT8>);
 
     void setFileEnded(bool newFileEnded);
@@ -22,7 +22,7 @@ private:
    std::queue<TraceToGUI> traceQueue;
    QMutex mutex;
    FileReader fileReader;
-   TraceWindow *traceWindow;
+   TraceWindow* traceWindow;
    Trace trace;
 
    std::queue<std::vector<tINT8>> chunks;
@@ -32,7 +32,7 @@ private:
    tINT8* chunkCursor;
    tINT8* chunkEnd;
 
-   tUINT32 Ext_Raw;
+   tUINT32 ext_Raw;
    tUINT32 structSubtype;
    tUINT32 structSize;
 
@@ -42,7 +42,7 @@ private:
    bool ProcessChunk();
 signals:
    void SendTraceFromFile(std::queue<TraceToGUI>);
-   void SendTraceAsObject(Trace *trace);
+   void SendTraceAsObject(Trace* trace);
 };
 
 #endif // FILECHUNKSHANDLER_H

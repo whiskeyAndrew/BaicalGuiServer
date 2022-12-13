@@ -64,16 +64,18 @@ enum eP7Tel_Type
 
     EP7TEL_TYPE_MAX             = 32
 };
+
 class ChunkHandler : public QThread
 {
     Q_OBJECT
 private:
-
-
     Trace trace;
-    bool windowOpened = false;
+    bool isWindowOpened = false;
     bool needBackup = true;
-    TraceWindow *traceWindow;
+    bool processChunk();
+    bool connectionEstablished = false;
+
+    TraceWindow* traceWindow;
     TraceToGUI traceToGUI;
     TraceBackupWriter backupWriter;
 
@@ -88,13 +90,12 @@ private:
     tINT8* chunkEnd;
 
     bool fileEnded = false; //прочтен ли файл до конца
-    tUINT32 Ext_Raw;
+    tUINT32 ext_Raw;
     tUINT32 structType;
     tUINT32 structSubtype;
     tUINT32 structSize;
 
-    bool ProcessChunk();
-    bool connectionEstablished = false;
+
 public:
     ChunkHandler();
 
@@ -102,20 +103,20 @@ public:
     QMutex syncThreads;
     std::queue<std::vector<tINT8>> chunks;
 
-    void InitBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
-    bool AppendChunksQueue(std::vector<tINT8> newVector);
-    bool getWindowOpened();
-    bool GetChunkFromQueue();
-    void setTraceWindow(TraceWindow *newTraceWindow);
+    void initBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
+    void appendChunksQueue(std::vector<tINT8> newVector);
+
+    bool getChunkFromQueue();
+    void setTraceWindow(TraceWindow* newTraceWindow);
     void setFileEnded(bool fileEnded);
 
     void setNeedBackup(bool newNeedBackup);
 
 signals:
-    void SendTrace(TraceToGUI trace);
-    void SendUniqueTrace(UniqueTraceData trace);
-    void SendTraceAsObject(Trace* trace);
-    void SendQueueSize(tUINT32 size);
+    void sendTrace(TraceToGUI trace);
+    void sendUniqueTrace(UniqueTraceData trace);
+    void sendTraceAsObject(Trace* trace);
+    void sendQueueSize(tUINT32 size);
 };
 
 #endif // CHUNKHANDLER_H

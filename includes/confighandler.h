@@ -10,12 +10,8 @@ struct ArgsThatNeedToBeChangedByEnum{
 };
 class ConfigHandler
 {
-
 private:
-    //QSettings *settings;
     QString configFileName = "config.ini";
-
-    //TraceSettings
 
 public:
     QString configName;
@@ -41,17 +37,17 @@ public:
     Qt::CheckState criticalLevel = Qt::Checked;
     ConfigHandler(QString connectionName);
     ConfigHandler();
-    void SaveColors();
-    void LoadColors();
-    void SaveTraceLevelsToShow();
-    void LoadTraceLevelsToShow();
-    const QString &getConfigFileName() const;
-    void SaveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 tsy);
-    void LoadWindowsSize();
-    void SaveEnumsList(QString ip, QString fileName);
-    QString LoadEnumsList(QString ip);
-    tUINT32 SaveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > args, QString ip);
-    QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > LoadEnums(QString ip);
+    void saveColors();
+    void loadColors();
+    void saveTraceLevelsToShow();
+    void loadTraceLevelsToShow();
+    QString getConfigFileName();
+    void saveWindowsSize(tUINT32 tx,tUINT32 ty, tUINT32 tsx, tUINT32 tsy);
+    void loadWindowsSize();
+    void saveEnumsList(QString ip, QString fileName);
+    QString loadEnumsList(QString ip);
+    tUINT32 saveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > args, QString ip);
+    QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > loadEnums(QString ip);
 };
 
 #endif // CONFIGHANDLER_H

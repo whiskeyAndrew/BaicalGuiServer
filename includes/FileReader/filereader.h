@@ -18,9 +18,9 @@ class FileReader:public QThread
     Q_OBJECT
 private:
     QByteArray data;
-    FileChunksHandler *fileChunksHandler;
+    FileChunksHandler* fileChunksHandler;
 
-    TraceWindow *traceWindow;
+    TraceWindow* traceWindow;
     QString fileName;
     tUINT64 fileSize;
 
@@ -39,7 +39,7 @@ private:
 public:
     FileReader();
     ~FileReader();
-    void setTraceWindow(TraceWindow *newTraceWindow);
+    void setTraceWindow(TraceWindow* newTraceWindow);
     void setFileName(QString newFileName);
     void run();
 };

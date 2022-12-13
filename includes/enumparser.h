@@ -21,7 +21,7 @@ struct likeEnum{
 class EnumParser
 {
 private:
-    QFile *file;
+    QFile* file;
 public:
     EnumParser();
     //QHash <QString, QMap<tUINT32,enumFromFile>> enums;

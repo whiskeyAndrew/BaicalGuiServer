@@ -25,9 +25,8 @@ static __attribute__ ((unused)) void UnpackLocalTime(tUINT64  i_qwTime,
     i_qwTime -= TIME_OFFSET_1601_1970;
 
     time_t  l_llTime = i_qwTime / TIME_SEC_100NS;
-    tm     *l_pTime  = localtime(&l_llTime);
-    if (l_pTime)
-    {
+    tm    * l_pTime  = localtime(&l_llTime);
+    if (l_pTime){
         o_rYear         = 1900 + l_pTime->tm_year;
         o_rMonth        = 1 + l_pTime->tm_mon;
         o_rDay          = l_pTime->tm_mday;
@@ -38,8 +37,7 @@ static __attribute__ ((unused)) void UnpackLocalTime(tUINT64  i_qwTime,
         o_rMicroseconds = l_dwMicro;
         o_rNanoseconds  = l_dwNano;
     }
-    else
-    {
+    else{
         o_rYear         = 0;
         o_rMonth        = 0;
         o_rDay          = 0;
@@ -67,20 +65,16 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
 
     //Теперь надо прочитать аргументы и записать в arguments, чтобы после этого записать в вектор
     //Кидаем поинтер на начало вектора структур, как только прочли нужное - перемещаем поинтер дальше
-    if(uniqueTrace.traceFormat.args_Len!=0)
-    {
-        for(int i =0; i<uniqueTrace.traceFormat.args_Len;i++)
-        {
+    if(uniqueTrace.traceFormat.args_Len!=0){
+        for(int i =0; i<uniqueTrace.traceFormat.args_Len;i++){
             memcpy(&arguments,chunkCursor,uniqueTrace.argsID[i].argSize);
             //Читаем аргументы, их размер и ID нам известен
             argsValue.push_back(arguments);
             chunkCursor+=uniqueTrace.argsID[i].argSize;
         }
-
-        traceTextToGUI = FormatVector(&uniqueTrace,argsValue,argsPosition);
+        traceTextToGUI = formatVector(&uniqueTrace,argsValue,argsPosition);
     }
-    else
-    {
+    else{
         traceTextToGUI = uniqueTrace.traceLineData;
     }
 
@@ -88,7 +82,7 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
     traceToShow.insert(traceData.dwSequence,traceData);
 
     //traceTime = CountTraceTime();
-    TraceToGUI traceToGUI = {traceTextToGUI,traceData.dwSequence,CountTraceTime(),uniqueTrace.traceFormat.wID,traceData.bLevel,*argsPosition};
+    TraceToGUI traceToGUI = {traceTextToGUI,traceData.dwSequence,countTraceTime(),uniqueTrace.traceFormat.wID,traceData.bLevel,*argsPosition};
     delete argsPosition;
     return traceToGUI;
 }
@@ -100,10 +94,8 @@ UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)
     memcpy(&traceFormat,chunkCursor,sizeof(sP7Trace_Format));
     chunkCursor+=sizeof(sP7Trace_Format);
 
-    if(traceFormat.args_Len!=0)
-    {
-        for(int i =0; i<traceFormat.args_Len;i++)
-        {
+    if(traceFormat.args_Len!=0){
+        for(int i =0; i<traceFormat.args_Len;i++){
             //Заполняем вектор аргументов
             memcpy(&argumentsData,chunkCursor,sizeof(tUINT16));
             uniqueTrace.argsID.push_back(argumentsData);
@@ -111,7 +103,7 @@ UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)
         }
     }
 
-    ReadTraceText(chunkCursor, &uniqueTrace);
+    readTraceText(chunkCursor, &uniqueTrace);
 
     //перепроверить че это за строка такая
     uniqueTrace.traceFormat = traceFormat;
@@ -135,7 +127,7 @@ std::string string_format( const std::string& format, Args ... args )
 }
 
 //Переписать когда пройдет тильт
-QString Trace::FormatVector(UniqueTraceData *uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition> *argsPosition)
+QString Trace::formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition>* argsPosition)
 {
     QString str = uniqueTrace->traceLineData;
     tUINT32 argsCount = uniqueTrace->traceFormat.args_Len;
@@ -151,12 +143,9 @@ QString Trace::FormatVector(UniqueTraceData *uniqueTrace, std::vector<tUINT64> a
     for(int i =0;i<argsCount;i++){
         int index1 = str.indexOf('%');
 
-        for(int j =index1+1;j<index1+10;j++)
-        {
-            for(int k = 0;k<SIZE_OF_ARG_END;k++)
-            {
-                if(str[j]==argEnd[k])
-                {
+        for(int j =index1+1;j<index1+10;j++){
+            for(int k = 0;k<SIZE_OF_ARG_END;k++){
+                if(str[j]==argEnd[k]){
                     index2 = j+1;
                     tempString = str.left(index2);
                     str.remove(0,index2);
@@ -170,8 +159,7 @@ QString Trace::FormatVector(UniqueTraceData *uniqueTrace, std::vector<tUINT64> a
                 }
             }
 
-            if(found==true)
-            {
+            if(found==true){
                 found = false;
                 break;
             }
@@ -181,8 +169,8 @@ QString Trace::FormatVector(UniqueTraceData *uniqueTrace, std::vector<tUINT64> a
     return QString::fromStdString(toOutput);
 }
 
-p7Time Trace::CountTraceTime(){
-    tUINT64 l_dbTimeDiff = (((tDOUBLE)traceData.qwTimer - (tDOUBLE)traceInfo.qwTimer_Value) * (tDOUBLE)TIME_SEC_100NS) / (tDOUBLE)traceInfo.qwTimer_Frequency;
+p7Time Trace::countTraceTime(){
+    tUINT64 l_dbTimeDiff = (((tDOUBLE)traceData.qwTimer - (tDOUBLE)traceInfo.qwTimer_Value)*  (tDOUBLE)TIME_SEC_100NS) / (tDOUBLE)traceInfo.qwTimer_Frequency;
     tUINT64 m_qwStreamTime = (tUINT64)traceInfo.dwTime_Lo + (((tUINT64)traceInfo.dwTime_Hi) << 32);
 
     p7Time time;
@@ -209,12 +197,6 @@ p7Time Trace::CountTraceTime(){
     return time;
 }
 
-void Trace::Test()
-{
-    for(UniqueTraceData uq:uniqueTraces.values()){
-        std::cout<<uq.traceLineData.toStdString()<<std::endl;
-    }
-}
 
 void Trace::setTraceUTC(tINT8* chunkCursor)
 {
@@ -247,40 +229,33 @@ QString Trace::getModule(tUINT32 moduleID)
     return QString(modules.value(moduleID).pName);
 }
 
-void Trace::SetEnumsList(QList<likeEnum> *newEnums)
-{
-    enums = newEnums;
-}
 
-sP7Trace_Data Trace::GetTraceData(tUINT32 sequence)
+sP7Trace_Data Trace::getTraceData(tUINT32 sequence)
 {
     return traceToShow.value(sequence);
 }
 
-UniqueTraceData Trace::GetTraceFormat(tUINT32 wID)
+UniqueTraceData Trace::getTraceFormat(tUINT32 wID)
 {
     return uniqueTraces.value(wID);
 }
 
-tINT8* Trace::ReadTraceText(tINT8* tempChunkCursor, UniqueTraceData *trace)
+tINT8* Trace::readTraceText(tINT8* tempChunkCursor, UniqueTraceData* trace)
 {
-    while(*tempChunkCursor!='\0')
-    {
+    while(*tempChunkCursor!='\0'){
         trace->traceLineData.push_back(tempChunkCursor);
         tempChunkCursor+=2;
     }
     tempChunkCursor+=2;
 
-    while(*tempChunkCursor!='\0')
-    {
+    while(*tempChunkCursor!='\0'){
         trace->fileDest.push_back(*tempChunkCursor);
         tempChunkCursor+=1;
     }
 
     tempChunkCursor+=1;
 
-    while(*tempChunkCursor!='\0')
-    {
+    while(*tempChunkCursor!='\0'){
         trace->functionName.push_back(*tempChunkCursor);
         tempChunkCursor+=1;
     }

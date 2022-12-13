@@ -2,8 +2,8 @@
 #include "connectiontimeoutchecker.h"
 void Launcher::run()
 {
-    connect(this,&Launcher::SendNewConnection,mainWindow,&MainWindow::GetNewConnection);
-    connect(this,&Launcher::ChangeClientStatus,mainWindow,&MainWindow::ChangeClientStatus);
+    connect(this,&Launcher::sendNewConnection,mainWindow,&MainWindow::getNewConnection);
+    connect(this,&Launcher::changeClientStatus,mainWindow,&MainWindow::changeClientStatus);
 
     clientsList = new QList<ClientData>;
     connectionTimeoutChecker = new ConnectionTimeoutChecker(clientsList,mainWindow);
@@ -15,8 +15,8 @@ void Launcher::run()
     //Инициализируем сокет
     while(!socketStarted)
     {
-        std::cout<<"Launcher:: Trying to init s ocket"<<std::endl;
-        socketStarted = InitSocket();
+        std::cout<<"Launcher:: Trying to init socket"<<std::endl;
+        socketStarted = initSocket();
     }
 
     //Сокет инициализирован, начинаем слушать порт
@@ -25,7 +25,7 @@ void Launcher::run()
 
     while(!this->isInterruptionRequested())
     {
-        SocketListener();
+        listenSocket();
     }
 
     connectionTimeoutChecker->requestInterruption();
@@ -38,11 +38,11 @@ void Launcher::run()
     for(int i =0;i<clientsList->size();i++){
         clientsList->at(i).connectionThread->wait();
     }
-    std::cout<<"------"<<"Launcheris ending"<<"------"<<std::endl;
+    std::cout<<"------"<<"Launcher is ending"<<"------"<<std::endl;
     QApplication::quit();
 }
 
-bool Launcher::InitSocket()
+bool Launcher::initSocket()
 {
     winsockStatus = WSAStartup(version, &data);
 
@@ -83,14 +83,14 @@ bool Launcher::InitSocket()
 
     //--DELETE LATER--//
 
-//    ServerStatusSender *serverStatusSender = new ServerStatusSender(this);
+//    ServerStatusSender* serverStatusSender = new ServerStatusSender(this);
 //    serverStatusSender->start();
 
     //--NOT DELETE LATER--//
     return true;
 }
 
-void Launcher::SocketListener()
+void Launcher::listenSocket()
 {
     //Принимаем пакет
     bytesIn = recvfrom(socketIn, (tINT8*)packetBuffer, sizeof(packetBuffer), 0, (sockaddr*)&client, (tINT32*)&clientLength);
@@ -105,7 +105,7 @@ void Launcher::SocketListener()
     }
 
     //Отправляем пакет в обработчик пакетов, параллельно проверяем есть ли у нас такие клиенты
-    bool clientArrayStatus = FindClientInArray();
+    bool clientArrayStatus = findClientInArray();
 
     //если что-то пошло не так при добавления клиента в массив
     if(clientArrayStatus==0)
@@ -115,7 +115,12 @@ void Launcher::SocketListener()
     }
 }
 
-bool Launcher::FindClientInArray()
+Launcher::Launcher(MainWindow *mw)
+{
+    mainWindow = mw;
+}
+
+bool Launcher::findClientInArray()
 {
     //Надо полностью переписать структуру клиентов, она идеально работает, но написана через жёпу настолько, что я сам забыл как оно работает
 
@@ -136,7 +141,7 @@ bool Launcher::FindClientInArray()
                 //Но на самом деле в теории приложение будет оба обрабатывать как одно и есть риск захлебнуться если данных будет слишком много
                 continue;
             }
-            packetHandler->AppendQueue(packetBuffer,bytesIn);
+            packetHandler->appendQueue(packetBuffer,bytesIn);
             packetHandler->waitCondition.wakeOne();
 
             return true;
@@ -144,11 +149,11 @@ bool Launcher::FindClientInArray()
     }
 
     //Не нашли клиента, делаем нового
-    PacketHandler *newPacketHandler = new PacketHandler(client,this);
+    PacketHandler* newPacketHandler = new PacketHandler(client);
     clientsList->append({client,newPacketHandler});
 
-    emit SendNewConnection(client,newPacketHandler);
-    newPacketHandler->AppendQueue(packetBuffer,bytesIn);
+    emit sendNewConnection(client,newPacketHandler);
+    newPacketHandler->appendQueue(packetBuffer,bytesIn);
     newPacketHandler->setSocketIn(socketIn);
     return true;
 

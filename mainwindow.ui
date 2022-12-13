@@ -56,7 +56,7 @@
      <string>Open File</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBox">
+   <widget class="QCheckBox" name="autoOpen">
     <property name="geometry">
      <rect>
       <x>240</x>

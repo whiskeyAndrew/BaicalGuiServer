@@ -19,9 +19,9 @@ class Launcher;
 class ServerStatusSender: public QThread
 {
 public:
-    ServerStatusSender(Launcher *newLauncher);
+    ServerStatusSender(Launcher* newLauncher);
 private:
-    Launcher *launcher;
+    Launcher* launcher;
     void run();
     sockaddr_in server;
     WSADATA ws;

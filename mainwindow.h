@@ -22,23 +22,23 @@ class MainWindow : public QMainWindow
 
 public:
     TraceWindow* traceWindow;
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
     Launcher* launcher;
     QList<TraceWindow*> traceWindows;
 private:
     ConnectionName connectionName;
-    ConfigHandler *config;
+    ConfigHandler* config;
     tUINT32 connectionsCounter = 0;
     QString comboBoxText;
-    Ui::MainWindow *ui;
-    FileReader *fileReader;
-    void InitTraceWindow(ConnectionName connectionName);
+    Ui::MainWindow* ui;
+    FileReader* fileReader;
+    void initTraceWindow(ConnectionName connectionName);
     QString styleSheet = "";
 
 public slots:
-    void GetNewConnection(sockaddr_in client, PacketHandler *packetHandler);
-    void ChangeClientStatus(sockaddr_in client);
+    void getNewConnection(sockaddr_in client, PacketHandler* packetHandler);
+    void changeClientStatus(sockaddr_in client);
 private slots:
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();

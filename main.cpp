@@ -15,7 +15,7 @@
 -  придумать как красиво передавать текст в гую чтобы он всегда мог помещаться на экране
 */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     qRegisterMetaType<sockaddr_in>("sockaddr_in");
     qRegisterMetaType<tUINT32>("tUINT32");
@@ -26,18 +26,18 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     MainWindow mainWindow;
-    Launcher launcher;
-    mainWindow.launcher = &launcher;
-    launcher.SetMainWindow(&mainWindow);
-    launcher.start();
+    Launcher* launcher = new Launcher(&mainWindow);
+    mainWindow.launcher = launcher;
 
+    launcher->start();
     mainWindow.show();
 
     a.exec();
 
+    //Все окна закрыты, завершаем все потоки
     a.closeAllWindows();
-    launcher.requestInterruption();
-    launcher.wait();
+    launcher->requestInterruption();
+    launcher->wait();
 
     std::cout<<"------"<<"Main thread closing"<<"------"<<std::endl;
 }

@@ -25,7 +25,7 @@ class TraceBackupWriter
 {
 private:
     sP7File_Header fileHeader;
-    QFile *file;
+    QFile* file;
     tINT8* data;
     QString fileName;
 public:

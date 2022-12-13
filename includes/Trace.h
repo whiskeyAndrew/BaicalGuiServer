@@ -67,13 +67,13 @@ struct Args_ID
 
 struct sP7Trace_Utc_Offs
 {
-    tINT32 SP7Ext_Raw;
+    tINT32 SP7ext_Raw;
     tINT32 iUTCOffsetSec;
 };
 
 struct sP7Trace_Thread_Start
 {
-    tINT32 SP7Ext_Raw;
+    tINT32 SP7ext_Raw;
     tINT32 dwThreadID;
     tUINT64 qwTimer;
     char pName[48];
@@ -81,7 +81,7 @@ struct sP7Trace_Thread_Start
 
 struct sP7Trace_Module
 {
-    tINT32 SP7Ext_Raw;
+    tINT32 SP7ext_Raw;
     tUINT16 wModuleId;
     tINT32 traceLevel;
     char pName[54];
@@ -89,14 +89,14 @@ struct sP7Trace_Module
 
 struct sP7Trace_Thread_Stop
 {
-    tINT32 sP7Ext_Raw;
+    tINT32 sP7ext_Raw;
     tINT32 dwThreadID;
     tUINT64 qwTimer;
 };
 
 struct sP7Trace_Format
 {
-    tINT32 sP7Ext_Raw;
+    tINT32 sP7ext_Raw;
     tUINT16 wID;
     tUINT16 line;
     tUINT16 moduleID;
@@ -105,7 +105,7 @@ struct sP7Trace_Format
 
 struct sP7Trace_Data
 {
-    tUINT32 sP7Ext_Raw;
+    tUINT32 sP7ext_Raw;
     tUINT16 wID;
     tUINT8 bLevel;
     tUINT8 bProcessor;
@@ -160,16 +160,14 @@ private:
 
     SYSTEMTIME traceTime;
 
-    QString FormatVector(UniqueTraceData *uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition> *argsPosition);
-    tINT8* ReadTraceText(tINT8* chunkCursor, UniqueTraceData *trace);
-    p7Time CountTraceTime();
-    QList<likeEnum> *enums;
+    QString formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition>* argsPosition);
+    tINT8* readTraceText(tINT8* chunkCursor, UniqueTraceData* trace);
+    p7Time countTraceTime();
 public:
     //TraceLineData traceDataPerLine;
-    void Test();
     QMap<tUINT32,UniqueTraceData> uniqueTraces;
-    sP7Trace_Data GetTraceData(tUINT32 sequence);
-    UniqueTraceData GetTraceFormat(tUINT32 wID);
+    sP7Trace_Data getTraceData(tUINT32 sequence);
+    UniqueTraceData getTraceFormat(tUINT32 wID);
 
     void setTraceInfo(tINT8* chunkPointer);
     void setTraceUTC(tINT8* chunkCursor);
@@ -181,6 +179,5 @@ public:
     TraceToGUI setTraceData(tINT8* chunkCursor);
 
     QString getModule(tUINT32 moduleID);
-    void SetEnumsList(QList<likeEnum> *newEnums);
 };
 #endif // TRACE_H

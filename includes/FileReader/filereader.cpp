@@ -36,7 +36,7 @@ bool FileReader::ReadFileData()
     data = logFile.readAll(); //считываем все данные с файла в объект data
 }
 
-void FileReader::setTraceWindow(TraceWindow *newTraceWindow)
+void FileReader::setTraceWindow(TraceWindow* newTraceWindow)
 {
     traceWindow = newTraceWindow;
     fileChunksHandler = new FileChunksHandler();

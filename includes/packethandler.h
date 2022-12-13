@@ -85,7 +85,6 @@ class PacketHandler:public QThread
 private:
     tBOOL helloPacketInitialized = false;
     time_t lastPacketTime;
-    Launcher* launcher;
 
     SOCKET socketIn;
     QMutex mutex;
@@ -120,16 +119,17 @@ private:
     sH_Ext outPacketExt;
     sH_Ext_Srv_Info outPacketUDPInfo;
 
-    bool GetPacketFromQueue();
-    bool HandleHelloPacket();
-    bool HandleReportPacket();
-    bool HandlePingPacket();
-    bool PacketProcessing();
+    bool getPacketFromQueue();
+    bool handleHelloPacket();
+    bool handleReportPacket();
+    bool handlePingPacket();
+    bool packetProcessing();
 
-    tUINT32 GetPacketType(sH_Packet_Header pckHdr);
+    tUINT32 getPacketType(sH_Packet_Header pckHdr);
     ~PacketHandler();
     void run();
-
+    bool initData();
+        sockaddr_in client;
 public:
     QMutex syncThreads;
     QWaitCondition waitCondition;
@@ -139,22 +139,18 @@ public:
     std::queue<std::vector<tINT8>> packetQueue;
     std::vector<tINT8> tempVector;
 
-    sockaddr_in client;
 
-    PacketHandler(sockaddr_in client, Launcher* launcher)
-    {
-        this->client = client;
-        this->launcher = launcher;
-    }
+
+    PacketHandler(sockaddr_in newClient);
 
     //Вызываем чтобы заполнять очередь внутри потока пакетами
-    void AppendQueue(tUINT8* bufferPointer, tUINT32 bufferSize);
+    void appendQueue(tUINT8* bufferPointer, tUINT32 bufferSize);
 
 
     void setSocketIn(SOCKET newSocketIn);
-    bool InitData();
 
     time_t getLastPacketTime();
+    sockaddr_in getClient();
 };
 
 #endif // PACKETHANDLER_H

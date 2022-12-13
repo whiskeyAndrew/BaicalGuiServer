@@ -14,10 +14,10 @@
 class TraceWindow;
 class TracesToText:public QThread{
 public:
-    TracesToText(QMap<tUINT32, GUIData> *traces, TraceWindow *newTraceWindow);
-    QMap<tUINT32, GUIData> *data;
+    TracesToText(QMap<tUINT32, GUIData>* traces, TraceWindow* newTraceWindow);
+    QMap<tUINT32, GUIData>* data;
 private:
-    TraceWindow *traceWindow;
+    TraceWindow* traceWindow;
     void run();
 };
 

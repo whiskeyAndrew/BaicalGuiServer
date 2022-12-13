@@ -19,8 +19,7 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
     file = new QFile(fileName);
     //временно, исправить
 
-    if(!file->open(QFile::ReadWrite))
-    {
+    if(!file->open(QFile::ReadWrite)){
     std::cout<<"File opening error"<<std::endl;
     }
 
@@ -33,7 +32,7 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
     free(data);
 }
 
-void TraceBackupWriter::writeChunk(tINT8 *chunk, tUINT32 size)
+void TraceBackupWriter::writeChunk(tINT8* chunk, tUINT32 size)
 {
     //пишем размер чанка и сам чанк
 
@@ -60,6 +59,7 @@ void TraceBackupWriter::closeFile(){
     file->close();
     delete file;
 }
+
 TraceBackupWriter::TraceBackupWriter()
 {
 
