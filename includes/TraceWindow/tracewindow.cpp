@@ -167,7 +167,11 @@ void TraceWindow::addUniqueTrace(UniqueTraceData trace)
 void TraceWindow::openHyperlink(const QUrl &link)
 {
     ui->Autoscroll->setChecked(false);
-    tUINT32 sequence = link.toString().toInt();
+    QString s = link.path();
+    //небольшой костыль передачи стринга в линке
+    QStringList sl = link.path().split(" ___ ");
+    tUINT32 sequence = sl.at(0).toInt();
+    QString rawTrace = sl.at(1);
 
     sP7Trace_Data traceData = traceThread->getTraceData(sequence);
     UniqueTraceData traceFormat = traceThread->getTraceFormat(traceData.wID);
@@ -180,8 +184,9 @@ void TraceWindow::openHyperlink(const QUrl &link)
     }
 
     ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
-    if(traceFormat.traceFormat.line)
+    if(traceFormat.traceFormat.line){
         ui->line->setText(QString::number(traceFormat.traceFormat.line));
+    }
 
     ui->argsLen->setText(QString::number(traceFormat.traceFormat.args_Len));
 
@@ -191,7 +196,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     ui->dwSequence->setText(QString::number(traceData.dwSequence));
 
     //Нужно добваить игнорирование тэгов
-    ui->traceText->setText(traceFormat.traceLineData);
+    ui->traceText->setText(traceFormat.traceLineData+"\n"+rawTrace);
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
 
@@ -473,6 +478,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
     QString sequenceToGUI = QString::number(g.sequence);
     QString traceToGUI = g.trace;
+    QString sequenceHref = sequenceToGUI+" ___ "+traceToGUI;
 
     if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
         QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
@@ -508,7 +514,7 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(traceToGUI.contains("\n")){
         traceToGUI.replace("\n","<br>");
     }
-    return traceLinkStart+color+traceLinkHref+sequenceToGUI
+    return traceLinkStart+color+traceLinkHref+sequenceHref
             +traceLinkMiddle+sequenceToGUI
             +traceToGUI+traceLinkEnd;
 }
