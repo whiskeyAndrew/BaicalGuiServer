@@ -43,12 +43,15 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
                         QString number = list.at(0);
                         counter = number.remove("=").trimmed().toInt();
                         subLine = subLine.trimmed();
-                        tempEnums.insert(counter,{subLine,""});
+                        QString comment = line.mid(line.lastIndexOf("//"),line.size()-line.lastIndexOf("//"));
+                        tempEnums.insert(counter,{subLine,comment});
                         counter++;
                     } else{
                         line = line.replace(",","");
                         line = line.trimmed();
-                        tempEnums.insert(counter,{line,""});
+                        QString comment = line.mid(line.lastIndexOf("//"),line.size()-line.lastIndexOf("//"));
+                        line = line.mid(0,line.indexOf("//"));
+                        tempEnums.insert(counter,{line,comment});
                         counter++;
                     }
                 }

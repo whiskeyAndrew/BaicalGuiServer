@@ -632,7 +632,7 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem* item)
     //    }
 
     for(tUINT32 key:_enum.enums.keys()){
-        QListWidgetItem* item = new QListWidgetItem(_enum.enums.value(key).name+" "+QString::number(key));
+        QListWidgetItem* item = new QListWidgetItem(_enum.enums.value(key).name+" "+QString::number(key) +" " +_enum.enums.value(key).comment);
         item->setData(Qt::ToolTipRole,++enumId);
         ui->enumsElements->addItem(item);
     }
