@@ -38,6 +38,7 @@ void MainWindow::changeClientStatus(sockaddr_in client)
         if(ui->comboBox->itemData(i,Qt::ToolTipRole)==clientName){
             ConnectionName name = traceWindows.at(i)->getClientName();
             ui->comboBox->setItemText(i,"❌ "+name.ip+":"+name.port);
+            traceWindows.at(i)->setConnectionStatus(false);
             return;
         }
     }
@@ -81,6 +82,7 @@ void MainWindow::initTraceWindow(ConnectionName connectionName)
     }
 
     traceWindow = new TraceWindow(connectionName,config);
+    traceWindow->setConnectionStatus(true);
     traceWindows.append(traceWindow);
     tUINT32 index = traceWindows.size()-1;
     launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);

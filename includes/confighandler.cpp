@@ -25,12 +25,12 @@ void ConfigHandler::saveColors()
 {
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup("RowsColors");
-    settings->setValue("trace",QString::number(traceColor.red())+" "+QString::number(traceColor.green())+" "+QString::number(traceColor.blue()));
-    settings->setValue("debug",QString::number(debugColor.red())+" "+QString::number(debugColor.green())+" "+QString::number(debugColor.blue()));
-    settings->setValue("info",QString::number(infoColor.red())+" "+QString::number(infoColor.green())+" "+QString::number(infoColor.blue()));
-    settings->setValue("warning",QString::number(warningColor.red())+" "+QString::number(warningColor.green())+" "+QString::number(warningColor.blue()));
-    settings->setValue("error",QString::number(errorColor.red())+" "+QString::number(errorColor.green())+" "+QString::number(errorColor.blue()));
-    settings->setValue("critical",QString::number(criticalColor.red())+" "+QString::number(criticalColor.green())+" "+QString::number(criticalColor.blue()));
+    settings->setValue("trace",QString::number(traceColor.red())+" "+QString::number(traceColor.green())+" "+QString::number(traceColor.blue())+" "+QString::number(traceColor.alpha()));
+    settings->setValue("debug",QString::number(debugColor.red())+" "+QString::number(debugColor.green())+" "+QString::number(debugColor.blue())+" "+QString::number(debugColor.alpha()));
+    settings->setValue("info",QString::number(infoColor.red())+" "+QString::number(infoColor.green())+" "+QString::number(infoColor.blue())+" "+QString::number(infoColor.alpha()));
+    settings->setValue("warning",QString::number(warningColor.red())+" "+QString::number(warningColor.green())+" "+QString::number(warningColor.blue())+" "+QString::number(warningColor.alpha()));
+    settings->setValue("error",QString::number(errorColor.red())+" "+QString::number(errorColor.green())+" "+QString::number(errorColor.blue())+" "+QString::number(errorColor.alpha()));
+    settings->setValue("critical",QString::number(criticalColor.red())+" "+QString::number(criticalColor.green())+" "+QString::number(criticalColor.blue())+" "+QString::number(criticalColor.alpha()));
     settings->setValue("transparency",transparency);
     settings->endGroup();
     delete settings;
@@ -49,23 +49,24 @@ void ConfigHandler::loadColors()
     transparency = settings->value("transparency","0").toString();
     settings->endGroup();
 
-    if(trace.size()==3){
-        traceColor.setRgb(trace.at(0).toInt(),trace.at(1).toInt(),trace.at(2).toInt());
+    if(trace.size()==4){
+        traceColor.setRgb(trace.at(0).toInt(),trace.at(1).toInt(),trace.at(2).toInt(),trace.at(3).toInt());
     }
-    if(debug.size()==3){
-        debugColor.setRgb(debug.at(0).toInt(),debug.at(1).toInt(),debug.at(2).toInt());
+
+    if(debug.size()==4){
+        debugColor.setRgb(debug.at(0).toInt(),debug.at(1).toInt(),debug.at(2).toInt(),debug.at(3).toInt());
     }
-    if(info.size()==3){
-        infoColor.setRgb(info.at(0).toInt(),info.at(1).toInt(),info.at(2).toInt());
+    if(info.size()==4){
+        infoColor.setRgb(info.at(0).toInt(),info.at(1).toInt(),info.at(2).toInt(),info.at(3).toInt());
     }
-    if(warning.size()==3){
-        warningColor.setRgb(warning.at(0).toInt(),warning.at(1).toInt(),warning.at(2).toInt());
+    if(warning.size()==4){
+        warningColor.setRgb(warning.at(0).toInt(),warning.at(1).toInt(),warning.at(2).toInt(),warning.at(3).toInt());
     }
-    if(error.size()==3){
-        errorColor.setRgb(error.at(0).toInt(),error.at(1).toInt(),error.at(2).toInt());
+    if(error.size()==4){
+        errorColor.setRgb(error.at(0).toInt(),error.at(1).toInt(),error.at(2).toInt(),error.at(3).toInt());
     }
-    if(critical.size()==3){
-        criticalColor.setRgb(critical.at(0).toInt(),critical.at(1).toInt(),critical.at(2).toInt());
+    if(critical.size()==4){
+        criticalColor.setRgb(critical.at(0).toInt(),critical.at(1).toInt(),critical.at(2).toInt(),critical.at(3).toInt());
     }
     delete settings;
 }

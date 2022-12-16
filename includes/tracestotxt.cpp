@@ -1,8 +1,9 @@
 #include "tracestotxt.h"
 #include "TraceWindow/tracewindow.h"
 
-TracesToText::TracesToText(QMap<tUINT32, GUIData>* traces, TraceWindow* newTraceWindow)
+TracesToText::TracesToText(QMap<tUINT32, GUIData>* traces, QString filePath, TraceWindow* newTraceWindow)
 {
+    fileDirectory = filePath;
     data = traces;
     traceWindow = newTraceWindow;
 }
@@ -10,7 +11,7 @@ TracesToText::TracesToText(QMap<tUINT32, GUIData>* traces, TraceWindow* newTrace
 void TracesToText::run()
 {
     traceWindow->setActionStatusText("Started to write .txt");
-    QFile file(QString::number(QDateTime::currentMSecsSinceEpoch())+".txt");
+    QFile file(fileDirectory+".txt");
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
         return;

@@ -18,6 +18,7 @@ void TraceWindowSettings::initWindow()
     setWindowTitle(connectionName.ip+":"+connectionName.port +" settings");
     ui->traceIDforEnums->addItem("");
 
+
     ui->rawTracesTable->insertColumn(0);
     ui->rawTracesTable->setColumnWidth(0, ui->rawTracesTable->width()/10);
     ui->rawTracesTable->insertColumn(1);
@@ -29,6 +30,7 @@ void TraceWindowSettings::initWindow()
     connect(this,&TraceWindowSettings::sendRowWID,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
 
     colorDialog = new QColorDialog();
+    colorDialog->setOption(QColorDialog::ShowAlphaChannel);
     config = new ConfigHandler(connectionName.ip);
 
     initTraceLevels();
@@ -182,8 +184,8 @@ void TraceWindowSettings::on_clearTrace_clicked()
     reply = QMessageBox::question(this, "Clear Trace", "Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        traceWindow->setTraceColor("");
-        config->traceColor = "";
+        traceWindow->setTraceColor(traceWindow->getEmptyColor());
+        config->traceColor = traceWindow->getEmptyColor();
         ui->traceColorButton->setStyleSheet("");
     }
 
@@ -195,8 +197,8 @@ void TraceWindowSettings::on_clearDebug_clicked()
     reply = QMessageBox::question(this, "Clear Debug", "Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        traceWindow->setDebugColor("");
-        config->debugColor = "";
+        traceWindow->setDebugColor(traceWindow->getEmptyColor());
+        config->debugColor = traceWindow->getEmptyColor();
         ui->debugColorButton->setStyleSheet("");
     }
 }
@@ -207,8 +209,8 @@ void TraceWindowSettings::on_clearInfo_clicked()
     reply = QMessageBox::question(this, "Clear Info", "Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        traceWindow->setInfoColor("");
-        config->infoColor = "";
+        traceWindow->setInfoColor(traceWindow->getEmptyColor());
+        config->infoColor = traceWindow->getEmptyColor();
         ui->infoColorButton->setStyleSheet("");
     }
 }
@@ -219,8 +221,8 @@ void TraceWindowSettings::on_clearWarning_clicked()
     reply = QMessageBox::question(this, "Clear Warning", "Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        traceWindow->setWarningColor("");
-        config->warningColor = "";
+        traceWindow->setWarningColor(traceWindow->getEmptyColor());
+        config->warningColor = traceWindow->getEmptyColor();
         ui->warningColorButton->setStyleSheet("");
     }
 }
@@ -231,8 +233,8 @@ void TraceWindowSettings::on_clearError_clicked()
     reply = QMessageBox::question(this, "Clear Error", "Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        traceWindow->setErrorColor("");
-        config->errorColor = "";
+        traceWindow->setErrorColor(traceWindow->getEmptyColor());
+        config->errorColor = traceWindow->getEmptyColor();
         ui->errorColorButton->setStyleSheet("");
     }
 }
@@ -243,8 +245,8 @@ void TraceWindowSettings::on_clearCritical_clicked()
     reply = QMessageBox::question(this, "Clear Critical", "Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        traceWindow->setCriticalColor("");
-        config->criticalColor = "";
+        traceWindow->setCriticalColor(traceWindow->getEmptyColor());
+        config->criticalColor = traceWindow->getEmptyColor();
         ui->criticalColorButton->setStyleSheet("");
     }
 }

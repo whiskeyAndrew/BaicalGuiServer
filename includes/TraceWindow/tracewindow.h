@@ -12,7 +12,9 @@
 #include <QThread>
 #include "../tracestotxt.h"
 #include <QIcon>
-
+#include <QRgb>
+#include <QCloseEvent>
+#include <QIcon>
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -74,6 +76,9 @@ public:
 
     void setArgsThatNeedToBeChangedByEnum(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > newArgsThatNeedToBeChangedByEnum);
 
+    QColor getEmptyColor();
+
+    void setConnectionStatus(bool isActive);
 private:
     tUINT32 numberOfRowsToShow;
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> argsThatNeedToBeChangedByEnum;
@@ -81,7 +86,8 @@ private:
     TraceWindowSettings* traceSettings;
     ConfigHandler* config;
 
-
+    //в инициализации устанавливает значение 0 0 0 255, стандартное значение если инициализация цвета из конфига не прошла
+    QColor emptyColor;
     QColor traceColor = "";
     QColor debugColor = "";
     QColor infoColor = "";
@@ -93,7 +99,7 @@ private:
 
     //"style=\"background-color:rgba(255, 0, 0, 0.4)\""
     QString traceLinkHref = "href=\"";
-    QString traceLinkMiddle = "\"style=\"color:#C0C0C0;text-decoration:none;\">";
+    QString traceLinkMiddle = "\"style=\"text-decoration:none;"; //color:#C0C0C0;
     QString traceLinkEnd = "</a>";
 
     QString traceText;
@@ -137,6 +143,7 @@ private:
     void reloadTracesFromBelow(int value);
     void reloadTracesFromAbove(int value);
 
+    void closeEvent(QCloseEvent *event);
 public slots:
     void getTrace(TraceToGUI trace);
     void setTraceAsObject(Trace* trace);

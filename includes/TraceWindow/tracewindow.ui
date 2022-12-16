@@ -62,12 +62,12 @@
    <item row="2" column="0" rowspan="3">
     <widget class="QTextBrowser" name="textBrowser">
      <property name="styleSheet">
-      <string notr="true">color: rgb(192, 192, 192);
-selection-color: rgb(63, 63, 63);
+      <string notr="true">selection-color: rgb(63, 63, 63);
+color: rgb(255, 255, 255);
 selection-background-color: rgb(243, 243, 243);</string>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
      <property name="lineWrapMode">
       <enum>QTextEdit::NoWrap</enum>
@@ -112,8 +112,8 @@ selection-background-color: rgb(243, 243, 243);</string>
      <widget class="QPushButton" name="expandButton">
       <property name="geometry">
        <rect>
-        <x>90</x>
-        <y>6</y>
+        <x>130</x>
+        <y>10</y>
         <width>25</width>
         <height>27</height>
        </rect>
@@ -137,7 +137,7 @@ selection-background-color: rgb(243, 243, 243);</string>
      <widget class="QCheckBox" name="Autoscroll">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>180</x>
         <y>10</y>
         <width>78</width>
         <height>22</height>
@@ -159,7 +159,7 @@ selection-background-color: rgb(243, 243, 243);</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>200</x>
+        <x>260</x>
         <y>10</y>
         <width>78</width>
         <height>22</height>
@@ -178,8 +178,8 @@ selection-background-color: rgb(243, 243, 243);</string>
      <widget class="QPushButton" name="WindowSettings">
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>6</y>
+        <x>90</x>
+        <y>10</y>
         <width>27</width>
         <height>27</height>
        </rect>
@@ -198,8 +198,8 @@ selection-background-color: rgb(243, 243, 243);</string>
      <widget class="QPushButton" name="traceToTxt">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>6</y>
+        <x>50</x>
+        <y>10</y>
         <width>27</width>
         <height>27</height>
        </rect>
@@ -219,7 +219,7 @@ selection-background-color: rgb(243, 243, 243);</string>
      <widget class="QPushButton" name="actionsStatusLabel">
       <property name="geometry">
        <rect>
-        <x>290</x>
+        <x>350</x>
         <y>10</y>
         <width>171</width>
         <height>24</height>
@@ -238,12 +238,40 @@ selection-background-color: rgb(243, 243, 243);</string>
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QPushButton" name="connectionStatus">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>27</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Connection status</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoDefault">
+       <bool>true</bool>
+      </property>
+      <property name="default">
+       <bool>true</bool>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
    </item>
    <item row="4" column="2">
     <widget class="QPushButton" name="Disable">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="text">
       <string>Disable</string>

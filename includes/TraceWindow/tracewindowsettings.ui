@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="uniqueTraces">
       <attribute name="title">
@@ -101,7 +101,7 @@
          <widget class="QCheckBox" name="sequenceCheckbox">
           <property name="geometry">
            <rect>
-            <x>110</x>
+            <x>20</x>
             <y>20</y>
             <width>78</width>
             <height>22</height>
@@ -117,7 +117,7 @@
          <widget class="QCheckBox" name="traceCheckbox">
           <property name="geometry">
            <rect>
-            <x>110</x>
+            <x>20</x>
             <y>80</y>
             <width>78</width>
             <height>22</height>
@@ -136,7 +136,7 @@
           </property>
           <property name="geometry">
            <rect>
-            <x>110</x>
+            <x>20</x>
             <y>50</y>
             <width>78</width>
             <height>22</height>
@@ -147,102 +147,6 @@
           </property>
           <property name="checked">
            <bool>false</bool>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="warningCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>110</y>
-            <width>78</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Warning</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="errorCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>140</y>
-            <width>78</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Error</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="criticalCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>170</y>
-            <width>78</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Critical</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="debugCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>50</y>
-            <width>78</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Debug</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="infoCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>80</y>
-            <width>78</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Info</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="traceLevelCheckBox">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>78</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Trace</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
           </property>
          </widget>
          <widget class="QPushButton" name="saveAllTraceCheckboxes">
@@ -310,51 +214,12 @@
          <property name="title">
           <string/>
          </property>
-         <widget class="QLabel" name="traceLabel">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>30</y>
-            <width>49</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Trace</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="debugLabel">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>60</y>
-            <width>49</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Debug</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="infoLabel">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>90</y>
-            <width>49</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Info</string>
-          </property>
-         </widget>
          <widget class="QPushButton" name="traceColorButton">
           <property name="geometry">
            <rect>
-            <x>60</x>
+            <x>90</x>
             <y>30</y>
-            <width>121</width>
+            <width>21</width>
             <height>20</height>
            </rect>
           </property>
@@ -370,19 +235,6 @@ selection-color: rgb(85, 255, 255);</string>
           </property>
           <property name="flat">
            <bool>false</bool>
-          </property>
-         </widget>
-         <widget class="QLabel" name="warningLabel">
-          <property name="geometry">
-           <rect>
-            <x>300</x>
-            <y>30</y>
-            <width>51</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Warning</string>
           </property>
          </widget>
          <widget class="QPushButton" name="warningColorButton">
@@ -390,7 +242,7 @@ selection-color: rgb(85, 255, 255);</string>
            <rect>
             <x>360</x>
             <y>30</y>
-            <width>121</width>
+            <width>21</width>
             <height>20</height>
            </rect>
           </property>
@@ -408,38 +260,12 @@ selection-color: rgb(85, 255, 255);</string>
            <bool>false</bool>
           </property>
          </widget>
-         <widget class="QLabel" name="errorLabel">
-          <property name="geometry">
-           <rect>
-            <x>300</x>
-            <y>60</y>
-            <width>51</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Error</string>
-          </property>
-         </widget>
-         <widget class="QLabel" name="criticalLabel">
-          <property name="geometry">
-           <rect>
-            <x>300</x>
-            <y>90</y>
-            <width>51</width>
-            <height>20</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Critical</string>
-          </property>
-         </widget>
          <widget class="QPushButton" name="debugColorButton">
           <property name="geometry">
            <rect>
-            <x>60</x>
+            <x>90</x>
             <y>60</y>
-            <width>121</width>
+            <width>21</width>
             <height>20</height>
            </rect>
           </property>
@@ -460,9 +286,9 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="infoColorButton">
           <property name="geometry">
            <rect>
-            <x>60</x>
+            <x>90</x>
             <y>90</y>
-            <width>121</width>
+            <width>21</width>
             <height>20</height>
            </rect>
           </property>
@@ -485,7 +311,7 @@ selection-color: rgb(85, 255, 255);</string>
            <rect>
             <x>360</x>
             <y>60</y>
-            <width>121</width>
+            <width>21</width>
             <height>20</height>
            </rect>
           </property>
@@ -508,7 +334,7 @@ selection-color: rgb(85, 255, 255);</string>
            <rect>
             <x>360</x>
             <y>90</y>
-            <width>121</width>
+            <width>21</width>
             <height>20</height>
            </rect>
           </property>
@@ -527,6 +353,9 @@ selection-color: rgb(85, 255, 255);</string>
           </property>
          </widget>
          <widget class="QSlider" name="horizontalSlider">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>90</x>
@@ -561,7 +390,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="clearTrace">
           <property name="geometry">
            <rect>
-            <x>190</x>
+            <x>130</x>
             <y>30</y>
             <width>51</width>
             <height>20</height>
@@ -574,7 +403,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="clearDebug">
           <property name="geometry">
            <rect>
-            <x>190</x>
+            <x>130</x>
             <y>60</y>
             <width>51</width>
             <height>20</height>
@@ -587,7 +416,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="clearInfo">
           <property name="geometry">
            <rect>
-            <x>190</x>
+            <x>130</x>
             <y>90</y>
             <width>51</width>
             <height>20</height>
@@ -600,7 +429,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="clearWarning">
           <property name="geometry">
            <rect>
-            <x>490</x>
+            <x>400</x>
             <y>30</y>
             <width>51</width>
             <height>20</height>
@@ -613,7 +442,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="clearError">
           <property name="geometry">
            <rect>
-            <x>490</x>
+            <x>400</x>
             <y>60</y>
             <width>51</width>
             <height>20</height>
@@ -626,7 +455,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="clearCritical">
           <property name="geometry">
            <rect>
-            <x>490</x>
+            <x>400</x>
             <y>90</y>
             <width>51</width>
             <height>20</height>
@@ -647,6 +476,102 @@ selection-color: rgb(85, 255, 255);</string>
           </property>
           <property name="text">
            <string>Save Colors</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="traceLevelCheckBox">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>30</y>
+            <width>78</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Trace</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="debugCheckBox">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>60</y>
+            <width>78</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Debug</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="infoCheckBox">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>90</y>
+            <width>78</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Info</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="warningCheckBox">
+          <property name="geometry">
+           <rect>
+            <x>270</x>
+            <y>30</y>
+            <width>78</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Warning</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="errorCheckBox">
+          <property name="geometry">
+           <rect>
+            <x>270</x>
+            <y>60</y>
+            <width>78</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Error</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="criticalCheckBox">
+          <property name="geometry">
+           <rect>
+            <x>270</x>
+            <y>90</y>
+            <width>78</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Critical</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </widget>
@@ -785,66 +710,6 @@ selection-color: rgb(85, 255, 255);</string>
         <widget class="QPushButton" name="saveAllSettings">
          <property name="text">
           <string>Save All</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Config</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <property name="leftMargin">
-        <number>1</number>
-       </property>
-       <property name="topMargin">
-        <number>1</number>
-       </property>
-       <property name="rightMargin">
-        <number>1</number>
-       </property>
-       <property name="bottomMargin">
-        <number>1</number>
-       </property>
-       <property name="spacing">
-        <number>1</number>
-       </property>
-       <item row="0" column="0" colspan="4">
-        <widget class="QPlainTextEdit" name="configText"/>
-       </item>
-       <item row="4" column="0">
-        <widget class="QPushButton" name="saveButton">
-         <property name="text">
-          <string>Save</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="3">
-        <widget class="QPushButton" name="LoadDataFromConfig">
-         <property name="text">
-          <string>Apply settings</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QPushButton" name="saveAsButton">
-         <property name="text">
-          <string>Save as</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="2">
-        <widget class="QPushButton" name="loadButton">
-         <property name="text">
-          <string>Load</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>SAVE BEFORE APPLY</string>
          </property>
         </widget>
        </item>
@@ -1046,6 +911,66 @@ selection-color: rgb(85, 255, 255);</string>
            <bool>true</bool>
           </property>
          </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Config</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <property name="leftMargin">
+        <number>1</number>
+       </property>
+       <property name="topMargin">
+        <number>1</number>
+       </property>
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <item row="0" column="0" colspan="4">
+        <widget class="QPlainTextEdit" name="configText"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="saveButton">
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QPushButton" name="LoadDataFromConfig">
+         <property name="text">
+          <string>Apply settings</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="saveAsButton">
+         <property name="text">
+          <string>Save as</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QPushButton" name="loadButton">
+         <property name="text">
+          <string>Load</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>SAVE BEFORE APPLY</string>
+         </property>
         </widget>
        </item>
       </layout>

@@ -83,8 +83,8 @@ bool Launcher::initSocket()
 
     //--DELETE LATER--//
 
-    ServerStatusSender* serverStatusSender = new ServerStatusSender(this);
-    serverStatusSender->start();
+//    ServerStatusSender* serverStatusSender = new ServerStatusSender(this);
+//    serverStatusSender->start();
 
     //--NOT DELETE LATER--//
     return true;

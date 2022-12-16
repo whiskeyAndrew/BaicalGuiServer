@@ -244,6 +244,12 @@ void TraceWindow::setArgsThatNeedToBeChangedByEnum(QMap<tUINT32, QList<ArgsThatN
 {
     argsThatNeedToBeChangedByEnum = newArgsThatNeedToBeChangedByEnum;
 }
+
+QColor TraceWindow::getEmptyColor()
+{
+    return emptyColor;
+}
+
 void TraceWindow::offAutoscroll(){
     ui->Autoscroll->setChecked(false);
 }
@@ -314,11 +320,13 @@ void TraceWindow::on_expandButton_clicked(bool checked)
     if(checked==true)
     {
         ui->groupBox->setHidden(true);
+        ui->Disable->setHidden(true);
         ui->expandButton->setText("<-");
     }
     else
     {
         ui->groupBox->setHidden(false);
+        ui->Disable->setHidden(false);
         ui->expandButton->setText("->");
     }
 }
@@ -327,7 +335,21 @@ void TraceWindow::setActionStatusText(QString text)
 {
     ui->actionsStatusLabel->setText(text);
 }
+
+void TraceWindow::setConnectionStatus(bool isActive){
+    if(isActive){
+        QIcon icon;
+        icon.addPixmap(QPixmap(":/green-dot.png"), QIcon::Disabled);
+        ui->connectionStatus->setIcon(icon);
+    }
+    else{
+        QIcon icon;
+        icon.addPixmap(QPixmap(":/red-dot.png"), QIcon::Disabled);
+        ui->connectionStatus->setIcon(icon);
+    }
+}
 void TraceWindow::initWindow(){
+    emptyColor.setRgb(0,0,0,255);
     setWindowFlags(Qt::Window);
     setWindowTitle(clientName.ip+":"+clientName.port);
     //Инициализация списка по которому смотрим надо ли показывать трейс по bLevel
@@ -434,45 +456,39 @@ void TraceWindow::on_infinite_line_stateChanged(int arg1)
 
 QString TraceWindow::getGuiRow(GUIData g){
     //"style=\"background-color:#33475b\""
-    QString color;
+    QString color= "color:#C0C0C0\">";
+
     switch(g.bLevel){
     case EP7TRACE_LEVEL_TRACE:
-        color = "style=\"background-color:rgba("+QString::number(traceColor.red())+", "
-                +QString::number(traceColor.green())+", "
-                +QString::number(traceColor.blue())
-                +", "+transparency+")\"";
+        if(traceColor!=emptyColor&& traceColor.isValid()){
+            color = "color:"+traceColor.name()+"\">";
+        }
         break;
+
     case EP7TRACE_LEVEL_DEBUG:
-        color = "style=\"background-color:rgba("+QString::number(debugColor.red())+", "
-                +QString::number(debugColor.green())+", "
-                +QString::number(debugColor.blue())
-                +", "+transparency+")\"";
+        if(debugColor!=emptyColor&& debugColor.isValid()){
+            color = "color:"+debugColor.name()+"\">";
+        }
         break;
     case  EP7TRACE_LEVEL_INFO:
-        color = "style=\"background-color:rgba("+QString::number(infoColor.red())+", "
-                +QString::number(infoColor.green())+", "
-                +QString::number(infoColor.blue())
-                +", "+transparency+")\"";
+        if(infoColor!=emptyColor && infoColor.isValid()){
+            color = "color:"+infoColor.name()+"\">";
+        }
         break;
     case EP7TRACE_LEVEL_WARNING:
-        color = "style=\"background-color:rgba("+QString::number(warningColor.red())+", "
-                +QString::number(warningColor.green())+", "
-                +QString::number(warningColor.blue())
-                +", "+transparency+")\"";
+        if(warningColor!=emptyColor&& warningColor.isValid()){
+            color = "color:"+warningColor.name()+"\">";
+        }
         break;
     case EP7TRACE_LEVEL_ERROR:
-        color = "style=\"background-color:rgba("+QString::number(errorColor.red())+", "
-                +QString::number(errorColor.green())+", "
-                +QString::number(errorColor.blue())
-                +", "+transparency+")\"";
+        if(errorColor!=emptyColor&& errorColor.isValid()){
+            color = "color:"+errorColor.name()+"\">";
+        }
         break;
     case EP7TRACE_LEVEL_CRITICAL:
-        color = "style=\"background-color:rgba("+QString::number(criticalColor.red())+", "
-                +QString::number(criticalColor.green())+", "
-                +QString::number(criticalColor.blue())
-                +", "+transparency+")\"";
-        break;
-    default:
+        if(criticalColor!=emptyColor&& criticalColor.isValid()){
+            color = "color:"+criticalColor.name()+"\">";
+        }
         break;
     }
 
@@ -514,8 +530,12 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(traceToGUI.contains("\n")){
         traceToGUI.replace("\n","<br>");
     }
-    return traceLinkStart+color+traceLinkHref+sequenceHref
-            +traceLinkMiddle+sequenceToGUI
+    QString returnable = traceLinkStart+traceLinkHref+sequenceHref
+            +traceLinkMiddle+color+sequenceToGUI
+            +traceToGUI+traceLinkEnd;
+
+    return traceLinkStart+traceLinkHref+sequenceHref
+            +traceLinkMiddle+color+sequenceToGUI
             +traceToGUI+traceLinkEnd;
 }
 
@@ -589,6 +609,11 @@ QColor TraceWindow::getErrorColor()
     return errorColor;
 }
 
+void TraceWindow::closeEvent (QCloseEvent *event)
+{
+    traceSettings->close();
+}
+
 void TraceWindow::setErrorColor(QColor newErrorColor)
 {
     errorColor = newErrorColor;
@@ -639,7 +664,13 @@ void TraceWindow::on_traceToTxt_clicked()
     //Поток по окончанию завершается сам по себе и я пока не уверен, надо ли его удалять
     //Надо что-нибудь придумать
     //Получается маленький меморилик
-    TracesToText* traces = new TracesToText(new QMap(guiData),this);
+    QString fileData = QString::number(QDateTime::currentMSecsSinceEpoch());
+    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileData,tr("Text files(*.txt"));
+    if(filePath==""){
+        return;
+    }
+
+    TracesToText* traces = new TracesToText(new QMap(guiData),filePath,this);
     traces->start();
 }
 
