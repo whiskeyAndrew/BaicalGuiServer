@@ -530,13 +530,11 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(traceToGUI.contains("\n")){
         traceToGUI.replace("\n","<br>");
     }
-    QString returnable = traceLinkStart+traceLinkHref+sequenceHref
+    QString returnableHTMLRow = traceLinkStart+traceLinkHref+sequenceHref
             +traceLinkMiddle+color+sequenceToGUI
             +traceToGUI+traceLinkEnd;
 
-    return traceLinkStart+traceLinkHref+sequenceHref
-            +traceLinkMiddle+color+sequenceToGUI
-            +traceToGUI+traceLinkEnd;
+    return returnableHTMLRow;
 }
 
 void TraceWindow::changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state){

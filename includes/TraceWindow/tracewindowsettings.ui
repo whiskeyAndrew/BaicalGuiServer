@@ -152,7 +152,7 @@
          <widget class="QPushButton" name="saveAllTraceCheckboxes">
           <property name="geometry">
            <rect>
-            <x>460</x>
+            <x>450</x>
             <y>220</y>
             <width>80</width>
             <height>24</height>
@@ -468,7 +468,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="saveAllColors">
           <property name="geometry">
            <rect>
-            <x>460</x>
+            <x>450</x>
             <y>220</y>
             <width>91</width>
             <height>24</height>
@@ -590,7 +590,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="saveWindowsProperties">
           <property name="geometry">
            <rect>
-            <x>460</x>
+            <x>450</x>
             <y>40</y>
             <width>91</width>
             <height>24</height>

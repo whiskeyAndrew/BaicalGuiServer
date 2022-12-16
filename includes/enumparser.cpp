@@ -14,6 +14,7 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
         QString line;
         QString subLine;
         QString enumName;
+
         QTextStream in(file);
         while (!in.atEnd())
         {
@@ -35,6 +36,7 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
                         break;
                     }
 
+                    QString comment = "";
                     if(line.contains("=")){
                         subLine = line.mid(0,line.indexOf("="));
                         QRegExp rx("\\=[ \t]+\\d");
@@ -43,25 +45,34 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
                         QString number = list.at(0);
                         counter = number.remove("=").trimmed().toInt();
                         subLine = subLine.trimmed();
-                        QString comment = line.mid(line.lastIndexOf("//"),line.size()-line.lastIndexOf("//"));
+
+                        if(line.contains("//")){
+                            comment = line.mid(line.lastIndexOf("//"),line.size()-line.lastIndexOf("//"));
+                        }
+
                         tempEnums.insert(counter,{subLine,comment});
                         counter++;
+
                     } else{
                         line = line.replace(",","");
                         line = line.trimmed();
-                        QString comment = line.mid(line.lastIndexOf("//"),line.size()-line.lastIndexOf("//"));
-                        line = line.mid(0,line.indexOf("//"));
-                        tempEnums.insert(counter,{line,comment});
-                        counter++;
+
+                        if(line.contains("//")){
+                            comment = line.mid(line.lastIndexOf("//"),line.size()-line.lastIndexOf("//"));
+                            line = line.mid(0,line.indexOf("//"));
+                        }
+
+                            tempEnums.insert(counter,{line,comment});
+                            counter++;
+                        }
                     }
+                    enums.append({enumName,tempEnums});
                 }
-                enums.append({enumName,tempEnums});
             }
+        } else{
+            return false;
         }
-    } else{
-        return false;
+        file->close();
+        return true;
     }
-    file->close();
-    return true;
-}
 
