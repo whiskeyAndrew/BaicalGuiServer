@@ -7,6 +7,7 @@
 struct ArgsThatNeedToBeChangedByEnum{
     tUINT32 argId;
     tUINT32 enumId;
+    Qt::CheckState needToShow;
 };
 class ConfigHandler
 {

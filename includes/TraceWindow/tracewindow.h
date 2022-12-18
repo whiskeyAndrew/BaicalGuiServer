@@ -79,6 +79,7 @@ public:
     QColor getEmptyColor();
 
     void setConnectionStatus(bool isActive);
+    void clearOneEnumElement(tUINT32 wID);
 private:
     tUINT32 numberOfRowsToShow;
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> argsThatNeedToBeChangedByEnum;

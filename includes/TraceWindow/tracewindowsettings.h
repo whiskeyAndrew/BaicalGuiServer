@@ -121,6 +121,8 @@ private slots:
 
     void on_loadEnumsFromConfig_clicked();
 
+    void on_clearEnum_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler* config;

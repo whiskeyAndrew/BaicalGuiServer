@@ -240,6 +240,12 @@ QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > TraceWindow::getArgsThatNee
     return argsThatNeedToBeChangedByEnum;
 }
 
+void TraceWindow::clearOneEnumElement(tUINT32 wID)
+{
+    argsThatNeedToBeChangedByEnum.remove(wID);
+    reloadTracesInsideWindow();
+}
+
 void TraceWindow::setArgsThatNeedToBeChangedByEnum(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > newArgsThatNeedToBeChangedByEnum)
 {
     argsThatNeedToBeChangedByEnum = newArgsThatNeedToBeChangedByEnum;
@@ -494,7 +500,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
     QString sequenceToGUI = QString::number(g.sequence);
     QString traceToGUI = g.trace;
-    QString sequenceHref = sequenceToGUI+" ___ "+traceToGUI;
+
 
     if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
         QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
@@ -505,6 +511,9 @@ QString TraceWindow::getGuiRow(GUIData g){
                 continue;
             }
 
+            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).needToShow==Qt::Unchecked){
+                continue;
+            }
             //на случай если айдишника енама нет в списке енамов то скипаем
             if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)){
                 continue;
@@ -519,7 +528,12 @@ QString TraceWindow::getGuiRow(GUIData g){
         }
     }
 
+    QString formattedWithEnumGUI = traceToGUI;
+
+    QString sequenceHref = sequenceToGUI+" ___ "+formattedWithEnumGUI;
+
     traceToGUI.insert(0," ");
+
     if(traceSettings->isSequenceColumnNeedToShow()==Qt::Unchecked){
         sequenceToGUI = "";
     }
@@ -530,6 +544,9 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(traceToGUI.contains("\n")){
         traceToGUI.replace("\n","<br>");
     }
+
+
+
     QString returnableHTMLRow = traceLinkStart+traceLinkHref+sequenceHref
             +traceLinkMiddle+color+sequenceToGUI
             +traceToGUI+traceLinkEnd;

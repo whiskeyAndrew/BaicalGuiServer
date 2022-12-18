@@ -656,7 +656,7 @@ void TraceWindowSettings::on_applyEnumToTraceById_clicked(){
         tUINT32 argId = ui->rawTracesTable->item(i,0)->text().toInt();
         QComboBox* comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
         tUINT32 enumId = comboBox->currentIndex();
-        args.append({argId,enumId});
+        args.append({argId,enumId,ui->rawTracesTable->item(i,0)->checkState()});
     }
 
     traceWindow->appendArgsThatNeedToBeChangedByEnum(ui->traceIDforEnums->currentText().toInt(),args);
@@ -693,6 +693,13 @@ void TraceWindowSettings::on_saveEnumsToConfig_clicked()
 
 void TraceWindowSettings::on_clearEnums_clicked()
 {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Clear Debug", "Are you sure?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
     ui->enumsStatus->setText("Cleared enums: "+ QString::number(traceWindow->getArgsThatNeedToBeChangedByEnum().size()));
     for(int i =0;i<ui->rawTracesTable->rowCount();i++){
         QComboBox* comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
@@ -718,6 +725,7 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
     Trace* traceHandler = traceWindow->traceThread;
     ui->uniqueTraceLabel->setText(traceWindow->traceThread->uniqueTraces.value(wID).traceLineData);
 
+    //Если у нас уже есть изменения по wID, подгружаем их
     if(traceWindow->getArgsThatNeedToBeChangedByEnum().contains(wID)){
         for(int i =0;i<traceHandler->uniqueTraces.value(wID).argsID.size();i++){
             int countNumber = ui->rawTracesTable->rowCount();
@@ -732,7 +740,9 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
             comboBox->setCurrentIndex(traceWindow->getArgsThatNeedToBeChangedByEnum().value(wID).at(i).enumId);
 
             ui->rawTracesTable->insertRow(ui->rawTracesTable->rowCount());
+
             ui->rawTracesTable->setItem(countNumber, 0, new QTableWidgetItem(QString::number(i+1)));
+            ui->rawTracesTable->item(countNumber,0)->setCheckState(traceWindow->getArgsThatNeedToBeChangedByEnum().value(wID).at(i).needToShow);
             ui->rawTracesTable->setCellWidget(countNumber,1,comboBox);
         }
         return;
@@ -754,7 +764,9 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
             comboBox->addItem(enumParser->enums.at(i).name);
         }
         ui->rawTracesTable->insertRow(ui->rawTracesTable->rowCount());
+
         ui->rawTracesTable->setItem(countNumber, 0, new QTableWidgetItem(QString::number(i+1)));
+        ui->rawTracesTable->item(countNumber,0)->setCheckState(Qt::Checked);
         ui->rawTracesTable->setCellWidget(countNumber,1,comboBox);
     }
 }
@@ -778,5 +790,12 @@ void TraceWindowSettings::loadEnumsFromConfig(){
 void TraceWindowSettings::on_loadEnumsFromConfig_clicked()
 {
     loadEnumsFromConfig();
+}
+
+
+void TraceWindowSettings::on_clearEnum_clicked()
+{
+    traceWindow->clearOneEnumElement(ui->traceIDforEnums->currentText().toInt());
+    reloadListOfArgsAndEnums();
 }
 

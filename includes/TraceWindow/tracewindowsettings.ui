@@ -32,7 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="uniqueTraces">
       <attribute name="title">
@@ -814,14 +814,14 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QLabel" name="label_8">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>10</x>
             <y>10</y>
             <width>49</width>
             <height>16</height>
            </rect>
           </property>
           <property name="text">
-           <string>Enum ID</string>
+           <string>Trace ID</string>
           </property>
          </widget>
          <widget class="QLabel" name="enumId">
@@ -840,7 +840,7 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QComboBox" name="traceIDforEnums">
           <property name="geometry">
            <rect>
-            <x>80</x>
+            <x>60</x>
             <y>10</y>
             <width>101</width>
             <height>24</height>
@@ -882,23 +882,23 @@ selection-color: rgb(85, 255, 255);</string>
          <widget class="QPushButton" name="clearEnums">
           <property name="geometry">
            <rect>
-            <x>10</x>
+            <x>90</x>
             <y>70</y>
             <width>71</width>
             <height>24</height>
            </rect>
           </property>
           <property name="text">
-           <string>Clear</string>
+           <string>Clear All</string>
           </property>
          </widget>
          <widget class="QLabel" name="enumsStatus">
           <property name="geometry">
            <rect>
-            <x>98</x>
-            <y>60</y>
-            <width>341</width>
-            <height>31</height>
+            <x>168</x>
+            <y>70</y>
+            <width>271</width>
+            <height>21</height>
            </rect>
           </property>
           <property name="text">
@@ -909,6 +909,19 @@ selection-color: rgb(85, 255, 255);</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="clearEnum">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>70</y>
+            <width>71</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Clear This</string>
           </property>
          </widget>
         </widget>
