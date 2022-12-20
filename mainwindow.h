@@ -14,6 +14,12 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+enum CONNECTION_STATUS{
+    OFFLINE = 0,
+    UNKNOWN_CONNECTION_STATUS,
+    ONLINE
+};
+
 class PacketHandler;
 class Launcher;
 class MainWindow : public QMainWindow
@@ -38,7 +44,7 @@ private:
 
 public slots:
     void getNewConnection(sockaddr_in client, PacketHandler* packetHandler);
-    void changeClientStatus(sockaddr_in client);
+    void changeClientStatus(sockaddr_in client, tUINT32 status);
 private slots:
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();

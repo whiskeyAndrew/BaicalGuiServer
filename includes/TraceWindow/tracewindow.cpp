@@ -196,7 +196,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     ui->dwSequence->setText(QString::number(traceData.dwSequence));
 
     //Нужно добваить игнорирование тэгов
-    ui->traceText->setText(traceFormat.traceLineData+"\n"+rawTrace);
+    ui->traceText->setText(traceFormat.traceLineData+"\n\n"+rawTrace);
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
 
@@ -342,13 +342,18 @@ void TraceWindow::setActionStatusText(QString text)
     ui->actionsStatusLabel->setText(text);
 }
 
-void TraceWindow::setConnectionStatus(bool isActive){
-    if(isActive){
+void TraceWindow::setConnectionStatus(tUINT32 status){
+    if(status==2){
         QIcon icon;
         icon.addPixmap(QPixmap(":/green-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
     }
-    else{
+    else if(status==1){
+        QIcon icon;
+        icon.addPixmap(QPixmap(":/yellow-dot.png"), QIcon::Disabled);
+        ui->connectionStatus->setIcon(icon);
+    }
+    else if(status==0){
         QIcon icon;
         icon.addPixmap(QPixmap(":/red-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
@@ -402,12 +407,25 @@ void TraceWindow::setStyle(QString newStyleSheet)
 
 void TraceWindow::wheelEvent(QWheelEvent* event)
 {
+    //При автоскролле работает немного неправильно, надо будет переделать, пока не критично
     QPoint numDegrees = event->angleDelta() / 8*(-1);
-    ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+numDegrees.y()/15);
-    ui->Autoscroll->setChecked(false);
+
+/*    if(ui->Autoscroll->isChecked()){
+        ui->Autoscroll->setChecked(false);
+        reloadTracesFromBelow(ui->verticalScrollBar->value()-numberOfRowsToShow);
+        std::cout<<ui->verticalScrollBar->value()<<std::endl;
+    }
+    else */if(numDegrees.ry()<0){
+        ui->Autoscroll->setChecked(false);
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-1);
+    }
+    else if(numDegrees.ry()>0){
+        ui->Autoscroll->setChecked(false);
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+1);
+    }
+
     event->accept();
 
-    ui->textBrowser->setViewport(ui->textBrowser->viewport());
 
 }
 
@@ -500,7 +518,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
     QString sequenceToGUI = QString::number(g.sequence);
     QString traceToGUI = g.trace;
-
+    QString traceToRightPanel = g.trace;
 
     if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
         QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
@@ -511,9 +529,7 @@ QString TraceWindow::getGuiRow(GUIData g){
                 continue;
             }
 
-            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).needToShow==Qt::Unchecked){
-                continue;
-            }
+
             //на случай если айдишника енама нет в списке енамов то скипаем
             if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)){
                 continue;
@@ -524,13 +540,23 @@ QString TraceWindow::getGuiRow(GUIData g){
             if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.contains(number)){
                 continue;
             }
+
+            //если все проверки прошли, но нам не надо показывать в главном экране измененный енам, но надо справа, делаем тут правку
+            //костыль, попозже поправить
+            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).needToShow==Qt::Unchecked){
+                traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
+                continue;
+            }
+
+            traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
             traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
         }
     }
 
     QString formattedWithEnumGUI = traceToGUI;
 
-    QString sequenceHref = sequenceToGUI+" ___ "+formattedWithEnumGUI;
+    QString sequenceHref = sequenceToGUI+" ___ "+traceToRightPanel;
+    sequenceHref = sequenceHref.trimmed();
 
     traceToGUI.insert(0," ");
 
@@ -546,7 +572,10 @@ QString TraceWindow::getGuiRow(GUIData g){
     }
 
 
-
+    //Для того чтобы текст бьыл кликабельным и все выглядело "как в консоли"
+    //весь текст отображается в главном окне с помощью ссылок
+    //Кликом по тексту мы перехватываем сигнал кути и в методе OpenURL выполняем нужные нам действия
+    //В строку мы пишем номер trace-а (sequence) и отформатированный енамом трейс чтобы отобразить его справа
     QString returnableHTMLRow = traceLinkStart+traceLinkHref+sequenceHref
             +traceLinkMiddle+color+sequenceToGUI
             +traceToGUI+traceLinkEnd;

@@ -187,7 +187,7 @@ QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> ConfigHandler::loadEnums(QSt
         QStringList t_values = settings->value(t_wID).toString().split(" ");
         QList<ArgsThatNeedToBeChangedByEnum> values;
         for(tUINT32 i =0;i<t_values.size();i++){
-            values.append({i,t_values.at(i).toUInt()});
+            values.append({i,t_values.at(i).toUInt(),Qt::Checked});
         }
         enums.insert(wID,values);
     }

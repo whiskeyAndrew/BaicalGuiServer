@@ -6,7 +6,7 @@
 #include <QList>
 #include "launcher.h"
 
-#define TIMEOUT_MSECS 3000
+#define TIMEOUT_MSECS 1000
 
 class ConnectionTimeoutChecker:public QThread
 {
@@ -19,7 +19,7 @@ private:
     MainWindow* mainWindow;
     void run();
 signals:
-    void clientDisconnected(sockaddr_in client);
+    void clientStatusIsChanged(sockaddr_in client, tUINT32 status);
 };
 
 #endif // CONECTIONTIMEOUTCHECKER_H

@@ -694,7 +694,7 @@ void TraceWindowSettings::on_saveEnumsToConfig_clicked()
 void TraceWindowSettings::on_clearEnums_clicked()
 {
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Clear Debug", "Are you sure?",
+    reply = QMessageBox::question(this, "Clear Enums", "Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::No) {
         return;
@@ -706,6 +706,7 @@ void TraceWindowSettings::on_clearEnums_clicked()
         comboBox->setCurrentIndex(0);
     }
     traceWindow->clearArgsThatNeedToBeChangedByEnumm();
+    reloadListOfArgsAndEnums();
 }
 
 void TraceWindowSettings::reloadListOfArgsAndEnums(){

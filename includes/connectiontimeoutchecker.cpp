@@ -3,7 +3,7 @@
 ConnectionTimeoutChecker::ConnectionTimeoutChecker(QList<ClientData> *newWindowsList, MainWindow *newMainWindow){
     windowsList = newWindowsList;
     mainWindow = newMainWindow;
-    connect(this,&ConnectionTimeoutChecker::clientDisconnected,this->mainWindow,&MainWindow::changeClientStatus);
+    connect(this,&ConnectionTimeoutChecker::clientStatusIsChanged,this->mainWindow,&MainWindow::changeClientStatus);
 }
 
 void ConnectionTimeoutChecker::run()
@@ -19,7 +19,7 @@ tryAgain:
 
             if(attempts==5){
                 std::cout<<"Connection lost from "<< ntohs(windowsList->at(i).clientIp.sin_port)<<std::endl;
-                emit clientDisconnected(windowsList->at(i).connectionThread->getClient());
+                emit clientStatusIsChanged(windowsList->at(i).connectionThread->getClient(),OFFLINE);
                 windowsList->at(i).connectionThread->requestInterruption();
                 windowsList->at(i).connectionThread->waitCondition.wakeAll();
 
@@ -29,8 +29,16 @@ tryAgain:
             if(windowsList->at(i).connectionThread->getLastPacketTime()+TIMEOUT_MSECS<GetCurrentTime()){
                 attempts++;
                 std::cout<<"Connection lost? Trying again, port: "<< ntohs(windowsList->at(i).clientIp.sin_port) << " Attempt:" << attempts <<std::endl;
-                this->msleep(100);
+                if(attempts==1){
+                    emit clientStatusIsChanged(windowsList->at(i).connectionThread->getClient(),UNKNOWN_CONNECTION_STATUS);
+                }
+                this->msleep(1000);
                 goto tryAgain;
+            }
+            else if(attempts!=0){
+                attempts = 0;
+                std::cout<<"Connection restored: "<< ntohs(windowsList->at(i).clientIp.sin_port) <<std::endl;
+                emit clientStatusIsChanged(windowsList->at(i).connectionThread->getClient(),ONLINE);
             }
         }
 

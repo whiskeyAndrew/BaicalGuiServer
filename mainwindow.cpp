@@ -22,23 +22,31 @@ MainWindow::~MainWindow()
 void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* packetHandler)
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
-    ConnectionName connectionName = {"🟩",inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
-    ui->comboBox->addItem(connectionName.status+connectionName.ip+":"+connectionName.port,connectionsCounter++);
+    ConnectionName connectionName = {inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
+    ui->comboBox->addItem(connectionName.ip+":"+connectionName.port,connectionsCounter++);
     ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
+    ui->comboBox->setItemIcon(ui->comboBox->count()-1,QIcon(":/green-dot.png"));
 
     initTraceWindow(connectionName);
     packetHandler->start();
 }
 
-void MainWindow::changeClientStatus(sockaddr_in client)
+void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
 {
     QString clientName = inet_ntoa(client.sin_addr);
     clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
     for(int i =0; i<ui->comboBox->count();i++){
         if(ui->comboBox->itemData(i,Qt::ToolTipRole)==clientName){
-            ConnectionName name = traceWindows.at(i)->getClientName();
-            ui->comboBox->setItemText(i,"❌ "+name.ip+":"+name.port);
-            traceWindows.at(i)->setConnectionStatus(false);
+            if(status==OFFLINE){
+                ui->comboBox->setItemIcon(i,QIcon(":/red-dot.png"));
+                traceWindows.at(i)->setConnectionStatus(0);
+            } else if(status==UNKNOWN_CONNECTION_STATUS){
+                ui->comboBox->setItemIcon(i,QIcon(":/yellow-dot.png"));
+                traceWindows.at(i)->setConnectionStatus(1);
+            } else if(status==ONLINE){
+                ui->comboBox->setItemIcon(i,QIcon(":/green-dot.png"));
+                traceWindows.at(i)->setConnectionStatus(2);
+            }
             return;
         }
     }
@@ -73,16 +81,8 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::initTraceWindow(ConnectionName connectionName)
 {
-    //Говнокод, пофиксить надо потом
-    if(connectionName.status=="❌"){
-        QMessageBox mbx;
-        mbx.setText("This connection was terminated");
-        mbx.exec();
-        return;
-    }
-
     traceWindow = new TraceWindow(connectionName,config);
-    traceWindow->setConnectionStatus(true);
+    traceWindow->setConnectionStatus(ONLINE);
     traceWindows.append(traceWindow);
     tUINT32 index = traceWindows.size()-1;
     launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);

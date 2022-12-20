@@ -3,7 +3,6 @@
 void Launcher::run()
 {
     connect(this,&Launcher::sendNewConnection,mainWindow,&MainWindow::getNewConnection);
-    connect(this,&Launcher::changeClientStatus,mainWindow,&MainWindow::changeClientStatus);
 
     clientsList = new QList<ClientData>;
     connectionTimeoutChecker = new ConnectionTimeoutChecker(clientsList,mainWindow);

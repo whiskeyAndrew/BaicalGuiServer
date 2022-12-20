@@ -55,24 +55,23 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
 
                     } else{
                         line = line.replace(",","");
-                        line = line.trimmed();
 
                         if(line.contains("//")){
                             comment = line.mid(line.lastIndexOf("//"),line.size()-line.lastIndexOf("//"));
                             line = line.mid(0,line.indexOf("//"));
                         }
-
-                            tempEnums.insert(counter,{line,comment});
-                            counter++;
-                        }
+                        line = line.trimmed();
+                        tempEnums.insert(counter,{line,comment});
+                        counter++;
                     }
-                    enums.append({enumName,tempEnums});
                 }
+                enums.append({enumName,tempEnums});
             }
-        } else{
-            return false;
         }
-        file->close();
-        return true;
+    } else{
+        return false;
     }
+    file->close();
+    return true;
+}
 

@@ -8,8 +8,8 @@
 
 #define P7_DAMP_FILE_MARKER_V1                           (0x45D2AC71ECF32CA6ULL)
 #define FILE_HEADER_SIZE (1044)
-#pragma pack(push,2)
 
+#pragma pack(push,2)
 struct sP7File_Header{
     tUINT64 qwMarker = P7_DAMP_FILE_MARKER_V1; //- 0x45D2AC71ECF32CA6ULL, 8 байт. Возможно, является маркером для байкал-сервера, чтобы по нему сервер распознавал, правильного ли формата он пытается открыть файл или нет.
     tUINT32 dwProcess_ID; //4 байта – ID процесса, берется из WINAPI GetCurrentProcessID

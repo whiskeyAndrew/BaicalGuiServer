@@ -13,7 +13,6 @@
 #include <QComboBox>
 
 struct ConnectionName{
-    QString status;
     QString ip;
     QString port;
 };

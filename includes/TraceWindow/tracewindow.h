@@ -78,7 +78,7 @@ public:
 
     QColor getEmptyColor();
 
-    void setConnectionStatus(bool isActive);
+    void setConnectionStatus(tUINT32 status);
     void clearOneEnumElement(tUINT32 wID);
 private:
     tUINT32 numberOfRowsToShow;
