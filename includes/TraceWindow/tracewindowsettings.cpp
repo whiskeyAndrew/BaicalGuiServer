@@ -256,6 +256,11 @@ Qt::CheckState TraceWindowSettings::isTraceColumnNeedToShow()
     return ui->traceCheckbox->checkState();
 }
 
+Qt::CheckState TraceWindowSettings::isTimeColumnNeedToShow()
+{
+    return ui->timeCheckbox->checkState();
+}
+
 Qt::CheckState TraceWindowSettings::isSequenceColumnNeedToShow()
 {
     return ui->sequenceCheckbox->checkState();

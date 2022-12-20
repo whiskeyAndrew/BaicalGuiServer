@@ -48,6 +48,7 @@ public:
     EnumParser* getEnumParser() const;
     QList<tUINT32> enumsIdList;
 
+    Qt::CheckState isTimeColumnNeedToShow();
 private slots:
     //Trace Colors
     void on_traceColorButton_clicked();

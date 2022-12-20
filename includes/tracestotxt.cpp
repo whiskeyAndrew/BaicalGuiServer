@@ -18,7 +18,7 @@ void TracesToText::run()
     }
 
     QTextStream out(&file);
-    for(int i=0;i<data->size();i++){
+    for(int i=1;i<data->size();i++){
         tUINT32 percent = 25;
         if(i == data->size()/100*percent){
             traceWindow->setActionStatusText("Started to write .txt: " + QString::number(percent) +"%");

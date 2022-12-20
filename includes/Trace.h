@@ -26,13 +26,7 @@ struct ArgsPosition{
     tUINT32 argEnd;
 };
 
-struct GUIData{
-    tUINT32 sequence;
-    QString trace;
-    tUINT32 wID;
-    tUINT32 bLevel;
-    QList<ArgsPosition> argsPosition;
-};
+
 
 struct p7Time{
     tUINT32        dwYear;            //year
@@ -46,6 +40,14 @@ struct p7Time{
     tUINT32        dwNanoseconds;     //nanoseconds
 };
 
+struct GUIData{
+    tUINT32 sequence;
+    QString trace;
+    tUINT32 wID;
+    tUINT32 bLevel;
+    QList<ArgsPosition> argsPosition;
+    p7Time time;
+};
 class TraceWindow;
 #pragma pack(push,2)
 struct sP7Trace_Info

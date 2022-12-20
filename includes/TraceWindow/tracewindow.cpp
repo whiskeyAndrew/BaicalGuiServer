@@ -16,7 +16,10 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
 void TraceWindow::getTrace(TraceToGUI trace)
 {
     ui->verticalScrollBar->setMaximum(++verticalBarSize);
-    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting};
+
+    //слишком большая часть хранить кучу данных в traceTime
+    //оптимизировать чуть позже
+    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime};
     guiData.insert(verticalBarSize,tempGuiData);
 
     if(verticalBarSize<numberOfRowsToShow){
@@ -518,6 +521,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
     QString sequenceToGUI = QString::number(g.sequence);
     QString traceToGUI = g.trace;
+    QString timeToGUI = "";
     QString traceToRightPanel = g.trace;
 
     if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
@@ -563,6 +567,25 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(traceSettings->isSequenceColumnNeedToShow()==Qt::Unchecked){
         sequenceToGUI = "";
     }
+
+    if(traceSettings->isTimeColumnNeedToShow()==Qt::Checked){
+        QString seconds = QString::number(g.time.dwSeconds);
+        if(seconds.length()<2){
+            seconds.insert(0,"0");
+        }
+
+        QString minutes = QString::number(g.time.dwMinutes);
+        if(minutes.length()<2){
+            minutes.insert(0,"0");
+        }
+
+        QString hour = QString::number(g.time.dwHour);
+        if(hour.length()<2){
+            hour.insert(0,"0");
+        }
+        timeToGUI = " " + hour+":"+minutes+":"+seconds+" ";
+    }
+
     if(traceSettings->isTraceColumnNeedToShow()==Qt::Unchecked){
         traceToGUI="";
     }
@@ -577,7 +600,7 @@ QString TraceWindow::getGuiRow(GUIData g){
     //Кликом по тексту мы перехватываем сигнал кути и в методе OpenURL выполняем нужные нам действия
     //В строку мы пишем номер trace-а (sequence) и отформатированный енамом трейс чтобы отобразить его справа
     QString returnableHTMLRow = traceLinkStart+traceLinkHref+sequenceHref
-            +traceLinkMiddle+color+sequenceToGUI
+            +traceLinkMiddle+color+sequenceToGUI + timeToGUI
             +traceToGUI+traceLinkEnd;
 
     return returnableHTMLRow;
