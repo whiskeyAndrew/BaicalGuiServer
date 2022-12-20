@@ -25,7 +25,7 @@ void TracesToText::run()
             percent+=25;
         }
         GUIData dataToFile = data->value(i);
-        out<<QString::number(dataToFile.sequence)+" "+ dataToFile.trace+"\n";
+        out<<QString::number(dataToFile.sequence)+" " + QString::number(dataToFile.time.dwHour)+":"+QString::number(dataToFile.time.dwMinutes)+":"+QString::number(dataToFile.time.dwSeconds)+" " + dataToFile.trace+"\n";
     }
     traceWindow->setActionStatusText("Traces has been written to a file");
     file.close();
