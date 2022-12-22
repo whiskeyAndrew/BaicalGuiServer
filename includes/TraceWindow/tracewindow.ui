@@ -59,6 +59,58 @@
    <property name="spacing">
     <number>0</number>
    </property>
+   <item row="7" column="0" colspan="3">
+    <widget class="QGroupBox" name="serverStatus">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>20</height>
+      </size>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="actionsStatusLabel">
+        <property name="styleSheet">
+         <string notr="true">Text-align:left</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="sizePolicy">
@@ -346,7 +398,7 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" rowspan="3">
+   <item row="2" column="0" rowspan="5">
     <widget class="QTextBrowser" name="textBrowser">
      <property name="styleSheet">
       <string notr="true">selection-color: rgb(63, 63, 63);
@@ -370,17 +422,7 @@ selection-background-color: rgb(187, 187, 187);</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="2">
-    <widget class="QPushButton" name="Disable">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string>Disable</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" rowspan="3">
+   <item row="2" column="1" rowspan="5">
     <widget class="QScrollBar" name="verticalScrollBar">
      <property name="minimum">
       <number>0</number>
@@ -396,10 +438,65 @@ selection-background-color: rgb(187, 187, 187);</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="2" rowspan="2">
+   <item row="5" column="2">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="minimumSize">
+      <size>
+       <width>280</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>280</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QPlainTextEdit" name="traceText">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="midLineWidth">
+         <number>0</number>
+        </property>
+        <property name="undoRedoEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        </property>
+        <property name="backgroundVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="2" rowspan="3">
     <widget class="QGroupBox" name="groupBox">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -617,85 +714,17 @@ selection-background-color: rgb(187, 187, 187);</string>
         </property>
        </widget>
       </item>
-      <item row="21" column="0">
-       <widget class="QLabel" name="traceTextStatic">
-        <property name="text">
-         <string>Trace Text</string>
-        </property>
-       </widget>
-      </item>
-      <item row="21" column="1">
-       <widget class="QLabel" name="traceText">
-        <property name="text">
-         <string/>
-        </property>
-        <property name="scaledContents">
-         <bool>false</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
-   <item row="5" column="0" colspan="3">
-    <widget class="QGroupBox" name="serverStatus">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>10</height>
-      </size>
+   <item row="6" column="2">
+    <widget class="QPushButton" name="Disable">
+     <property name="enabled">
+      <bool>true</bool>
      </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>20</height>
-      </size>
+     <property name="text">
+      <string>Disable</string>
      </property>
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QPushButton" name="actionsStatusLabel">
-        <property name="styleSheet">
-         <string notr="true">Text-align:left</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="default">
-         <bool>true</bool>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
   </layout>

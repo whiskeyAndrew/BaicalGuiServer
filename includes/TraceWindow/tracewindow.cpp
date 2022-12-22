@@ -208,9 +208,10 @@ void TraceWindow::openHyperlink(const QUrl &link)
     ui->dwSequence->setText(QString::number(traceData.dwSequence));
 
     //Нужно добваить игнорирование тэгов
-    ui->traceText->setText(traceFormat.traceLineData+"\n\n"+rawTrace);
+    ui->traceText->setPlainText(traceFormat.traceLineData+"\n\n"+rawTrace);
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
+
 
 }
 
@@ -219,13 +220,20 @@ void TraceWindow::resizeEvent(QResizeEvent* e)
     recountNumberOfRowsToShow();
     traceSettings->setTraceWindowSizeText();
 }
+
 void TraceWindow::recountNumberOfRowsToShow()
 {
+    tUINT32 oldNubmerOfRowsToShow = numberOfRowsToShow;
     if(traceSettings->getAutoTracesCount()->checkState()==Qt::CheckState::Checked){
         numberOfRowsToShow = ui->textBrowser->height()/16;
     } else{
         numberOfRowsToShow = traceSettings->getRowsOnScreen().toInt();
     }
+
+    if(numberOfRowsToShow == oldNubmerOfRowsToShow){
+        return;
+    }
+
     reloadTracesInsideWindow();
     std::cout<<"Rows on screen: "<<numberOfRowsToShow<<std::endl;
 }
@@ -412,7 +420,7 @@ void TraceWindow::initWindow(){
     ui->textBrowser->verticalScrollBar()->setDisabled(true);
     ui->textBrowser->verticalScrollBar()->setVisible(false);
     ui->infinite_line->setChecked(true);
-
+    ui->traceText->viewport()->setAutoFillBackground(false);
 }
 
 void TraceWindow::setStyle(QString newStyleSheet)
