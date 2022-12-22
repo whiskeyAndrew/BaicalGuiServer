@@ -22,7 +22,6 @@ void ChunkHandler::run()
             std::cout<<"Second interruption of chunkHandler"<<std::endl;
             break;
         }
-
         processChunk();
 
         if(this->isInterruptionRequested()){

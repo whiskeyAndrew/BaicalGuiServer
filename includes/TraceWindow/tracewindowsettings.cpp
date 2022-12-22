@@ -23,7 +23,6 @@ void TraceWindowSettings::initWindow()
     ui->rawTracesTable->setColumnWidth(0, ui->rawTracesTable->width()/10);
     ui->rawTracesTable->insertColumn(1);
     ui->rawTracesTable->horizontalHeader()->setStretchLastSection(true);
-
     autoTracesCount = ui->autoRowsCounter;
 
     connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::itemChanged);
@@ -45,7 +44,9 @@ void TraceWindowSettings::initWindow()
     }
 
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
+    loadConfigFileAsText();
 }
+
 
 TraceWindowSettings::~TraceWindowSettings()
 {
@@ -62,7 +63,7 @@ void TraceWindowSettings::itemChanged(QListWidgetItem* item)
 
 void TraceWindowSettings::appendUniqueTracesList(QString text, tUINT32 wID)
 {
-    ui->listWidget->addItem(text);
+    ui->listWidget->addItem(QString::number(wID) + " " +text);
     QListWidgetItem* listItem = ui->listWidget->item(ui->listWidget->count()-1);
     listItem->setData(Qt::ToolTipRole,wID);
     listItem->setCheckState(Qt::Checked);
@@ -353,8 +354,6 @@ void TraceWindowSettings::initColors()
     } else{
         ui->criticalColorButton->setStyleSheet("");
     }
-    ui->horizontalSlider->setValue(config->transparency.toFloat()*100);
-    traceWindow->setTransparency(config->transparency);
 
 }
 
@@ -414,14 +413,11 @@ void TraceWindowSettings::on_traceCheckbox_stateChanged(int arg1)
     }
 }
 
-void TraceWindowSettings::on_horizontalSlider_sliderReleased()
+void TraceWindowSettings::on_timeCheckbox_stateChanged(int arg1)
 {
-    config->transparency = QString::number(static_cast<float>(ui->horizontalSlider->value())/100);
-}
-
-void TraceWindowSettings::on_horizontalSlider_sliderMoved(int position)
-{
-    traceWindow->setTransparency(QString::number(static_cast<float>(position)/100));
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
 }
 
 void TraceWindowSettings::on_checkAllUniqueTraces_clicked()
@@ -568,13 +564,11 @@ void TraceWindowSettings::on_autoRowsCounter_stateChanged(int arg1)
 }
 
 void TraceWindowSettings::resizeEvent(QResizeEvent* e){
-    ui->traceSx_size->setText(QString::number(this->size().width()));
-    ui->traceSy_size->setText(QString::number(this->size().height()));
+    ui->traceSettingsWindowSizeLabel->setText(QString::number(this->size().width())+"px width / " +QString::number(this->size().height())+"px height");
 }
 
 void TraceWindowSettings::setTraceWindowSizeText(){
-    ui->tracex_size->setText(QString::number(traceWindow->size().width()));
-    ui->tracey_size->setText(QString::number(traceWindow->size().height()));
+    ui->traceWindowSizeLabel->setText(QString::number(traceWindow->size().width())+"px width / " +QString::number(traceWindow->size().height())+"px height");
 }
 
 QString TraceWindowSettings::getRowsOnScreen()
@@ -643,7 +637,6 @@ void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem* item)
         item->setData(Qt::ToolTipRole,++enumId);
         ui->enumsElements->addItem(item);
     }
-    ui->enumId->setText(QString::number(rowId));
 }
 
 
@@ -717,19 +710,20 @@ void TraceWindowSettings::on_clearEnums_clicked()
 void TraceWindowSettings::reloadListOfArgsAndEnums(){
     ui->rawTracesTable->setRowCount(0);
 
-    if(ui->traceIDforEnums->currentText()==""){
-        return;
-    }
-
     for(int i =0;i<comboBoxesToDelete.size();i++){
         QComboBox* comboBox = comboBoxesToDelete.at(i);
         delete comboBox;
     }
     comboBoxesToDelete.clear();
 
+    if(ui->traceIDforEnums->currentText()==""){
+        ui->uniqueTraceLabel->setText("");
+        return;
+    }
+
     tUINT32 wID = ui->traceIDforEnums->currentText().toInt();
     Trace* traceHandler = traceWindow->traceThread;
-    ui->uniqueTraceLabel->setText(traceWindow->traceThread->uniqueTraces.value(wID).traceLineData);
+    ui->uniqueTraceLabel->setText(traceWindow->traceThread->uniqueTraces.value(wID).traceLineForEnumWindow);
 
     //Если у нас уже есть изменения по wID, подгружаем их
     if(traceWindow->getArgsThatNeedToBeChangedByEnum().contains(wID)){
@@ -804,4 +798,150 @@ void TraceWindowSettings::on_clearEnum_clicked()
     traceWindow->clearOneEnumElement(ui->traceIDforEnums->currentText().toInt());
     reloadListOfArgsAndEnums();
 }
+
+
+void TraceWindowSettings::on_traceRowBold_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_traceRowItalic_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_debugRowBold_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_debugRowItalic_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_infoRowBold_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_infoRowItalic_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_warningRowBold_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_warningRowItalic_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_errorRowBold_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_errorRowItalic_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_criticalRowBold_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_criticalRowItalic_clicked()
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+bool TraceWindowSettings::isTraceBold(){
+    return ui->traceRowBold->isChecked();
+}
+
+bool TraceWindowSettings::isDebugBold(){
+    return ui->debugRowBold->isChecked();
+}
+
+bool TraceWindowSettings::isInfoBold(){
+    return ui->infoRowBold->isChecked();
+}
+
+bool TraceWindowSettings::isWarningBold(){
+    return ui->warningRowBold->isChecked();
+}
+
+bool TraceWindowSettings::isErrorBold(){
+    return ui->errorRowBold->isChecked();
+}
+
+bool TraceWindowSettings::isCriticalBold(){
+    return ui->criticalRowBold->isChecked();
+}
+
+bool TraceWindowSettings::isTraceItalic(){
+    return ui->traceRowItalic->isChecked();
+}
+
+bool TraceWindowSettings::isDebugItalic(){
+    return ui->debugRowItalic->isChecked();
+}
+
+bool TraceWindowSettings::isInfoItalic(){;
+    return ui->infoRowItalic->isChecked();
+}
+
+bool TraceWindowSettings::isWarningItalic(){
+    return ui->warningRowItalic->isChecked();
+}
+
+bool TraceWindowSettings::isErrorItalic(){
+    return ui->errorRowItalic->isChecked();
+}
+
+bool TraceWindowSettings::isCriticalItalic(){
+    return ui->criticalRowItalic->isChecked();
+}
+
+
 

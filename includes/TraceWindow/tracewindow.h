@@ -114,6 +114,8 @@ private:
     tBOOL needToAppendFromBottom = false;
     tUINT32 tempCounterToRemember;
 
+    tUINT32 lastScrollValue = -1;
+
     QCheckBox* infiniteLine;
 
     QMap<tUINT32, GUIData> guiData;
@@ -165,6 +167,9 @@ private slots:
     void on_WindowSettings_clicked();
     void on_traceToTxt_clicked();
     void on_actionsStatusLabel_clicked();
+    void on_hideServerStatus_clicked();
+    void on_enumBold_clicked();
+    void on_enumItalic_clicked();
 };
 
 #endif // TRACEWINDOW_H

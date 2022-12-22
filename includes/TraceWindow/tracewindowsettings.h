@@ -49,6 +49,18 @@ public:
     QList<tUINT32> enumsIdList;
 
     Qt::CheckState isTimeColumnNeedToShow();
+    bool isTraceBold();
+    bool isDebugBold();
+    bool isInfoBold();
+    bool isWarningBold();
+    bool isErrorBold();
+    bool isCriticalBold();
+    bool isTraceItalic();
+    bool isDebugItalic();
+    bool isInfoItalic();
+    bool isWarningItalic();
+    bool isErrorItalic();
+    bool isCriticalItalic();
 private slots:
     //Trace Colors
     void on_traceColorButton_clicked();
@@ -73,10 +85,6 @@ private slots:
     void on_traceLevelCheckBox_stateChanged(int arg1);
 
     void on_sequenceCheckbox_stateChanged(int arg1);
-
-    void on_horizontalSlider_sliderReleased();
-
-    void on_horizontalSlider_sliderMoved(int position);
 
     void on_checkAllUniqueTraces_clicked();
     void on_uncheckAllUniqueTraces_clicked();
@@ -122,6 +130,32 @@ private slots:
     void on_loadEnumsFromConfig_clicked();
 
     void on_clearEnum_clicked();
+
+    void on_traceRowBold_clicked();
+
+    void on_traceRowItalic_clicked();
+
+    void on_debugRowBold_clicked();
+
+    void on_debugRowItalic_clicked();
+
+    void on_infoRowBold_clicked();
+
+    void on_infoRowItalic_clicked();
+
+    void on_warningRowBold_clicked();
+
+    void on_warningRowItalic_clicked();
+
+    void on_errorRowBold_clicked();
+
+    void on_errorRowItalic_clicked();
+
+    void on_criticalRowBold_clicked();
+
+    void on_criticalRowItalic_clicked();
+
+    void on_timeCheckbox_stateChanged(int arg1);
 
 private:
     ConnectionName connectionName;

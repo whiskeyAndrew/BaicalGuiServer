@@ -11,7 +11,7 @@ TracesToText::TracesToText(QMap<tUINT32, GUIData>* traces, QString filePath, Tra
 void TracesToText::run()
 {
     traceWindow->setActionStatusText("Started to write .txt");
-    QFile file(fileDirectory+".txt");
+    QFile file(fileDirectory);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)){
         return;

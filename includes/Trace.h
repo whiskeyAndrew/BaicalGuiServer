@@ -136,6 +136,7 @@ struct UniqueTraceData
     QString fileDest;
     QString functionName;
     std::vector<Args_ID> argsID;
+    QString traceLineForEnumWindow;
 };
 
 

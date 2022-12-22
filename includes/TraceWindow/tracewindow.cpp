@@ -11,6 +11,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
 
     initWindow();
     initEnded = true;
+    ui->actionsStatusLabel->setText("Connected");
 }
 
 void TraceWindow::getTrace(TraceToGUI trace)
@@ -48,6 +49,13 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 void TraceWindow::reloadTracesInsideWindow()
 {
     tUINT32 value = ui->verticalScrollBar->value();
+
+    if(value == lastScrollValue && ui->Autoscroll->isChecked()){
+        return;
+    }
+    else{
+        lastScrollValue = value;
+    }
 
     if(ui->Autoscroll->isChecked()){
 
@@ -350,16 +358,19 @@ void TraceWindow::setConnectionStatus(tUINT32 status){
         QIcon icon;
         icon.addPixmap(QPixmap(":/green-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
+        ui->actionsStatusLabel->setText("Connected");
     }
     else if(status==1){
         QIcon icon;
         icon.addPixmap(QPixmap(":/yellow-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
+        ui->actionsStatusLabel->setText("Trying to reconnect");
     }
     else if(status==0){
         QIcon icon;
         icon.addPixmap(QPixmap(":/red-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
+        ui->actionsStatusLabel->setText("Disconnected");
     }
 }
 void TraceWindow::initWindow(){
@@ -413,7 +424,7 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
     //При автоскролле работает немного неправильно, надо будет переделать, пока не критично
     QPoint numDegrees = event->angleDelta() / 8*(-1);
 
-/*    if(ui->Autoscroll->isChecked()){
+    /*    if(ui->Autoscroll->isChecked()){
         ui->Autoscroll->setChecked(false);
         reloadTracesFromBelow(ui->verticalScrollBar->value()-numberOfRowsToShow);
         std::cout<<ui->verticalScrollBar->value()<<std::endl;
@@ -490,31 +501,67 @@ QString TraceWindow::getGuiRow(GUIData g){
         if(traceColor!=emptyColor&& traceColor.isValid()){
             color = "color:"+traceColor.name()+"\">";
         }
+        if(traceSettings->isTraceBold()){
+            color.insert(0,"font-weight: bold;");
+        }
+        if(traceSettings->isTraceItalic()){
+            color.insert(0,"font-style: italic;");
+        }
         break;
 
     case EP7TRACE_LEVEL_DEBUG:
         if(debugColor!=emptyColor&& debugColor.isValid()){
             color = "color:"+debugColor.name()+"\">";
         }
+        if(traceSettings->isDebugBold()){
+            color.insert(0,"font-weight: bold;");
+        }
+        if(traceSettings->isDebugItalic()){
+            color.insert(0,"font-style: italic;");
+        }
         break;
     case  EP7TRACE_LEVEL_INFO:
         if(infoColor!=emptyColor && infoColor.isValid()){
             color = "color:"+infoColor.name()+"\">";
+        }
+        if(traceSettings->isInfoBold()){
+            color.insert(0,"font-weight: bold;");
+        }
+        if(traceSettings->isInfoItalic()){
+            color.insert(0,"font-style: italic;");
         }
         break;
     case EP7TRACE_LEVEL_WARNING:
         if(warningColor!=emptyColor&& warningColor.isValid()){
             color = "color:"+warningColor.name()+"\">";
         }
+        if(traceSettings->isWarningBold()){
+            color.insert(0,"font-weight: bold;");
+        }
+        if(traceSettings->isWarningItalic()){
+            color.insert(0,"font-style: italic;");
+        }
         break;
     case EP7TRACE_LEVEL_ERROR:
         if(errorColor!=emptyColor&& errorColor.isValid()){
             color = "color:"+errorColor.name()+"\">";
         }
+        if(traceSettings->isErrorBold()){
+            color.insert(0,"font-weight: bold;");
+        }
+        if(traceSettings->isErrorItalic()){
+            color.insert(0,"font-style: italic;");
+        }
         break;
     case EP7TRACE_LEVEL_CRITICAL:
         if(criticalColor!=emptyColor&& criticalColor.isValid()){
             color = "color:"+criticalColor.name()+"\">";
+        }
+        if(traceSettings->isCriticalBold()){
+            color.insert(0,"font-weight: bold;");
+        }
+        if(traceSettings->isCriticalItalic()){
+            color.insert(0,"font-style: italic;");
         }
         break;
     }
@@ -527,13 +574,25 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
         QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
         for(int i =args.size()-1;i>=0;i--){
+            QString boldEnumStart = "";
+            QString boldEnumEnd = "";
+            QString italicEnumStart = "";
+            QString italicEnumEnd = "";
 
             //0 - ничего ставить не надо
             if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==0){
                 continue;
             }
 
+            if(ui->enumBold->isChecked()){
+                boldEnumStart = "<b>";
+                boldEnumEnd = "</b>";
+            }
 
+            if(ui->enumItalic->isChecked()){
+                italicEnumStart = "<i>";
+                italicEnumEnd = "</i>";
+            }
             //на случай если айдишника енама нет в списке енамов то скипаем
             if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)){
                 continue;
@@ -553,7 +612,8 @@ QString TraceWindow::getGuiRow(GUIData g){
             }
 
             traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
-            traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
+            traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
+                               boldEnumStart+italicEnumStart+traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name+italicEnumEnd+boldEnumEnd);
         }
     }
 
@@ -593,6 +653,7 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(traceToGUI.contains("\n")){
         traceToGUI.replace("\n","<br>");
     }
+
 
 
     //Для того чтобы текст бьыл кликабельным и все выглядело "как в консоли"
@@ -731,8 +792,16 @@ void TraceWindow::on_traceToTxt_clicked()
     //Поток по окончанию завершается сам по себе и я пока не уверен, надо ли его удалять
     //Надо что-нибудь придумать
     //Получается маленький меморилик
-    QString fileData = QString::number(QDateTime::currentMSecsSinceEpoch());
-    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileData,tr("Text files(*.txt"));
+    QString fileName;
+    if(guiData.size()>1){
+        p7Time time = guiData.value(1).time;
+        fileName = clientName.ip+"."+clientName.port+"-"+QString::number(time.dwHour)+"."+QString::number(time.dwMinutes)+"."+QString::number(time.dwSeconds);
+    }
+    else{
+        fileName = clientName.ip+"."+clientName.port;
+    }
+
+    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileName,tr("Text files(*.txt"));
     if(filePath==""){
         return;
     }
@@ -745,5 +814,36 @@ void TraceWindow::on_traceToTxt_clicked()
 void TraceWindow::on_actionsStatusLabel_clicked()
 {
     ui->actionsStatusLabel->setText("");
+}
+
+
+
+
+
+void TraceWindow::on_hideServerStatus_clicked()
+{
+    if(ui->serverStatus->isHidden()){
+        ui->hideServerStatus->setText("↓");
+        ui->serverStatus->setHidden(false);
+    }else{
+        ui->hideServerStatus->setText("↑");
+        ui->serverStatus->setHidden(true);
+    }
+}
+
+
+void TraceWindow::on_enumBold_clicked()
+{
+    if(!ui->Autoscroll->isChecked()){
+        reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindow::on_enumItalic_clicked()
+{
+    if(!ui->Autoscroll->isChecked()){
+        reloadTracesInsideWindow();
+    }
 }
 

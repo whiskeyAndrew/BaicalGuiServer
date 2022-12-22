@@ -54,7 +54,7 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
 {
     UniqueTraceData uniqueTrace;
     QString traceTextToGUI;
-            QList<ArgsPosition>* argsPosition = new QList<ArgsPosition>();
+    QList<ArgsPosition>* argsPosition = new QList<ArgsPosition>();
     //Не уникальный трейс
     //Читаем его структуру и записываем в TraceData
     memcpy(&traceData,chunkCursor,sizeof(sP7Trace_Data));
@@ -73,6 +73,7 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
             chunkCursor+=uniqueTrace.argsID[i].argSize;
         }
         traceTextToGUI = formatVector(&uniqueTrace,argsValue,argsPosition);
+
     }
     else{
         traceTextToGUI = uniqueTrace.traceLineData;
@@ -108,6 +109,16 @@ UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)
     //перепроверить че это за строка такая
     uniqueTrace.traceFormat = traceFormat;
 
+    if(traceFormat.args_Len!=0){
+        std::vector<tUINT64> tempVector;
+        for(tUINT64 i =1; i<=uniqueTrace.traceFormat.args_Len;i++){
+            tempVector.push_back(i);
+        }
+        uniqueTrace.traceLineForEnumWindow = formatVector(&uniqueTrace,tempVector,NULL);
+    } else{
+        uniqueTrace.traceLineForEnumWindow = uniqueTrace.traceLineData;
+    }
+
     uniqueTraces.insert(traceFormat.wID,uniqueTrace);
     return uniqueTrace;
 }
@@ -138,7 +149,7 @@ QString Trace::formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> a
     QString tempString;
     std::string tempStringSTD;
     bool found = false;
-    std::string toOutput;
+    QString toOutput;
 
     for(int i =0;i<argsCount;i++){
         int index1 = str.indexOf('%');
@@ -152,8 +163,13 @@ QString Trace::formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> a
                     tempStringSTD = tempString.toStdString();
                     tempStringSTD = string_format(tempStringSTD,args[i]);
                     tUINT32 toOutputSizeBeforeUpdate = toOutput.size();
-                    toOutput+=tempStringSTD;
-                    argsPosition->append({toOutputSizeBeforeUpdate+index1,tUINT32(toOutput.length())});
+                    toOutput.append(QString::fromStdString(tempStringSTD));
+                    if(argsPosition==NULL){
+                        toOutput.replace(toOutputSizeBeforeUpdate+index1,toOutput.length()-toOutputSizeBeforeUpdate+index1,"{"+QString::number(args[i])+"}");
+                    }
+                    else{
+                        argsPosition->append({toOutputSizeBeforeUpdate+index1,tUINT32(toOutput.length())});
+                    }
                     found = true;
                     break;
                 }
@@ -165,8 +181,8 @@ QString Trace::formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> a
             }
         }
     }
-    toOutput+=str.toStdString();
-    return QString::fromStdString(toOutput);
+    toOutput+=str;
+    return toOutput;
 }
 
 p7Time Trace::countTraceTime(){
