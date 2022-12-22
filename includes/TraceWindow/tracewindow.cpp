@@ -347,12 +347,14 @@ void TraceWindow::on_expandButton_clicked(bool checked)
     {
         ui->groupBox->setHidden(true);
         ui->Disable->setHidden(true);
+        ui->traceTextGroupbox->setHidden(true);
         ui->expandButton->setText("←");
     }
     else
     {
         ui->groupBox->setHidden(false);
         ui->Disable->setHidden(false);
+        ui->traceTextGroupbox->setHidden(false);
         ui->expandButton->setText("→");
     }
 }
@@ -529,6 +531,7 @@ QString TraceWindow::getGuiRow(GUIData g){
             color.insert(0,"font-style: italic;");
         }
         break;
+
     case  EP7TRACE_LEVEL_INFO:
         if(infoColor!=emptyColor && infoColor.isValid()){
             color = "color:"+infoColor.name()+"\">";
@@ -540,6 +543,7 @@ QString TraceWindow::getGuiRow(GUIData g){
             color.insert(0,"font-style: italic;");
         }
         break;
+
     case EP7TRACE_LEVEL_WARNING:
         if(warningColor!=emptyColor&& warningColor.isValid()){
             color = "color:"+warningColor.name()+"\">";
@@ -551,6 +555,7 @@ QString TraceWindow::getGuiRow(GUIData g){
             color.insert(0,"font-style: italic;");
         }
         break;
+
     case EP7TRACE_LEVEL_ERROR:
         if(errorColor!=emptyColor&& errorColor.isValid()){
             color = "color:"+errorColor.name()+"\">";
@@ -562,6 +567,7 @@ QString TraceWindow::getGuiRow(GUIData g){
             color.insert(0,"font-style: italic;");
         }
         break;
+
     case EP7TRACE_LEVEL_CRITICAL:
         if(criticalColor!=emptyColor&& criticalColor.isValid()){
             color = "color:"+criticalColor.name()+"\">";
@@ -583,15 +589,26 @@ QString TraceWindow::getGuiRow(GUIData g){
     if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
         QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
         for(int i =args.size()-1;i>=0;i--){
+
+            //0 - ничего ставить не надо
+            tUINT32 number = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart)).toInt();
+            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==0){
+                continue;
+            }
+
+            if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)){
+                continue;
+            }
+
+            //на случай если айдишника енама нет в списке енамов то скипаем
+            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.contains(number)){
+                continue;
+            }
+
             QString boldEnumStart = "";
             QString boldEnumEnd = "";
             QString italicEnumStart = "";
             QString italicEnumEnd = "";
-
-            //0 - ничего ставить не надо
-            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==0){
-                continue;
-            }
 
             if(ui->enumBold->isChecked()){
                 boldEnumStart = "<b>";
@@ -601,16 +618,6 @@ QString TraceWindow::getGuiRow(GUIData g){
             if(ui->enumItalic->isChecked()){
                 italicEnumStart = "<i>";
                 italicEnumEnd = "</i>";
-            }
-            //на случай если айдишника енама нет в списке енамов то скипаем
-            if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)){
-                continue;
-            }
-
-            tUINT32 number = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart)).toInt();
-
-            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.contains(number)){
-                continue;
             }
 
             //если все проверки прошли, но нам не надо показывать в главном экране измененный енам, но надо справа, делаем тут правку
