@@ -138,7 +138,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>-&gt;</string>
+         <string>→</string>
         </property>
         <property name="checkable">
          <bool>true</bool>

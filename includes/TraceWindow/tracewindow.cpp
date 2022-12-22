@@ -50,7 +50,8 @@ void TraceWindow::reloadTracesInsideWindow()
 {
     tUINT32 value = ui->verticalScrollBar->value();
 
-    if(value == lastScrollValue && ui->Autoscroll->isChecked()){
+    //костыльный фикс неприятного бага с повторяющейся последней строчкой при отключении соединения
+    if(value == lastScrollValue && ui->Autoscroll->isChecked() && verticalBarSize>100){
         return;
     }
     else{
@@ -338,13 +339,13 @@ void TraceWindow::on_expandButton_clicked(bool checked)
     {
         ui->groupBox->setHidden(true);
         ui->Disable->setHidden(true);
-        ui->expandButton->setText("<-");
+        ui->expandButton->setText("←");
     }
     else
     {
         ui->groupBox->setHidden(false);
         ui->Disable->setHidden(false);
-        ui->expandButton->setText("->");
+        ui->expandButton->setText("→");
     }
 }
 
