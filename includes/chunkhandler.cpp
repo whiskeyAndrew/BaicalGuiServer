@@ -37,6 +37,11 @@ void ChunkHandler::run()
     this->quit();
 }
 
+Trace* ChunkHandler::getTraceHandler()
+{
+    return &trace;
+}
+
 bool ChunkHandler::processChunk()
 {
     //В метод мы передаем буфер с 4 байтами в самом начале, которые являются размером чанка. На всякий случай

@@ -112,6 +112,8 @@ public:
 
     void setNeedBackup(bool newNeedBackup);
 
+    Trace* getTraceHandler();
+
 signals:
     void sendModule(sP7Trace_Module);
     void sendTrace(TraceToGUI trace);

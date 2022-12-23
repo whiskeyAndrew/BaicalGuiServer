@@ -890,10 +890,12 @@ void TraceWindow::fileReadingStatus(tUINT32 percent){
         delete fileReadingGif;
         ui->fileReadingStatus->setPixmap(QPixmap(":/tick.png"));
         ui->fileReadingStatus->setScaledContents(true);
+        ui->actionsStatusLabel->setText("File has been read");
     }else{
         fileReadingGif = new QMovie(":/loading.gif");
         ui->connectionStatus->setIcon(QIcon());
         ui->fileReadingStatus->setMovie(fileReadingGif);
         fileReadingGif->start();
+        ui->actionsStatusLabel->setText("Reading file...");
     }
 }
