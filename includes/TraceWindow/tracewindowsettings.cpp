@@ -49,7 +49,7 @@ void TraceWindowSettings::initWindow()
 
     //NULL module init
     QListWidgetItem* listItem = new QListWidgetItem();
-    listItem->setText("NULL");
+    listItem->setText("NO MODULE");
     listItem->setData(Qt::ToolTipRole,0);
     listItem->setCheckState(Qt::Checked);
     ui->modulesList->addItem(listItem);
