@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include "includes/confighandler.h"
+#include <QTextCodec>
 /*Туду:
 -  (вроде сделано) допилить чтение аргументов, есть проблема что если мы передаем .f то оно неправильно пишет стринг, надо придумать какую-то побайтовую запись в идеале
 -  переписать обработку входящих клиентов на адекватную реализацию вместо тестовой
@@ -24,6 +25,11 @@ int main(int argc, char* argv[])
     qRegisterMetaType<UniqueTraceData>("UniqueTraceData");
     qRegisterMetaType<PacketHandler*>("PacketHandler*");
     QApplication a(argc, argv);
+
+    //Использование русских символов
+    QTextCodec * codec;
+    codec = QTextCodec::codecForName("UTF-8");
+    QTextCodec::setCodecForLocale(codec);
 
     MainWindow mainWindow;
     Launcher* launcher = new Launcher(&mainWindow);
