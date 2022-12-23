@@ -128,6 +128,8 @@ void MainWindow::on_openFile_clicked()
     ui->comboBox->setItemIcon(ui->comboBox->count()-1,QIcon(":/green-dot.png"));
 
     traceWindow = new TraceWindow({"File ",fileName},config);
+    fileReader = new FileReader(fileName,traceWindow);
+    traceWindow->setTraceAsObject(fileReader->chunkHandler.getTraceHandler());
     traceWindow->setConnectionStatus(ONLINE);
     traceWindows.append(traceWindow);
 
@@ -136,7 +138,6 @@ void MainWindow::on_openFile_clicked()
     }
 
     traceWindow->setStyle(styleSheet);
-    fileReader = new FileReader(fileName,traceWindow);
 
     fileReader->start();
 }

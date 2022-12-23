@@ -9,13 +9,13 @@ FileReader::FileReader(QString fileName, TraceWindow* newTraceWindow)
 {    
     file = new QFile(fileName);
     traceWindow = newTraceWindow;
-    traceWindow->setTraceAsObject(chunkHandler.getTraceHandler());
+
 }
 
 void FileReader::run()
 {    
-    chunkHandler.setTraceWindow(traceWindow);
     chunkHandler.setNeedBackup(false);
+    chunkHandler.setTraceWindow(traceWindow);
     chunkHandler.start();
     //------------Открываем файл и читаем его в буфер----------//
     ReadFileData();

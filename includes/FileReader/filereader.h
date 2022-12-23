@@ -21,7 +21,7 @@ class FileReader:public QThread
     Q_OBJECT
 private:
     QByteArray data;
-    ChunkHandler chunkHandler;
+
 
     TraceWindow* traceWindow;
     QString fileName;
@@ -41,6 +41,7 @@ private:
     QFile* file;
 
 public:
+    ChunkHandler chunkHandler;
     FileReader(QString fileName, TraceWindow* newTraceWindow);
     ~FileReader();
     void run();

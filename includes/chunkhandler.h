@@ -73,7 +73,7 @@ private:
     bool isWindowOpened = false;
     bool needBackup = true;
     bool processChunk();
-    bool connectionEstablished = false;
+
 
     TraceWindow* traceWindow;
     TraceToGUI traceToGUI;
@@ -97,6 +97,7 @@ private:
 
 
 public:
+    bool connectionEstablished = false;
     ChunkHandler();
 
     QWaitCondition waitCondition;
