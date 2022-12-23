@@ -123,15 +123,15 @@ void MainWindow::on_openFile_clicked()
         return;
     }
 
-    ui->comboBox->addItem("File: "+fileName,connectionsCounter++);
-    ui->comboBox->setItemData(ui->comboBox->count()-1,"File: "+fileName,Qt::ToolTipRole);
-    ui->comboBox->setItemIcon(ui->comboBox->count()-1,QIcon(":/green-dot.png"));
+//    ui->comboBox->addItem("File: "+fileName,connectionsCounter++);
+//    ui->comboBox->setItemData(ui->comboBox->count()-1,"File: "+fileName,Qt::ToolTipRole);
+//    ui->comboBox->setItemIcon(ui->comboBox->count()-1,QIcon(":/green-dot.png"));
 
     traceWindow = new TraceWindow({"File ",fileName},config);
     fileReader = new FileReader(fileName,traceWindow);
     traceWindow->setTraceAsObject(fileReader->chunkHandler.getTraceHandler());
     traceWindow->setConnectionStatus(ONLINE);
-    traceWindows.append(traceWindow);
+//    traceWindows.append(traceWindow);
 
     if(ui->autoOpen->isChecked()){
         traceWindow->show();
@@ -140,5 +140,6 @@ void MainWindow::on_openFile_clicked()
     traceWindow->setStyle(styleSheet);
 
     fileReader->start();
+    traceWindow->open();
 }
 
