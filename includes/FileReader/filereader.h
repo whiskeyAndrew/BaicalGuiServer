@@ -6,7 +6,10 @@
 #include "../TraceWindow/tracewindow.h"
 #include <vector>
 #include <QFile>
-
+#include "../chunkhandler.h"
+//ради одного енама? Надо будет поправить
+#include "../packethandler.h"
+#include <QApplication>
 #pragma pack(push,2)
 
 
@@ -18,7 +21,7 @@ class FileReader:public QThread
     Q_OBJECT
 private:
     QByteArray data;
-    FileChunksHandler* fileChunksHandler;
+    ChunkHandler chunkHandler;
 
     TraceWindow* traceWindow;
     QString fileName;
@@ -35,12 +38,11 @@ private:
     std::vector<char> dataVector;
     bool ReadFileData();
     bool HandlingChunks();
+    QFile* file;
 
 public:
-    FileReader();
+    FileReader(QString fileName, TraceWindow* newTraceWindow);
     ~FileReader();
-    void setTraceWindow(TraceWindow* newTraceWindow);
-    void setFileName(QString newFileName);
     void run();
 };
 

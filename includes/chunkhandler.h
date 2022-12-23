@@ -108,7 +108,7 @@ public:
 
     bool getChunkFromQueue();
     void setTraceWindow(TraceWindow* newTraceWindow);
-    void setFileEnded(bool fileEnded);
+    void setFileEnded(bool newFileEnded);
 
     void setNeedBackup(bool newNeedBackup);
 

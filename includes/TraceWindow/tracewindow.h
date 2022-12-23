@@ -15,6 +15,8 @@
 #include <QRgb>
 #include <QCloseEvent>
 #include <QIcon>
+#include <QMovie>
+
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -80,8 +82,10 @@ public:
 
     void setConnectionStatus(tUINT32 status);
     void clearOneEnumElement(tUINT32 wID);
+    void fileReadingStatus(tUINT32 percent);
 private:
     tUINT32 numberOfRowsToShow;
+    QMovie *fileReadingGif;
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> argsThatNeedToBeChangedByEnum;
     QCheckBox autoscroll;
     TraceWindowSettings* traceSettings;

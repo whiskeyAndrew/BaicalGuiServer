@@ -2,23 +2,27 @@
 //Вместо того чтобы читать файл оно читает какую-то хрень
 //
 #include "filereader.h"
-#include "filechunkshandler.h"
 
-FileReader::FileReader()
+//файл в 2600kb отжирает 50мб оперативы
+//надо будет посмотреть откуда такой жирный меморилик
+FileReader::FileReader(QString fileName, TraceWindow* newTraceWindow)
 {    
-
+    file = new QFile(fileName);
+    traceWindow = newTraceWindow;
 }
 
 void FileReader::run()
-{
-    fileChunksHandler->start();
+{    
+    chunkHandler.setTraceWindow(traceWindow);
+    chunkHandler.setNeedBackup(false);
+    chunkHandler.start();
     //------------Открываем файл и читаем его в буфер----------//
     ReadFileData();
     //-------------Обработка----------------//
     HandlingChunks();
-    fileChunksHandler->setFileEnded(true);
     //this->~FileReader();
-
+    std::cout<<"------FileReader:: closing myself------"<<std::endl;
+    this->quit();
 }
 
 FileReader::~FileReader()
@@ -28,47 +32,51 @@ FileReader::~FileReader()
 
 bool FileReader::ReadFileData()
 {
-    QFile logFile(fileName);
-
     // Создаем объект класса QByteArray, куда мы будем считывать данные
-    if (!logFile.open(QIODevice::ReadOnly)) // Проверяем, возможно ли открыть наш файл для чтения
-        return 0; // если это сделать невозможно, то завершаем функцию
-    data = logFile.readAll(); //считываем все данные с файла в объект data
-}
+    if (!file->open(QIODevice::ReadOnly)){
+        return 0;
+    }
+    data = file->readAll();
 
-void FileReader::setTraceWindow(TraceWindow* newTraceWindow)
-{
-    traceWindow = newTraceWindow;
-    fileChunksHandler = new FileChunksHandler();
-    fileChunksHandler->SetTraceWindow(traceWindow);
 }
-
-void FileReader::setFileName(QString newFileName)
-{
-    fileName = newFileName;
-}
-
 
 
 bool FileReader::HandlingChunks()
 {
+
     sP7File_Header fileHeader;
     bufferCursor = data.begin();
     memcpy(&fileHeader,bufferCursor,sizeof(sP7File_Header));
     bufferCursor+=sizeof(sP7File_Header);
 
+    traceWindow->fileReadingStatus(0);
     while(bufferCursor<data.end())
     {
+        QApplication::processEvents();
         memcpy(&chunkSize,bufferCursor,sizeof(tUINT32));
+        chunkSize = GET_USER_HEADER_SIZE(chunkSize);
+        std::cout<<chunkSize<<std::endl;
+        if(chunkSize==0){
+            break;
+        }
         for(int i =0;i<chunkSize;i++)
         {
             dataVector.push_back(*bufferCursor);
             bufferCursor++;
         }
-        fileChunksHandler->AppendChunks(dataVector);
+        chunkHandler.appendChunksQueue(dataVector);
+        chunkHandler.waitCondition.wakeOne();
         dataVector.clear();
         chunkSize=0;
     }
-    //chunkHandler.setFileEnded(true);
+    traceWindow->fileReadingStatus(100);
+    file->close();
+    delete file;
+    data.clear();
+    while(!chunkHandler.chunks.empty()){
+        this->sleep(1);
+    }
+    chunkHandler.requestInterruption();
+    chunkHandler.waitCondition.wakeOne();
     return true;
 }

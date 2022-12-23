@@ -30,7 +30,10 @@ void ChunkHandler::run()
         }
     }
     std::cout<<"------"<<"ChunkHandler is ending"<<"------"<<std::endl;
-    backupWriter.closeFile();
+
+    if(needBackup){
+        backupWriter.closeFile();
+    }
     this->quit();
 }
 
@@ -156,7 +159,7 @@ bool ChunkHandler::processChunk()
                 }
                 if(isWindowOpened)
                 {
-                emit sendUniqueTrace(uTrace);
+                    emit sendUniqueTrace(uTrace);
                 }
 
                 chunkCursor = chunkCursor+structSize;
@@ -283,7 +286,7 @@ void ChunkHandler::setNeedBackup(bool newNeedBackup)
     needBackup = newNeedBackup;
 }
 
-void ChunkHandler::setFileEnded(bool fileEnded)
+void ChunkHandler::setFileEnded(bool newFileEnded)
 {
     this->fileEnded = fileEnded;
 }

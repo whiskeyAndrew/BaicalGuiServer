@@ -863,3 +863,15 @@ void TraceWindow::on_enumItalic_clicked()
     }
 }
 
+void TraceWindow::fileReadingStatus(tUINT32 percent){
+    if(percent==100){
+        delete fileReadingGif;
+        ui->fileReadingStatus->setPixmap(QPixmap(":/tick.png"));
+        ui->fileReadingStatus->setScaledContents(true);
+    }else{
+        fileReadingGif = new QMovie(":/loading.gif");
+        ui->connectionStatus->setIcon(QIcon());
+        ui->fileReadingStatus->setMovie(fileReadingGif);
+        fileReadingGif->start();
+    }
+}

@@ -25,7 +25,6 @@ set(PROJECT_SOURCES
         includes/Trace.h includes/Trace.cpp
         includes/TraceWindow/tracewindow.h includes/TraceWindow/tracewindow.cpp includes/TraceWindow/tracewindow.ui
         includes/FileReader/filereader.h includes/FileReader/filereader.cpp
-        includes/FileReader/filechunkshandler.h includes/FileReader/filechunkshandler.cpp
         includes/tracebackupwriter.h includes/tracebackupwriter.cpp
         includes/connectiontimeoutchecker.h includes/connectiontimeoutchecker.cpp
         includes/TraceWindow/tracewindowsettings.h includes/TraceWindow/tracewindowsettings.cpp includes/TraceWindow/tracewindowsettings.ui

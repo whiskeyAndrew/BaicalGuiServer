@@ -5,5 +5,7 @@
 <file>green-dot.png</file>
 <file>red-dot.png</file>
 <file>yellow-dot.png</file>
+<file>loading.gif</file>
+<file>tick.png</file>
 </qresource>
 </RCC>

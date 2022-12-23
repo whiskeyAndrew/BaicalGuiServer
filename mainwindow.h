@@ -39,7 +39,7 @@ private:
     QString comboBoxText;
     Ui::MainWindow* ui;
     FileReader* fileReader;
-    void initTraceWindow(ConnectionName connectionName);
+    TraceWindow* initTraceWindow(ConnectionName connectionName);
     QString styleSheet = "";
 
 public slots:
@@ -47,9 +47,9 @@ public slots:
     void changeClientStatus(sockaddr_in client, tUINT32 status);
 private slots:
     void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
     void on_actionHigh_Contrast_Black_triggered();
     void on_actionLike_in_QT_triggered();
     void on_actionWhite_triggered();
+    void on_openFile_clicked();
 };
 #endif // MAINWINDOW_H

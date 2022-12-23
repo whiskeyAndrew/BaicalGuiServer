@@ -68,18 +68,9 @@ void MainWindow::on_pushButton_clicked()
     traceWindows.at(index)->show();
 }
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    //Чтение из файла
-    QString fileName = QFileDialog::getOpenFileName(this);
-    fileReader = new FileReader();
 
-    fileReader->setTraceWindow(traceWindow);
-    fileReader->setFileName(fileName);
-    fileReader->start();
-}
 
-void MainWindow::initTraceWindow(ConnectionName connectionName)
+TraceWindow* MainWindow::initTraceWindow(ConnectionName connectionName)
 {
     traceWindow = new TraceWindow(connectionName,config);
     traceWindow->setConnectionStatus(ONLINE);
@@ -92,6 +83,8 @@ void MainWindow::initTraceWindow(ConnectionName connectionName)
     }
 
     traceWindow->setStyle(styleSheet);
+
+    return traceWindow;
 }
 
 void MainWindow::on_actionHigh_Contrast_Black_triggered()
@@ -119,5 +112,32 @@ void MainWindow::on_actionWhite_triggered()
     for(int i = 0;i<traceWindows.size();i++){
         traceWindows.at(i)->setStyle(styleSheet);
     }
+}
+
+
+void MainWindow::on_openFile_clicked()
+{
+    //Чтение из файла
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if(fileName==""){
+        return;
+    }
+
+    ui->comboBox->addItem("File: "+fileName,connectionsCounter++);
+    ui->comboBox->setItemData(ui->comboBox->count()-1,"File: "+fileName,Qt::ToolTipRole);
+    ui->comboBox->setItemIcon(ui->comboBox->count()-1,QIcon(":/green-dot.png"));
+
+    traceWindow = new TraceWindow({"File ",fileName},config);
+    traceWindow->setConnectionStatus(ONLINE);
+    traceWindows.append(traceWindow);
+
+    if(ui->autoOpen->isChecked()){
+        traceWindow->show();
+    }
+
+    traceWindow->setStyle(styleSheet);
+    fileReader = new FileReader(fileName,traceWindow);
+
+    fileReader->start();
 }
 
