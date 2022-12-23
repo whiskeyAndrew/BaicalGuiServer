@@ -137,6 +137,7 @@ struct UniqueTraceData
     QString functionName;
     std::vector<Args_ID> argsID;
     QString traceLineForEnumWindow;
+    tUINT32 moduleId;
 };
 
 
@@ -175,7 +176,7 @@ public:
     void setTraceInfo(tINT8* chunkPointer);
     void setTraceUTC(tINT8* chunkCursor);
     void setTraceThreadStart(tINT8* chunkCursor);
-    void setTraceModule(tINT8* chunkCursor);
+    sP7Trace_Module setTraceModule(tINT8* chunkCursor);
     void setTraceThreadStop(tINT8* chunkCursor);
     UniqueTraceData setTraceFormat(tINT8* chunkCursor);
 

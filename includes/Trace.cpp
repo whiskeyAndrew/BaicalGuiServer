@@ -118,7 +118,7 @@ UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)
     } else{
         uniqueTrace.traceLineForEnumWindow = uniqueTrace.traceLineData;
     }
-
+    uniqueTrace.moduleId = traceFormat.moduleID;
     uniqueTraces.insert(traceFormat.wID,uniqueTrace);
     return uniqueTrace;
 }
@@ -228,10 +228,12 @@ void Trace::setTraceThreadStop(tINT8* chunkCursor)
 {
     memcpy(&traceThreadStop,chunkCursor,sizeof(sP7Trace_Thread_Stop));
 }
-void Trace::setTraceModule(tINT8* chunkCursor)
+
+sP7Trace_Module Trace::setTraceModule(tINT8* chunkCursor)
 {
     memcpy(&traceModule,chunkCursor,sizeof(sP7Trace_Module));
     modules.insert(traceModule.wModuleId,traceModule);
+    return traceModule;
 }
 
 

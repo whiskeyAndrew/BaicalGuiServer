@@ -69,7 +69,12 @@ void TraceWindow::reloadTracesInsideWindow()
 
         GUIData g = guiData.value(ui->verticalScrollBar->value());
 
-        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
+        tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
+        if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
+            return;
+        }
+
+        if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
             return;
         }
 
@@ -110,7 +115,13 @@ void TraceWindow::reloadTracesFromBelow(int value)
 
         GUIData g = guiData.value(value);
 
-        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
+        tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
+        if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
+            value++;
+            continue;
+        }
+
+        if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
             value++;
             continue;
         }
@@ -143,8 +154,14 @@ void TraceWindow::reloadTracesFromAbove(int value)
         }
 
         GUIData g = guiData.value(value);
+        tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
 
-        if(traceSettings->needToShow.value(g.wID)!=Qt::Checked){
+        if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
+            value--;
+            continue;
+        }
+
+        if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
             value--;
             continue;
         }
@@ -174,6 +191,11 @@ void TraceWindow::reloadTracesFromAbove(int value)
 void TraceWindow::addUniqueTrace(UniqueTraceData trace)
 {
     traceSettings->appendUniqueTracesList(trace.traceLineData,trace.traceFormat.wID);
+}
+
+void TraceWindow::addModule(sP7Trace_Module module)
+{
+    traceSettings->appendModules(module);
 }
 
 void TraceWindow::openHyperlink(const QUrl &link)
@@ -462,7 +484,7 @@ bool TraceWindow::eventFilter(QObject* object, QEvent* event)
     return false;
 }
 
-void TraceWindow::traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state)
+void TraceWindow::traceRowListCheckboxChanged()
 {
     reloadTracesInsideWindow();
 }

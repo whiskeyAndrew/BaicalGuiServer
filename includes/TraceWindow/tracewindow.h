@@ -155,10 +155,11 @@ public slots:
     void getTrace(TraceToGUI trace);
     void setTraceAsObject(Trace* trace);
     void getTraceFromFile(std::queue<TraceToGUI>);
-    void traceRowListCheckboxChanged(tUINT32 wID,tUINT32 state);
+    void traceRowListCheckboxChanged();
     void addUniqueTrace(UniqueTraceData trace);
 
     void reloadTracesInsideWindow();
+    void addModule(sP7Trace_Module module);
 private slots:
     void autoscrollStateChanged(tUINT32 stat);
     void on_expandButton_clicked(bool checked);

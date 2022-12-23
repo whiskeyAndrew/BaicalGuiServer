@@ -11,6 +11,7 @@
 #include <QCheckBox>
 #include "../enumparser.h"
 #include <QComboBox>
+#include "../Trace.h"
 
 struct ConnectionName{
     QString ip;
@@ -32,9 +33,12 @@ public:
 
 
     //Unique Traces List
-    void itemChanged(QListWidgetItem*  item);
+    void uniqueTracesItemChanged(QListWidgetItem*  item);
+    void modulesItemChanged(QListWidgetItem *item);
     void appendUniqueTracesList(QString text, tUINT32 wID);
-    QMap<tUINT32,tUINT32> needToShow;
+    QMap<tUINT32,tUINT32> needToShowTraceByID;
+    QMap<tUINT32,tUINT32> needToShowModules;
+
     void disableElement(tUINT32 wID);
     //~Unique Traces List
 
@@ -61,6 +65,9 @@ public:
     bool isWarningItalic();
     bool isErrorItalic();
     bool isCriticalItalic();
+    void appendModules(sP7Trace_Module text);
+public slots:
+
 private slots:
     //Trace Colors
     void on_traceColorButton_clicked();
@@ -117,6 +124,7 @@ private slots:
 
     void on_enumsList_itemClicked(QListWidgetItem* item);
 
+
     void on_applyEnumToTraceById_clicked();
 
     void on_traceIDforEnums_currentIndexChanged(int index);
@@ -157,6 +165,10 @@ private slots:
 
     void on_timeCheckbox_stateChanged(int arg1);
 
+    void on_checkAllModules_clicked();
+
+    void on_uncheckAllModules_clicked();
+
 private:
     ConnectionName connectionName;
     ConfigHandler* config;
@@ -186,7 +198,7 @@ private:
     tBOOL loadEnumsFromFile(QString fileName);
 signals:
     //Unique Traces List
-    void sendRowWID(tUINT32 wID, tUINT32 state);
+    void reloadDataInsideTraceWindow();
 };
 
 #endif // TRACEWINDOWSETTINGS_H

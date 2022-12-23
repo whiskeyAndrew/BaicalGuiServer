@@ -42,6 +42,12 @@ bool ChunkHandler::processChunk()
     //В метод мы передаем буфер с 4 байтами в самом начале, которые являются размером чанка. На всякий случай
     //Поэтому скипаем их
     chunkCursor+=sizeof(tUINT32);
+
+    if(!connectionEstablished){
+        connect(this,&ChunkHandler::sendUniqueTrace,traceWindow,&TraceWindow::addUniqueTrace);
+        connect(this,&ChunkHandler::sendModule,traceWindow,&TraceWindow::addModule);
+        connectionEstablished = true;
+    }
     while(chunkCursor<chunkEnd)
     {
         memcpy(&ext_Raw,chunkCursor,sizeof(tUINT32));
@@ -152,11 +158,8 @@ bool ChunkHandler::processChunk()
                 //Уникальный трейс
                 UniqueTraceData uTrace = trace.setTraceFormat(chunkCursor);
 
-                //По какой-то причине инициализация соединений происходит позже, чем начинается обработка данных. Пока временный костыль
-                if(!connectionEstablished){
-                    connect(this,&ChunkHandler::sendUniqueTrace,traceWindow,&TraceWindow::addUniqueTrace);
-                    connectionEstablished = true;
-                }
+                //По какой-то причине инициализация соединений происходит позже, чем начинается обработка данных. Пока временный
+
                 if(isWindowOpened)
                 {
                     emit sendUniqueTrace(uTrace);
@@ -185,7 +188,11 @@ bool ChunkHandler::processChunk()
             }
             case EP7TRACE_TYPE_MODULE:
             {
-                trace.setTraceModule(chunkCursor);
+                sP7Trace_Module tModule =  trace.setTraceModule(chunkCursor);
+                if(isWindowOpened)
+                {
+                    emit sendModule(tModule);
+                }
                 chunkCursor+=structSize;
                 break;
             }

@@ -25,8 +25,9 @@ void TraceWindowSettings::initWindow()
     ui->rawTracesTable->horizontalHeader()->setStretchLastSection(true);
     autoTracesCount = ui->autoRowsCounter;
 
-    connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::itemChanged);
-    connect(this,&TraceWindowSettings::sendRowWID,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
+    connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::uniqueTracesItemChanged);
+    connect(ui->modulesList,&QListWidget::itemChanged,this,&TraceWindowSettings::modulesItemChanged);
+    connect(this,&TraceWindowSettings::reloadDataInsideTraceWindow,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
 
     colorDialog = new QColorDialog();
     colorDialog->setOption(QColorDialog::ShowAlphaChannel);
@@ -45,6 +46,15 @@ void TraceWindowSettings::initWindow()
 
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
     loadConfigFileAsText();
+
+    //NULL module init
+    QListWidgetItem* listItem = new QListWidgetItem();
+    listItem->setText("NULL");
+    listItem->setData(Qt::ToolTipRole,0);
+    listItem->setCheckState(Qt::Checked);
+    ui->modulesList->addItem(listItem);
+
+    needToShowModules.insert(0,Qt::Checked);
 }
 
 
@@ -53,27 +63,48 @@ TraceWindowSettings::~TraceWindowSettings()
     delete ui;
 }
 
-void TraceWindowSettings::itemChanged(QListWidgetItem* item)
+void TraceWindowSettings::uniqueTracesItemChanged(QListWidgetItem* item)
 {
     tUINT32 wID = item->data(Qt::ToolTipRole).toInt();
     tUINT32 state = item->checkState();
-    needToShow.insert(wID,state);
-    emit sendRowWID(wID,state);
+    needToShowTraceByID.insert(wID,state);
+    emit reloadDataInsideTraceWindow();
+}
+
+void TraceWindowSettings::modulesItemChanged(QListWidgetItem* item)
+{
+    tUINT16 id = item->data(Qt::ToolTipRole).toInt();
+    tUINT32 state = item->checkState();
+    needToShowModules.insert(id,state);
+    emit reloadDataInsideTraceWindow();
 }
 
 void TraceWindowSettings::appendUniqueTracesList(QString text, tUINT32 wID)
 {
-    ui->listWidget->addItem(QString::number(wID) + " " +text);
-    QListWidgetItem* listItem = ui->listWidget->item(ui->listWidget->count()-1);
+    QListWidgetItem* listItem = new QListWidgetItem();
+    listItem->setText(QString::number(wID) + " " +text);
     listItem->setData(Qt::ToolTipRole,wID);
     listItem->setCheckState(Qt::Checked);
-    needToShow.insert(wID,Qt::Checked);
+    ui->listWidget->addItem(listItem);
+    needToShowTraceByID.insert(wID,Qt::Checked);
     ui->traceIDforEnums->addItem(QString::number(wID));
+}
+
+void TraceWindowSettings::appendModules(sP7Trace_Module module)
+{
+    QString moduleName(module.pName);
+    QListWidgetItem* listItem = new QListWidgetItem();
+    listItem->setText(moduleName);
+    listItem->setData(Qt::ToolTipRole,module.wModuleId);
+    listItem->setCheckState(Qt::Checked);
+    ui->modulesList->addItem(listItem);
+
+    needToShowModules.insert(module.wModuleId,Qt::Checked);
 }
 
 void TraceWindowSettings::disableElement(tUINT32 wID)
 {
-    needToShow.insert(wID,Qt::Unchecked);
+    needToShowTraceByID.insert(wID,Qt::Unchecked);
     for(int i =0;i<ui->listWidget->count();i++){
         if(ui->listWidget->item(i)->data(Qt::ToolTipRole)==wID){
             ui->listWidget->item(i)->setCheckState(Qt::Unchecked);
@@ -928,8 +959,8 @@ bool TraceWindowSettings::isDebugItalic(){
 }
 
 bool TraceWindowSettings::isInfoItalic(){;
-    return ui->infoRowItalic->isChecked();
-}
+                                         return ui->infoRowItalic->isChecked();
+                                        }
 
 bool TraceWindowSettings::isWarningItalic(){
     return ui->warningRowItalic->isChecked();
@@ -944,4 +975,18 @@ bool TraceWindowSettings::isCriticalItalic(){
 }
 
 
+void TraceWindowSettings::on_checkAllModules_clicked()
+{
+    for(int i=0;i<ui->modulesList->count();i++){
+        ui->modulesList->item(i)->setCheckState(Qt::CheckState::Checked);
+    }
+}
+
+
+void TraceWindowSettings::on_uncheckAllModules_clicked()
+{
+    for(int i=0;i<ui->modulesList->count();i++){
+        ui->modulesList->item(i)->setCheckState(Qt::CheckState::Unchecked);
+    }
+}
 
