@@ -20,7 +20,7 @@ void TraceWindow::getTrace(TraceToGUI trace)
 
     //слишком большая часть хранить кучу данных в traceTime
     //оптимизировать чуть позже
-    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime};
+    GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime,ui->verticalScrollBar->maximum()};
     guiData.insert(verticalBarSize,tempGuiData);
 
     if(verticalBarSize<numberOfRowsToShow){
@@ -48,7 +48,14 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 //Пока оставляю
 void TraceWindow::reloadTracesInsideWindow()
 {
-    tUINT32 value = ui->verticalScrollBar->value();
+    tUINT32 value;
+    if(lastSelected==-1){
+        value = ui->verticalScrollBar->value();
+    }
+    else{
+        ui->verticalScrollBar->setValue(lastSelected);
+        value = lastSelected;
+    }
 
     //костыльный фикс неприятного бага с повторяющейся последней строчкой при отключении соединения
     if(value == lastScrollValue && ui->Autoscroll->isChecked() && verticalBarSize>100){
@@ -206,9 +213,12 @@ void TraceWindow::openHyperlink(const QUrl &link)
     QStringList sl = link.path().split(" ___ ");
     tUINT32 sequence = sl.at(0).toInt();
     QString rawTrace = sl.at(1);
+    lastSelected = sl.at(2).toInt();
 
     sP7Trace_Data traceData = traceThread->getTraceData(sequence);
     UniqueTraceData traceFormat = traceThread->getTraceFormat(traceData.wID);
+
+    ui->selectedLabel->setText(QString::number(lastSelected));
 
     if(traceFormat.traceFormat.moduleID!=0)
     {
@@ -316,6 +326,8 @@ void TraceWindow::autoscrollStateChanged(tUINT32 stat)
     if(stat==Qt::Unchecked){
         return;
     }else{
+        lastSelected=-1;
+        ui->selectedLabel->clear();
         reloadTracesInsideWindow();
     }
 }
@@ -329,6 +341,7 @@ void TraceWindow::mousePressEvent(QMouseEvent* eventPress)
 {
     ui->textBrowser->clearFocus();
     ui->Autoscroll->setChecked(false);
+
 }
 
 bool TraceWindow::event(QEvent* event)
@@ -657,7 +670,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
     QString formattedWithEnumGUI = traceToGUI;
 
-    QString sequenceHref = sequenceToGUI+" ___ "+traceToRightPanel;
+    QString sequenceHref = sequenceToGUI+" ___ "+traceToRightPanel+" ___ "+QString::number(g.positionInMap);
     sequenceHref = sequenceHref.trimmed();
 
     traceToGUI.insert(0," ");
@@ -899,3 +912,38 @@ void TraceWindow::fileReadingStatus(tUINT32 percent){
         ui->actionsStatusLabel->setText("Reading file...");
     }
 }
+
+void TraceWindow::on_verticalScrollBar_sliderPressed()
+{
+    lastSelected=-1;
+    ui->selectedLabel->clear();
+}
+
+void TraceWindow::clearSelect()
+{
+    lastSelected = -1;
+    ui->selectedLabel->clear();
+
+    ui->moduleID->clear();
+
+    ui->wID->clear();
+    ui->line->clear();
+
+    ui->argsLen->clear();
+
+    ui->bLevel->clear();
+    ui->bProcessor->clear();
+    ui->threadID->clear();
+    ui->dwSequence->clear();
+
+    //Нужно добваить игнорирование тэгов
+    ui->traceText->clear();
+    ui->traceDest->clear();
+    ui->processName->clear();
+}
+
+void TraceWindow::on_pushButton_clicked()
+{
+    clearSelect();
+}
+

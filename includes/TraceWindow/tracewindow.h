@@ -113,7 +113,7 @@ private:
     QTextCursor cursor;
 
     tBOOL initEnded = false;
-
+    tINT32 lastSelected = -1;
     //Для дозаполнения данных если не хватает строк и для плавного перехода
     tBOOL needToAppendFromBottom = false;
     tUINT32 tempCounterToRemember;
@@ -151,6 +151,7 @@ private:
     void reloadTracesFromAbove(int value);
 
     void closeEvent(QCloseEvent *event);
+    void clearSelect();
 public slots:
     void getTrace(TraceToGUI trace);
     void setTraceAsObject(Trace* trace);
@@ -175,6 +176,8 @@ private slots:
     void on_hideServerStatus_clicked();
     void on_enumBold_clicked();
     void on_enumItalic_clicked();
+    void on_verticalScrollBar_sliderPressed();
+    void on_pushButton_clicked();
 };
 
 #endif // TRACEWINDOW_H

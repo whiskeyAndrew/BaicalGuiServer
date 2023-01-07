@@ -1,6 +1,6 @@
 #include "tracebackupwriter.h"
 
-void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
+void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo, QString connectionAddr)
 {
     std::cout<<"Backup Writer: Opening backup file"<<std::endl;
     if(!QDir( "Backups").exists()){
@@ -12,9 +12,9 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
     fileHeader.dwProcess_Start_Time_Lo = dwProcess_Start_Time_Lo;
 
     QDateTime date = QDateTime::currentDateTime();
-    QString formattedTime = date.toString("dd.MM.yyyy hh.mm.ss");
+    QString formattedTime = date.toString("hh.mm.ss");
 
-    fileName ="Backups/"+formattedTime+"_"+ QString::number(GetCurrentTime())+".p7d" ;
+    fileName ="Backups/"+connectionAddr+"_"+formattedTime+".p7d" ;
 
     file = new QFile(fileName);
     //временно, исправить

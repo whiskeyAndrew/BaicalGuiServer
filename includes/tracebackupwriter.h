@@ -30,7 +30,7 @@ private:
     QString fileName;
 public:
     TraceBackupWriter();
-    void setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
+    void setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo, QString connectionAddr);
     void writeChunk(tINT8* chunk, tUINT32 size);
     void closeFile();
 };
