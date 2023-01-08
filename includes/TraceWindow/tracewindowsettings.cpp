@@ -60,6 +60,7 @@ void TraceWindowSettings::initWindow()
 
 TraceWindowSettings::~TraceWindowSettings()
 {
+    std::cout<<"------Deleting TraceWindowSettings------"<<std::endl;
     delete ui;
 }
 
@@ -988,5 +989,32 @@ void TraceWindowSettings::on_uncheckAllModules_clicked()
     for(int i=0;i<ui->modulesList->count();i++){
         ui->modulesList->item(i)->setCheckState(Qt::CheckState::Unchecked);
     }
+}
+
+void TraceWindowSettings::on_enumItalicCheckbox_stateChanged(int arg1)
+{
+    isEnumItalic = ui->enumItalicCheckbox->checkState();
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+
+void TraceWindowSettings::on_enumBoldCheckbox_stateChanged(int arg1)
+{
+    isEnumBold = ui->enumBoldCheckbox->checkState();
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+
+Qt::CheckState TraceWindowSettings::getIsEnumItalic()
+{
+    return isEnumItalic;
+}
+
+Qt::CheckState TraceWindowSettings::getIsEnumBold()
+{
+    return isEnumBold;
 }
 

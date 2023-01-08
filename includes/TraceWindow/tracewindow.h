@@ -83,7 +83,9 @@ public:
     void setConnectionStatus(tUINT32 status);
     void clearOneEnumElement(tUINT32 wID);
     void fileReadingStatus(tUINT32 percent);
+    tUINT32 getConnectionStatus();
 private:
+    tUINT32 connectionStatus;
     tUINT32 numberOfRowsToShow;
     QMovie *fileReadingGif;
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> argsThatNeedToBeChangedByEnum;
@@ -174,8 +176,6 @@ private slots:
     void on_traceToTxt_clicked();
     void on_actionsStatusLabel_clicked();
     void on_hideServerStatus_clicked();
-    void on_enumBold_clicked();
-    void on_enumItalic_clicked();
     void on_verticalScrollBar_sliderPressed();
     void on_pushButton_clicked();
 };

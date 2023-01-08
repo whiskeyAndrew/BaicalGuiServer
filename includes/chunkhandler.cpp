@@ -305,5 +305,6 @@ void ChunkHandler::setFileEnded(bool newFileEnded)
 
 void ChunkHandler::initBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo)
 {
-    backupWriter.setFileHeader(dwProcess_ID,dwProcess_Start_Time_Hi,dwProcess_Start_Time_Lo, traceWindow->getClientName().ip+"."+traceWindow->getClientName().port);
+    QString name = traceWindow->getClientName().ip+"."+traceWindow->getClientName().port;
+    backupWriter.setFileHeader(dwProcess_ID,dwProcess_Start_Time_Hi,dwProcess_Start_Time_Lo, name);
 }

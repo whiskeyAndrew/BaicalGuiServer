@@ -13,6 +13,9 @@ void ConnectionTimeoutChecker::run()
         for(int i=0;i<windowsList->size();i++){
             tUINT32 attempts = 0;
 tryAgain:
+            if(windowsList->at(i).connectionThread==NULL){
+                continue;
+            }
             if(windowsList->at(i).connectionThread->isFinished()){
                 continue;
             }

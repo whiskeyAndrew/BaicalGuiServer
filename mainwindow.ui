@@ -6,76 +6,69 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>568</width>
-    <height>337</height>
+    <width>571</width>
+    <height>329</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QComboBox" name="comboBox">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>100</y>
-      <width>161</width>
-      <height>24</height>
-     </rect>
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>6</number>
     </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>130</y>
-      <width>80</width>
-      <height>24</height>
-     </rect>
+    <property name="topMargin">
+     <number>6</number>
     </property>
-    <property name="styleSheet">
-     <string notr="true"/>
+    <property name="rightMargin">
+     <number>6</number>
     </property>
-    <property name="text">
-     <string>Open Window</string>
+    <property name="bottomMargin">
+     <number>6</number>
     </property>
-   </widget>
-   <widget class="QPushButton" name="openFile">
-    <property name="enabled">
-     <bool>true</bool>
+    <property name="spacing">
+     <number>6</number>
     </property>
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>260</y>
-      <width>80</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Open File</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="autoOpen">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>160</y>
-      <width>81</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Auto-open</string>
-    </property>
-   </widget>
+    <item row="0" column="0">
+     <widget class="QTableWidget" name="connectionsTable">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustIgnored</enum>
+      </property>
+      <property name="autoScroll">
+       <bool>false</bool>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::DoubleClicked</set>
+      </property>
+      <property name="dragDropOverwriteMode">
+       <bool>false</bool>
+      </property>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>false</bool>
+      </attribute>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>568</width>
+     <width>571</width>
      <height>21</height>
     </rect>
    </property>
@@ -91,16 +84,13 @@
      <addaction name="actionLike_in_QT"/>
      <addaction name="actionWhite"/>
     </widget>
+    <addaction name="actionOpen_File"/>
+    <addaction name="actionAuto_Open"/>
     <addaction name="menuThemes"/>
    </widget>
    <addaction name="menuMain"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionOpen_File">
-   <property name="text">
-    <string>Open File</string>
-   </property>
-  </action>
   <action name="actionHigh_Contrast_Black">
    <property name="text">
     <string>High Contrast Black</string>
@@ -114,6 +104,19 @@
   <action name="actionWhite">
    <property name="text">
     <string>White</string>
+   </property>
+  </action>
+  <action name="actionAuto_Open">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto Open</string>
+   </property>
+  </action>
+  <action name="actionOpen_File">
+   <property name="text">
+    <string>Open File</string>
    </property>
   </action>
  </widget>

@@ -393,44 +393,6 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="10">
-       <widget class="QPushButton" name="hideServerStatus">
-        <property name="maximumSize">
-         <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>↓</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="6">
-       <widget class="QCheckBox" name="Autoscroll">
-        <property name="minimumSize">
-         <size>
-          <width>40</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>80</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>autoscroll</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="traceToTxt">
         <property name="minimumSize">
@@ -458,55 +420,17 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="8">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="11">
-       <widget class="QPushButton" name="expandButton">
+      <item row="0" column="4">
+       <widget class="QCheckBox" name="Autoscroll">
         <property name="minimumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
+          <width>40</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>28</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>→</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="7">
-       <widget class="QCheckBox" name="infinite_line">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>85</width>
+          <width>80</width>
           <height>16777215</height>
          </size>
         </property>
@@ -514,14 +438,14 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>infinite line</string>
+         <string>autoscroll</string>
         </property>
         <property name="checked">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="12">
+      <item row="0" column="10">
        <widget class="QPushButton" name="connectionStatus">
         <property name="enabled">
          <bool>false</bool>
@@ -549,57 +473,82 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="enumBold">
+      <item row="0" column="8">
+       <widget class="QPushButton" name="hideServerStatus">
+        <property name="maximumSize">
+         <size>
+          <width>28</width>
+          <height>28</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>↓</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="9">
+       <widget class="QPushButton" name="expandButton">
         <property name="minimumSize">
          <size>
-          <width>40</width>
+          <width>28</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>40</width>
+          <width>28</width>
           <height>28</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
+        <property name="styleSheet">
+         <string notr="true"/>
         </property>
         <property name="text">
-         <string>enum</string>
+         <string>→</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
-       <widget class="QPushButton" name="enumItalic">
+      <item row="0" column="5">
+       <widget class="QCheckBox" name="infinite_line">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>85</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>infinite line</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <widget class="QLabel" name="fileReadingStatus">
         <property name="minimumSize">
          <size>
-          <width>40</width>
-          <height>28</height>
+          <width>25</width>
+          <height>25</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>40</width>
-          <height>28</height>
+          <width>25</width>
+          <height>25</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <italic>true</italic>
-         </font>
-        </property>
         <property name="text">
-         <string>enum</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
+         <string/>
         </property>
        </widget>
       </item>
@@ -629,24 +578,21 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="9">
-       <widget class="QLabel" name="fileReadingStatus">
-        <property name="minimumSize">
+      <item row="0" column="6">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
          <size>
-          <width>25</width>
-          <height>25</height>
+          <width>40</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>25</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
+       </spacer>
       </item>
      </layout>
     </widget>

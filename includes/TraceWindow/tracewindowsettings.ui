@@ -35,7 +35,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="uniqueTraces">
       <attribute name="title">
@@ -1116,6 +1116,30 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="17" column="6">
+           <widget class="QCheckBox" name="enumBoldCheckbox">
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Bold Enums</string>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="6">
+           <widget class="QCheckBox" name="enumItalicCheckbox">
+            <property name="font">
+             <font>
+              <italic>true</italic>
+             </font>
+            </property>
+            <property name="text">
+             <string>Italic Enums</string>
             </property>
            </widget>
           </item>

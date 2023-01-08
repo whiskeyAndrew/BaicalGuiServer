@@ -56,7 +56,6 @@ bool FileReader::HandlingChunks()
         QApplication::processEvents();
         memcpy(&chunkSize,bufferCursor,sizeof(tUINT32));
         chunkSize = GET_USER_HEADER_SIZE(chunkSize);
-        std::cout<<chunkSize<<std::endl;
         if(chunkSize==0){
             break;
         }

@@ -82,8 +82,8 @@ bool Launcher::initSocket()
 
     //--DELETE LATER--//
 
-//    ServerStatusSender* serverStatusSender = new ServerStatusSender(this);
-//    serverStatusSender->start();
+    //    ServerStatusSender* serverStatusSender = new ServerStatusSender(this);
+    //    serverStatusSender->start();
 
     //--NOT DELETE LATER--//
     return true;
@@ -117,6 +117,12 @@ void Launcher::listenSocket()
 Launcher::Launcher(MainWindow *mw)
 {
     mainWindow = mw;
+}
+
+void Launcher::deleteClient(tUINT32 clientNumber)
+{
+    clientsList->removeAt(clientNumber);
+    std::cout<<"deleted client at "<<clientNumber<<std::endl;
 }
 
 bool Launcher::findClientInArray()

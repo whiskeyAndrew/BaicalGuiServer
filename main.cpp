@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
 
     MainWindow mainWindow;
     Launcher* launcher = new Launcher(&mainWindow);
-    mainWindow.launcher = launcher;
+
+    mainWindow.setLauncher(launcher);
 
     launcher->start();
     mainWindow.show();

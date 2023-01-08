@@ -74,6 +74,8 @@ public:
 
     bool findClientInArray();
 
+public slots:
+    void deleteClient(tUINT32 clientNumber);
 signals:
     void sendNewConnection(sockaddr_in newConnection,PacketHandler* packetHandler);
     void changeClientStatus(sockaddr_in client);

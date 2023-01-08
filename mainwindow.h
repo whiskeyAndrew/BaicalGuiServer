@@ -9,6 +9,7 @@
 #include "includes/FileReader/filereader.h"
 #include <QMessageBox>
 #include <QList>
+#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -32,6 +33,7 @@ public:
     ~MainWindow();
     Launcher* launcher;
     QList<TraceWindow*> traceWindows;
+    void setLauncher(Launcher* newLauncher);
 private:
     ConnectionName connectionName;
     ConfigHandler* config;
@@ -42,14 +44,19 @@ private:
     TraceWindow* initTraceWindow(ConnectionName connectionName);
     QString styleSheet = "";
 
+    void resizeEvent(QResizeEvent *event);
 public slots:
     void getNewConnection(sockaddr_in client, PacketHandler* packetHandler);
     void changeClientStatus(sockaddr_in client, tUINT32 status);
 private slots:
-    void on_pushButton_clicked();
+    void onCloseConnectionClicked();
+
     void on_actionHigh_Contrast_Black_triggered();
     void on_actionLike_in_QT_triggered();
     void on_actionWhite_triggered();
-    void on_openFile_clicked();
+    void on_connectionsTable_cellDoubleClicked(int row, int column);
+    void on_actionOpen_File_triggered();
+signals:
+    void sendClientToDelete(tUINT32 clientNumber);
 };
 #endif // MAINWINDOW_H

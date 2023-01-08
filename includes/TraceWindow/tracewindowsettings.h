@@ -66,10 +66,16 @@ public:
     bool isErrorItalic();
     bool isCriticalItalic();
     void appendModules(sP7Trace_Module text);
+    Qt::CheckState getIsEnumBold();
+
+    Qt::CheckState getIsEnumItalic();
+
 public slots:
 
 private slots:
     //Trace Colors
+
+
     void on_traceColorButton_clicked();
     void on_debugColorButton_clicked();
     void on_infoColorButton_clicked();
@@ -169,7 +175,14 @@ private slots:
 
     void on_uncheckAllModules_clicked();
 
+    void on_enumItalicCheckbox_stateChanged(int arg1);
+
+    void on_enumBoldCheckbox_stateChanged(int arg1);
+
 private:
+    Qt::CheckState isEnumBold = Qt::Unchecked;
+    Qt::CheckState isEnumItalic = Qt::Unchecked;
+
     ConnectionName connectionName;
     ConfigHandler* config;
     EnumParser* enumParser;

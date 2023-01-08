@@ -41,7 +41,6 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
     reloadTracesInsideWindow();
 }
 
-
 //Это все какой-то специфичный говнокодик, который я всячески пытаюсь переписать
 //Но он отлично работает и доведен до идеала (почти(наверно))
 //Попытки его переписать в что-то адекватное не увенчались успехом
@@ -334,6 +333,8 @@ void TraceWindow::autoscrollStateChanged(tUINT32 stat)
 
 TraceWindow::~TraceWindow()
 {
+    std::cout<<"------Deleting TraceWindow------"<<std::endl;
+    traceSettings->deleteLater();
     delete ui;
 }
 
@@ -400,6 +401,7 @@ void TraceWindow::setActionStatusText(QString text)
 }
 
 void TraceWindow::setConnectionStatus(tUINT32 status){
+    connectionStatus = status;
     if(status==2){
         QIcon icon;
         icon.addPixmap(QPixmap(":/green-dot.png"), QIcon::Disabled);
@@ -419,6 +421,11 @@ void TraceWindow::setConnectionStatus(tUINT32 status){
         ui->actionsStatusLabel->setText("Disconnected");
     }
 }
+
+tUINT32 TraceWindow::getConnectionStatus(){
+    return connectionStatus;
+}
+
 void TraceWindow::initWindow(){
     emptyColor.setRgb(0,0,0,255);
     setWindowFlags(Qt::Window);
@@ -645,12 +652,12 @@ QString TraceWindow::getGuiRow(GUIData g){
             QString italicEnumStart = "";
             QString italicEnumEnd = "";
 
-            if(ui->enumBold->isChecked()){
+            if(traceSettings->getIsEnumBold()==Qt::Checked){
                 boldEnumStart = "<b>";
                 boldEnumEnd = "</b>";
             }
 
-            if(ui->enumItalic->isChecked()){
+            if(traceSettings->getIsEnumItalic()==Qt::Checked){
                 italicEnumStart = "<i>";
                 italicEnumEnd = "</i>";
             }
@@ -868,9 +875,6 @@ void TraceWindow::on_actionsStatusLabel_clicked()
 }
 
 
-
-
-
 void TraceWindow::on_hideServerStatus_clicked()
 {
     if(ui->serverStatus->isHidden()){
@@ -879,22 +883,6 @@ void TraceWindow::on_hideServerStatus_clicked()
     }else{
         ui->hideServerStatus->setText("↑");
         ui->serverStatus->setHidden(true);
-    }
-}
-
-
-void TraceWindow::on_enumBold_clicked()
-{
-    if(!ui->Autoscroll->isChecked()){
-        reloadTracesInsideWindow();
-    }
-}
-
-
-void TraceWindow::on_enumItalic_clicked()
-{
-    if(!ui->Autoscroll->isChecked()){
-        reloadTracesInsideWindow();
     }
 }
 

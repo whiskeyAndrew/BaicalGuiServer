@@ -11,6 +11,21 @@ MainWindow::MainWindow(QWidget* parent)
 {
     setWindowIcon(QIcon("logo.png"));
     ui->setupUi(this);
+
+
+    ui->connectionsTable->setColumnCount(2);
+    ui->connectionsTable->setColumnWidth(0,300);
+    ui->connectionsTable->setColumnWidth(1,50);
+
+    ui->connectionsTable->horizontalHeader()->hide();
+    ui->connectionsTable->verticalHeader()->hide();
+    ui->connectionsTable->horizontalHeader()->setStretchLastSection(true);
+}
+
+void MainWindow::setLauncher(Launcher* newLauncher)
+{
+    launcher = newLauncher;
+    connect(this,&MainWindow::sendClientToDelete,launcher,&Launcher::deleteClient);
 }
 
 MainWindow::~MainWindow()
@@ -19,15 +34,38 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::resizeEvent(QResizeEvent* event)
+{
+}
+
 void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* packetHandler)
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     ConnectionName connectionName = {inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
-    ui->comboBox->addItem(connectionName.ip+":"+connectionName.port,connectionsCounter++);
-    ui->comboBox->setItemData(ui->comboBox->count()-1,connectionName.ip+":"+connectionName.port,Qt::ToolTipRole);
-    ui->comboBox->setItemIcon(ui->comboBox->count()-1,QIcon(":/green-dot.png"));
 
     initTraceWindow(connectionName);
+
+    QTableWidgetItem* connectionWidgetItem = new QTableWidgetItem(connectionName.ip+":"+connectionName.port);
+    QTableWidgetItem* deleteWidgetItem = new QTableWidgetItem("DELETE");
+
+    connectionWidgetItem->setIcon(QIcon(":/green-dot.png"));
+    connectionWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    deleteWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+    ui->connectionsTable->insertRow(ui->connectionsTable->rowCount());
+    ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,0,connectionWidgetItem);
+    ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,1,deleteWidgetItem);
+
+    //    QPushButton* closeButton = new QPushButton("Delete");
+
+    //    closeButton->setDisabled(true);
+    //    closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
+
+    //    ui->connectionsTable->setCellWidget(ui->connectionsTable->rowCount()-1,1,closeButton);
+    ////    connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);
+
+    ui->statusbar->showMessage("New connection from: "+ connectionName.ip+":"+connectionName.port);
+
     packetHandler->start();
 }
 
@@ -35,16 +73,17 @@ void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
 {
     QString clientName = inet_ntoa(client.sin_addr);
     clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
-    for(int i =0; i<ui->comboBox->count();i++){
-        if(ui->comboBox->itemData(i,Qt::ToolTipRole)==clientName){
+
+    for(int i =0;i<ui->connectionsTable->rowCount();i++){
+        if(ui->connectionsTable->item(i,0)->text()==clientName){
             if(status==OFFLINE){
-                ui->comboBox->setItemIcon(i,QIcon(":/red-dot.png"));
+                ui->connectionsTable->item(i,0)->setIcon(QIcon(":/red-dot.png"));
                 traceWindows.at(i)->setConnectionStatus(0);
             } else if(status==UNKNOWN_CONNECTION_STATUS){
-                ui->comboBox->setItemIcon(i,QIcon(":/yellow-dot.png"));
+                ui->connectionsTable->item(i,0)->setIcon(QIcon(":/yellow-dot.png"));
                 traceWindows.at(i)->setConnectionStatus(1);
             } else if(status==ONLINE){
-                ui->comboBox->setItemIcon(i,QIcon(":/green-dot.png"));
+                ui->connectionsTable->item(i,0)->setIcon(QIcon(":/green-dot.png"));
                 traceWindows.at(i)->setConnectionStatus(2);
             }
             return;
@@ -52,22 +91,32 @@ void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
     }
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::onCloseConnectionClicked()
 {
-    tUINT32 index = ui->comboBox->currentData().toString().toInt();
+    QPushButton* button = qobject_cast<QPushButton*> (sender());
+    //    QWidget *w = qobject_cast<QWidget *>(sender()->parent());
+    tUINT32 row = button->toolTip().toInt();
 
-    if(ui->comboBox->currentText()==""){
-        return;
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete", "Delete window?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        TraceWindow* traceWnd= traceWindows.at(row);
+        if(traceWnd->getConnectionStatus()!=0){
+            ui->statusbar->showMessage("Can't close active connection!");
+            return;
+        }
+
+        ui->statusbar->showMessage("Deleted connection: "+ traceWnd->getClientName().ip+":"+traceWnd->getClientName().port);
+
+        emit sendClientToDelete(row);
+
+        traceWindows.removeAt(row);
+        traceWnd->deleteLater();
+        ui->connectionsTable->removeRow(row);
     }
-
-    if(traceWindows.at(index)->isVisible()){
-        traceWindows.at(index)->raise();
-        return;
-    }
-
-    traceWindows.at(index)->show();
+    std::cout<<"deleted"<<std::endl;
 }
-
 
 
 TraceWindow* MainWindow::initTraceWindow(ConnectionName connectionName)
@@ -78,7 +127,7 @@ TraceWindow* MainWindow::initTraceWindow(ConnectionName connectionName)
     tUINT32 index = traceWindows.size()-1;
     launcher->clientsList->at(index).connectionThread->chunkHandler.setTraceWindow(traceWindow);
 
-    if(ui->autoOpen->isChecked()){
+    if(ui->actionAuto_Open->isChecked()){
         traceWindow->show();
     }
 
@@ -114,8 +163,41 @@ void MainWindow::on_actionWhite_triggered()
     }
 }
 
+void MainWindow::on_connectionsTable_cellDoubleClicked(int row, int column)
+{
+    if(column==0){
+        //Open
+        if(traceWindows.at(row)->isVisible()){
+            traceWindows.at(row)->raise();
+            return;
+        }
+        traceWindows.at(row)->show();
+    } else if(column==1){
+        //Delete
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Delete", "Delete window?",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            TraceWindow* traceWnd= traceWindows.at(row);
+            if(traceWnd->getConnectionStatus()!=0){
+                ui->statusbar->showMessage("Can't close active connection!");
+                return;
+            }
 
-void MainWindow::on_openFile_clicked()
+            ui->statusbar->showMessage("Deleted connection: "+ traceWnd->getClientName().ip+":"+traceWnd->getClientName().port);
+
+            emit sendClientToDelete(row);
+
+            traceWindows.removeAt(row);
+            traceWnd->deleteLater();
+            ui->connectionsTable->removeRow(row);
+        }
+    }
+
+}
+
+
+void MainWindow::on_actionOpen_File_triggered()
 {
     //Чтение из файла
     QString fileName = QFileDialog::getOpenFileName(this);
@@ -123,23 +205,40 @@ void MainWindow::on_openFile_clicked()
         return;
     }
 
-//    ui->comboBox->addItem("File: "+fileName,connectionsCounter++);
-//    ui->comboBox->setItemData(ui->comboBox->count()-1,"File: "+fileName,Qt::ToolTipRole);
-//    ui->comboBox->setItemIcon(ui->comboBox->count()-1,QIcon(":/green-dot.png"));
+    QTableWidgetItem* connectionWidgetItem = new QTableWidgetItem(fileName);
+    QTableWidgetItem* deleteWidgetItem = new QTableWidgetItem("DELETE");
+    //    connectionWidgetItem->setIcon(QIcon(":/green-dot.png"));
 
+    connectionWidgetItem->setIcon(QIcon(":/baicalFile.png"));
+    connectionWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+    deleteWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+
+    ui->connectionsTable->insertRow(ui->connectionsTable->rowCount());
+    ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,0,connectionWidgetItem);
+    ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,1,deleteWidgetItem);
+
+    //    QPushButton* closeButton = new QPushButton("Delete");
+    //    closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
+
+    //    ui->connectionsTable->setCellWidget(ui->connectionsTable->rowCount()-1,1,closeButton);
+    //    connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);
+
+    ui->statusbar->showMessage("File opened: "+ fileName);
+
+    launcher->clientsList->append({NULL,NULL});
     traceWindow = new TraceWindow({"File ",fileName},config);
     fileReader = new FileReader(fileName,traceWindow);
     traceWindow->setTraceAsObject(fileReader->chunkHandler.getTraceHandler());
-    traceWindow->setConnectionStatus(ONLINE);
-//    traceWindows.append(traceWindow);
+    traceWindow->setConnectionStatus(OFFLINE);
+    traceWindows.append(traceWindow);
 
-    if(ui->autoOpen->isChecked()){
+    if(ui->actionAuto_Open->isChecked()){
         traceWindow->show();
     }
 
     traceWindow->setStyle(styleSheet);
 
     fileReader->start();
-    traceWindow->open();
+    ui->statusbar->showMessage("New file opened: "+ fileName);
 }
 
