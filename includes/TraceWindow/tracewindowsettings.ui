@@ -35,7 +35,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="uniqueTraces">
       <attribute name="title">
@@ -64,6 +64,13 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="loadTracesToShowByIdFromConfig">
+         <property name="text">
+          <string>Load Traces</string>
+         </property>
+        </widget>
+       </item>
        <item row="1" column="1">
         <widget class="QPushButton" name="uncheckAllUniqueTraces">
          <property name="text">
@@ -71,7 +78,14 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
+       <item row="1" column="3">
+        <widget class="QPushButton" name="saveTracesToShowByIdToConfig">
+         <property name="text">
+          <string>Save Traces</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="4">
         <widget class="QListWidget" name="listWidget"/>
        </item>
       </layout>
@@ -96,13 +110,6 @@
        <property name="spacing">
         <number>1</number>
        </property>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="checkAllModules">
-         <property name="text">
-          <string>Check All</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="1">
         <widget class="QPushButton" name="uncheckAllModules">
          <property name="text">
@@ -110,7 +117,28 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
+       <item row="1" column="0">
+        <widget class="QPushButton" name="checkAllModules">
+         <property name="text">
+          <string>Check All</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="loadModulesToShowFromConfig">
+         <property name="text">
+          <string>Load Modules</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="saveModulesToShowToConfig">
+         <property name="text">
+          <string>Save Modules</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="4">
         <widget class="QListWidget" name="modulesList"/>
        </item>
       </layout>

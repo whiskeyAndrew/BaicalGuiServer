@@ -10,6 +10,11 @@ QString ConfigHandler::getConfigFileName()
     return configFileName;
 }
 
+QMap<tUINT32, tUINT32> ConfigHandler::getNeedToShowModules()
+{
+    return needToShowModules;
+}
+
 ConfigHandler::ConfigHandler(QString connectionName)
 {
     configName = connectionName;
@@ -133,7 +138,7 @@ void ConfigHandler::loadWindowsSize()
 void ConfigHandler::saveEnumsList(QString ip, QString fileName)
 {
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
-    settings->beginGroup(ip);
+    settings->beginGroup(ip+"_enums");
     settings->setValue("enums_file", fileName);
     settings->endGroup();
     delete settings;
@@ -142,7 +147,7 @@ void ConfigHandler::saveEnumsList(QString ip, QString fileName)
 QString ConfigHandler::loadEnumsList(QString ip)
 {
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
-    settings->beginGroup(ip);
+    settings->beginGroup(ip+" enums");
     QString fileName = settings->value("enums_file").toString();
     settings->endGroup();
     delete settings;
@@ -154,7 +159,7 @@ tUINT32 ConfigHandler::saveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEn
 
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     tUINT32 enumsSaved = 0;
-    settings->beginGroup(ip);
+    settings->beginGroup(ip+"_enums");
     if(args.size()==0){
         settings->remove("");
     } else{
@@ -181,7 +186,7 @@ QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> ConfigHandler::loadEnums(QSt
 {
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> enums;
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
-    settings->beginGroup(ip);
+    settings->beginGroup(ip+"_enums");
     for(QString t_wID:settings->allKeys()){
         tUINT32 wID = t_wID.toInt();
         QStringList t_values = settings->value(t_wID).toString().split(" ");
@@ -194,4 +199,106 @@ QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> ConfigHandler::loadEnums(QSt
     settings->endGroup();
     delete settings;
     return enums;
+}
+
+tUINT32 ConfigHandler::saveTracesToShowById(QString ip, QMap<tUINT32,tUINT32> tracesToShow)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_traceToShowByID");
+
+    QString show = "";
+    QString dontShow = "";
+
+    for(tUINT32 key:tracesToShow.keys()){
+        if(tracesToShow.value(key)==Qt::Checked){
+            show.append(QString::number(key)+ " ");
+        }
+        else{
+            dontShow.append(QString::number(key)+ " ");
+        }
+
+    }
+
+    settings->setValue("show",show.trimmed());
+    settings->setValue("dont_show",dontShow.trimmed());
+    settings->endGroup();
+    delete settings;
+    return tracesToShow.size();
+}
+
+//Если нам приходит сообщение с новым wID, надо где-то проверять, был ли этот wID в конфиге.
+//Поэтому для сохраненных в конфиг wID будет иметь другую мапу, в которую будем смотреть при обновлении списка трейсов
+void ConfigHandler::loadTracesToShowById(QString ip)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_traceToShowByID");
+
+    for(QString isNeedToShow:settings->allKeys()){
+        if(isNeedToShow=="show"){
+            QStringList list = settings->value("show").toString().split(" ");
+            for(int i =0;i<list.size();i++){
+                tracesToShowByIdFromConfig.insert(list.at(i).toInt(),Qt::Checked);
+            }
+        }
+        else{
+            QStringList list = settings->value("dont_show").toString().split(" ");
+            for(int i =0;i<list.size();i++){
+                tracesToShowByIdFromConfig.insert(list.at(i).toInt(),Qt::Unchecked);
+            }
+        }
+    }
+    settings->endGroup();
+    delete settings;
+}
+
+QMap<tUINT32, tUINT32> ConfigHandler::getTracesToShowByIdFromConfig()
+{
+    return tracesToShowByIdFromConfig;
+}
+
+tUINT32 ConfigHandler::saveModulesToShow(QString ip,QMap<tUINT32,tUINT32> modules)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_modulesToShowById");
+
+    QString show = "";
+    QString dontShow = "";
+
+    for(tUINT32 key:modules.keys()){
+        if(modules.value(key)==Qt::Checked){
+            show.append(QString::number(key)+ " ");
+        }
+        else{
+            dontShow.append(QString::number(key)+ " ");
+        }
+    }
+
+    settings->setValue("show",show.trimmed());
+    settings->setValue("dont_show",dontShow.trimmed());
+    settings->endGroup();
+    delete settings;
+    return modules.size();
+}
+
+void ConfigHandler::loadModulesToShow(QString ip)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_modulesToShowById");
+
+    for(QString isNeedToShow:settings->allKeys()){
+        if(isNeedToShow=="show"){
+            QStringList list = settings->value("show").toString().split(" ");
+            for(int i =0;i<list.size();i++){
+                needToShowModules.insert(list.at(i).toInt(),Qt::Checked);
+            }
+        }
+        else{
+            QStringList list = settings->value("dont_show").toString().split(" ");
+            for(int i =0;i<list.size();i++){
+                needToShowModules.insert(list.at(i).toInt(),Qt::Unchecked);
+            }
+        }
+    }
+    settings->endGroup();
+    delete settings;
 }

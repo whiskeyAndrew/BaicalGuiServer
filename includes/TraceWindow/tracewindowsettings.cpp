@@ -36,6 +36,8 @@ void TraceWindowSettings::initWindow()
     initTraceLevels();
     initColors();
     initWindowsSize();
+    loadTracesToShowByIdFromConfig();
+    loadModulesToShowFromConfig();
 
     QString enumsFile = config->loadEnumsList(connectionName.ip);
     if(enumsFile!=""){
@@ -85,9 +87,18 @@ void TraceWindowSettings::appendUniqueTracesList(QString text, tUINT32 wID)
     QListWidgetItem* listItem = new QListWidgetItem();
     listItem->setText(QString::number(wID) + " " +text);
     listItem->setData(Qt::ToolTipRole,wID);
-    listItem->setCheckState(Qt::Checked);
+
+    if(config->getTracesToShowByIdFromConfig().contains(wID)){
+        needToShowTraceByID.insert(wID,config->getTracesToShowByIdFromConfig().value(wID));
+        listItem->setCheckState((Qt::CheckState)config->getTracesToShowByIdFromConfig().value(wID));
+    }
+    else{
+        needToShowTraceByID.insert(wID,Qt::Checked);
+        listItem->setCheckState(Qt::Checked);
+    }
+
     ui->listWidget->addItem(listItem);
-    needToShowTraceByID.insert(wID,Qt::Checked);
+
     ui->traceIDforEnums->addItem(QString::number(wID));
 }
 
@@ -97,10 +108,16 @@ void TraceWindowSettings::appendModules(sP7Trace_Module module)
     QListWidgetItem* listItem = new QListWidgetItem();
     listItem->setText(moduleName);
     listItem->setData(Qt::ToolTipRole,module.wModuleId);
-    listItem->setCheckState(Qt::Checked);
-    ui->modulesList->addItem(listItem);
 
-    needToShowModules.insert(module.wModuleId,Qt::Checked);
+    if(config->getNeedToShowModules().contains(module.wModuleId)){
+        needToShowModules.insert(module.wModuleId,config->getNeedToShowModules().value(module.wModuleId));
+        listItem->setCheckState((Qt::CheckState)config->getNeedToShowModules().value(module.wModuleId));
+    }else{
+        needToShowModules.insert(module.wModuleId,Qt::Checked);
+        listItem->setCheckState(Qt::Checked);
+    }
+
+    ui->modulesList->addItem(listItem);
 }
 
 void TraceWindowSettings::disableElement(tUINT32 wID)
@@ -1016,5 +1033,66 @@ Qt::CheckState TraceWindowSettings::getIsEnumItalic()
 Qt::CheckState TraceWindowSettings::getIsEnumBold()
 {
     return isEnumBold;
+}
+
+void TraceWindowSettings::on_loadTracesToShowByIdFromConfig_clicked()
+{
+    loadTracesToShowByIdFromConfig();
+}
+
+void TraceWindowSettings::loadTracesToShowByIdFromConfig(){
+    config->loadTracesToShowById(connectionName.ip);
+    for(tUINT32 key:config->getTracesToShowByIdFromConfig().keys()){
+        needToShowTraceByID.insert(key,config->getTracesToShowByIdFromConfig().value(key));
+    }
+
+    for(int i =0;i<ui->listWidget->count();i++){
+        tUINT32 wID = ui->listWidget->item(i)->toolTip().toInt();
+        if(needToShowTraceByID.contains(wID)){
+            ui->listWidget->item(i)->setCheckState((Qt::CheckState)needToShowTraceByID.value(wID));
+        }
+    }
+
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
+        traceWindow->reloadTracesInsideWindow();
+    }
+
+
+}
+
+void TraceWindowSettings::on_saveTracesToShowByIdToConfig_clicked()
+{
+    config->saveTracesToShowById(connectionName.ip,needToShowTraceByID);
+}
+
+
+void TraceWindowSettings::on_loadModulesToShowFromConfig_clicked()
+{
+    loadModulesToShowFromConfig();
+}
+
+void TraceWindowSettings::loadModulesToShowFromConfig(){
+    config->loadModulesToShow(connectionName.ip);
+
+    for(tUINT32 key:config->getNeedToShowModules().keys()){
+        needToShowModules.insert(key,config->getNeedToShowModules().value(key));
+    }
+
+    for(int i =0;i<ui->modulesList->count();i++){
+        tUINT32 wID = ui->modulesList->item(i)->toolTip().toInt();
+        if(needToShowModules.contains(wID)){
+            ui->modulesList->item(i)->setCheckState((Qt::CheckState)needToShowModules.value(wID));
+        }
+    }
+
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
+        traceWindow->reloadTracesInsideWindow();
+    }
+
+}
+
+void TraceWindowSettings::on_saveModulesToShowToConfig_clicked()
+{
+    config->saveModulesToShow(connectionName.ip,needToShowModules);
 }
 

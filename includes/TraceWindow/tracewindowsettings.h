@@ -179,6 +179,14 @@ private slots:
 
     void on_enumBoldCheckbox_stateChanged(int arg1);
 
+    void on_loadTracesToShowByIdFromConfig_clicked();
+
+    void on_saveTracesToShowByIdToConfig_clicked();
+
+    void on_loadModulesToShowFromConfig_clicked();
+
+    void on_saveModulesToShowToConfig_clicked();
+
 private:
     Qt::CheckState isEnumBold = Qt::Unchecked;
     Qt::CheckState isEnumItalic = Qt::Unchecked;
@@ -209,6 +217,8 @@ private:
     void initWindow();
 
     tBOOL loadEnumsFromFile(QString fileName);
+    void loadTracesToShowByIdFromConfig();
+    void loadModulesToShowFromConfig();
 signals:
     //Unique Traces List
     void reloadDataInsideTraceWindow();

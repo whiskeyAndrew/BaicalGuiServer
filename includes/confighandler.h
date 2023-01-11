@@ -13,6 +13,8 @@ class ConfigHandler
 {
 private:
     QString configFileName = "config.ini";
+    QMap<tUINT32,tUINT32> tracesToShowByIdFromConfig;
+    QMap<tUINT32,tUINT32> needToShowModules;
 
 public:
     QString configName;
@@ -49,6 +51,15 @@ public:
     QString loadEnumsList(QString ip);
     tUINT32 saveEnums(QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > args, QString ip);
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum> > loadEnums(QString ip);
+    tUINT32 saveTracesToShowById(QString ip, QMap<tUINT32, tUINT32> tracesToShow);
+    void loadTracesToShowById(QString ip);
+
+    QMap<tUINT32, tUINT32> getTracesToShowByIdFromConfig();
+
+
+    tUINT32 saveModulesToShow(QString ip, QMap<tUINT32, tUINT32> modules);
+    void loadModulesToShow(QString ip);
+    QMap<tUINT32, tUINT32> getNeedToShowModules();
 };
 
 #endif // CONFIGHANDLER_H
