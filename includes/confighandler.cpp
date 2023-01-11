@@ -235,12 +235,19 @@ void ConfigHandler::loadTracesToShowById(QString ip)
 
     for(QString isNeedToShow:settings->allKeys()){
         if(isNeedToShow=="show"){
+            if(settings->value("show").toString()==""){
+                continue;
+            }
             QStringList list = settings->value("show").toString().split(" ");
             for(int i =0;i<list.size();i++){
                 tracesToShowByIdFromConfig.insert(list.at(i).toInt(),Qt::Checked);
             }
         }
         else{
+            //если вдруг пустые
+            if(settings->value("dont_show").toString()==""){
+                continue;
+            }
             QStringList list = settings->value("dont_show").toString().split(" ");
             for(int i =0;i<list.size();i++){
                 tracesToShowByIdFromConfig.insert(list.at(i).toInt(),Qt::Unchecked);
@@ -285,14 +292,24 @@ void ConfigHandler::loadModulesToShow(QString ip)
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup(ip+"_modulesToShowById");
 
+    if(settings->allKeys().size()==0){
+        return;
+    }
+
     for(QString isNeedToShow:settings->allKeys()){
         if(isNeedToShow=="show"){
+            if(settings->value("show").toString()==""){
+                continue;
+            }
             QStringList list = settings->value("show").toString().split(" ");
             for(int i =0;i<list.size();i++){
                 needToShowModules.insert(list.at(i).toInt(),Qt::Checked);
             }
         }
         else{
+            if(settings->value("dont_show").toString()==""){
+                continue;
+            }
             QStringList list = settings->value("dont_show").toString().split(" ");
             for(int i =0;i<list.size();i++){
                 needToShowModules.insert(list.at(i).toInt(),Qt::Unchecked);
