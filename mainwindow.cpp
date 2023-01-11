@@ -42,27 +42,27 @@ void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* pack
 {
     std::cout<<"New connection from:"<< ntohs(newConnection.sin_port)<<std::endl;
     ConnectionName connectionName = {inet_ntoa(newConnection.sin_addr),QString::number(ntohs(newConnection.sin_port))};
+    ui->connectionsTable->insertRow(ui->connectionsTable->rowCount());
 
     initTraceWindow(connectionName);
 
     QTableWidgetItem* connectionWidgetItem = new QTableWidgetItem(connectionName.ip+":"+connectionName.port);
-    QTableWidgetItem* deleteWidgetItem = new QTableWidgetItem("DELETE");
+
+    QPushButton* closeButton = new QPushButton("Delete");
+
+    closeButton->setDisabled(true);
+    closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
+
+    connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);
 
     connectionWidgetItem->setIcon(QIcon(":/green-dot.png"));
     connectionWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    deleteWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-    ui->connectionsTable->insertRow(ui->connectionsTable->rowCount());
+
     ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,0,connectionWidgetItem);
-    ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,1,deleteWidgetItem);
+    ui->connectionsTable->setCellWidget(ui->connectionsTable->rowCount()-1,1,closeButton);
 
-    //    QPushButton* closeButton = new QPushButton("Delete");
 
-    //    closeButton->setDisabled(true);
-    //    closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
-
-    //    ui->connectionsTable->setCellWidget(ui->connectionsTable->rowCount()-1,1,closeButton);
-    ////    connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);
 
     ui->statusbar->showMessage("New connection from: "+ connectionName.ip+":"+connectionName.port);
 
@@ -79,6 +79,7 @@ void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
             if(status==OFFLINE){
                 ui->connectionsTable->item(i,0)->setIcon(QIcon(":/red-dot.png"));
                 traceWindows.at(i)->setConnectionStatus(0);
+                ui->connectionsTable->cellWidget(i,1)->setDisabled(false);
             } else if(status==UNKNOWN_CONNECTION_STATUS){
                 ui->connectionsTable->item(i,0)->setIcon(QIcon(":/yellow-dot.png"));
                 traceWindows.at(i)->setConnectionStatus(1);
@@ -94,7 +95,6 @@ void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
 void MainWindow::onCloseConnectionClicked()
 {
     QPushButton* button = qobject_cast<QPushButton*> (sender());
-    //    QWidget *w = qobject_cast<QWidget *>(sender()->parent());
     tUINT32 row = button->toolTip().toInt();
 
     QMessageBox::StandardButton reply;
@@ -116,6 +116,11 @@ void MainWindow::onCloseConnectionClicked()
         ui->connectionsTable->removeRow(row);
     }
     std::cout<<"deleted"<<std::endl;
+
+    for(int i =0;i<ui->connectionsTable->rowCount();i++){
+        QPushButton* t_button = (QPushButton*) ui->connectionsTable->cellWidget(i,1);
+        t_button->setToolTip(QString::number(i));
+    }
 }
 
 
@@ -205,23 +210,19 @@ void MainWindow::on_actionOpen_File_triggered()
         return;
     }
 
+    ui->connectionsTable->insertRow(ui->connectionsTable->rowCount());
     QTableWidgetItem* connectionWidgetItem = new QTableWidgetItem(fileName);
-    QTableWidgetItem* deleteWidgetItem = new QTableWidgetItem("DELETE");
-    //    connectionWidgetItem->setIcon(QIcon(":/green-dot.png"));
 
     connectionWidgetItem->setIcon(QIcon(":/baicalFile.png"));
     connectionWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    deleteWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-    ui->connectionsTable->insertRow(ui->connectionsTable->rowCount());
+    QPushButton* closeButton = new QPushButton("Delete");
+    closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
+
+    connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);
+
     ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,0,connectionWidgetItem);
-    ui->connectionsTable->setItem(ui->connectionsTable->rowCount()-1,1,deleteWidgetItem);
-
-    //    QPushButton* closeButton = new QPushButton("Delete");
-    //    closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
-
-    //    ui->connectionsTable->setCellWidget(ui->connectionsTable->rowCount()-1,1,closeButton);
-    //    connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);
+    ui->connectionsTable->setCellWidget(ui->connectionsTable->rowCount()-1,1,closeButton);
 
     ui->statusbar->showMessage("File opened: "+ fileName);
 

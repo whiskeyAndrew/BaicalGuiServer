@@ -298,9 +298,11 @@ void ConfigHandler::loadModulesToShow(QString ip)
 
     for(QString isNeedToShow:settings->allKeys()){
         if(isNeedToShow=="show"){
+            //Если пустое
             if(settings->value("show").toString()==""){
                 continue;
             }
+
             QStringList list = settings->value("show").toString().split(" ");
             for(int i =0;i<list.size();i++){
                 needToShowModules.insert(list.at(i).toInt(),Qt::Checked);
@@ -310,6 +312,7 @@ void ConfigHandler::loadModulesToShow(QString ip)
             if(settings->value("dont_show").toString()==""){
                 continue;
             }
+
             QStringList list = settings->value("dont_show").toString().split(" ");
             for(int i =0;i<list.size();i++){
                 needToShowModules.insert(list.at(i).toInt(),Qt::Unchecked);
