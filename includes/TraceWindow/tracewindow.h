@@ -178,6 +178,7 @@ private slots:
     void on_hideServerStatus_clicked();
     void on_verticalScrollBar_sliderPressed();
     void on_pushButton_clicked();
+    void on_verticalScrollBar_actionTriggered(int action);
 };
 
 #endif // TRACEWINDOW_H

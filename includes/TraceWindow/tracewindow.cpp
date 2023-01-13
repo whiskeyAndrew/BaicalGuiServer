@@ -121,7 +121,7 @@ void TraceWindow::reloadTracesInsideWindow()
 void TraceWindow::reloadTracesFromBelow(int value)
 {
     ui->textBrowser->setText("");
-
+    std::cout<<value<<std::endl;
     while(ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
         //Выше данных нет
         if(value>verticalBarSize){
@@ -227,7 +227,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     sP7Trace_Data traceData = traceThread->getTraceData(sequence);
     UniqueTraceData traceFormat = traceThread->getTraceFormat(traceData.wID);
 
-    ui->selectedLabel->setText(QString::number(lastSelected));
+    ui->selectedLabel->setText("Selected row: "+ QString::number(lastSelected));
 
     if(traceFormat.traceFormat.moduleID!=0)
     {
@@ -351,6 +351,8 @@ TraceWindow::~TraceWindow()
 void TraceWindow::mousePressEvent(QMouseEvent* eventPress)
 {
     ui->textBrowser->clearFocus();
+    ui->selectedLabel->clear();
+    lastSelected = -1;
     ui->Autoscroll->setChecked(false);
 
 }
@@ -956,5 +958,12 @@ void TraceWindow::clearSelect()
 void TraceWindow::on_pushButton_clicked()
 {
     clearSelect();
+}
+
+
+void TraceWindow::on_verticalScrollBar_actionTriggered(int action)
+{
+    ui->selectedLabel->clear();
+    lastSelected=-1;
 }
 
