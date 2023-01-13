@@ -146,10 +146,12 @@ private:
 
     bool eventFilter(QObject* object, QEvent* event);
 
-    tUINT32 firstInitCounter = 0;
+    tUINT32 lastRenderedRow = -1;
+
     QString getGuiRow(GUIData g);
     bool event(QEvent* event);
     void reloadTracesFromBelow(int value);
+    tUINT32 sliderAction = 0;
     void reloadTracesFromAbove(int value);
 
     void closeEvent(QCloseEvent *event);

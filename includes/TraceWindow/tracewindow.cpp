@@ -121,7 +121,15 @@ void TraceWindow::reloadTracesInsideWindow()
 void TraceWindow::reloadTracesFromBelow(int value)
 {
     ui->textBrowser->setText("");
-    std::cout<<value<<std::endl;
+    //    std::cout<<value<<std::endl;
+
+    std::cout<<sliderAction<<std::endl;
+    //Переменные для скипа пустых строк
+    tBOOL foundFirstRow = false;
+    tINT32 rowsSkipped = 0;
+    tUINT32 rememberValue = value;
+    //~Переменные для скипа пустых строк
+
     while(ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
         //Выше данных нет
         if(value>verticalBarSize){
@@ -133,23 +141,62 @@ void TraceWindow::reloadTracesFromBelow(int value)
 
         tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
         if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
+            //Генерация строк идет с верхней и вниз.
+            //Если мы поднимаемся наверх по скроллу, нам надо найти ту строку, которая нам подходит для генерации по условиям
+            //И начинать генерацию с нее
+            //Поэтому мы ловим действие, нажатое в скролле с помощью сигнала (sliderAction)
+            //И если мы поднимались вверх, то нам надо делать отступ вверх до тех пор, пока мы не найдем нужную строку
+            //Затем стандартно генерируем сверху вниз нужные строки
+            //В конец передвигаем бегунок на нужную нам позицию
+            if(!foundFirstRow && (sliderAction==QAbstractSlider::SliderSingleStepSub || sliderAction==QAbstractSlider::SliderPageStepSub)){
+                value--;
+                rowsSkipped--;
+                continue;
+            }
+
+            if(!foundFirstRow){
+                rowsSkipped++;
+            }
             value++;
             continue;
         }
 
         if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
+            if(!foundFirstRow && (sliderAction==QAbstractSlider::SliderSingleStepSub || sliderAction==QAbstractSlider::SliderPageStepSub)){
+                value--;
+                rowsSkipped--;
+                continue;
+            }
+
+            if(!foundFirstRow){
+                rowsSkipped++;
+            }
             value++;
             continue;
         }
 
         if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
+            if(!foundFirstRow && (sliderAction==QAbstractSlider::SliderSingleStepSub || sliderAction==QAbstractSlider::SliderPageStepSub)){
+                value--;
+                rowsSkipped--;
+                continue;
+            }
+
+            if(!foundFirstRow){
+                rowsSkipped++;
+            }
             value++;
             continue;
         }
 
+        foundFirstRow = true;
         ui->textBrowser->append(getGuiRow(g));
         value++;
     }
+    ui->verticalScrollBar->blockSignals(true);
+    ui->verticalScrollBar->setValue(rememberValue+rowsSkipped);
+    ui->verticalScrollBar->blockSignals(false);
+    sliderAction = 0;
     ui->textBrowser->verticalScrollBar()->setValue(0);
 }
 
@@ -355,6 +402,7 @@ void TraceWindow::mousePressEvent(QMouseEvent* eventPress)
     lastSelected = -1;
     ui->Autoscroll->setChecked(false);
 
+
 }
 
 bool TraceWindow::event(QEvent* event)
@@ -453,6 +501,7 @@ void TraceWindow::initWindow(){
 
     ui->verticalScrollBar->setMaximum(0);
     ui->verticalScrollBar->setMinimum(0);
+    ui->verticalScrollBar->setPageStep(1);
 
     QPalette pallete = ui->textBrowser->palette();
     pallete.setColor(QPalette::Active, QPalette::Base, Qt::black);
@@ -495,6 +544,7 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
         std::cout<<ui->verticalScrollBar->value()<<std::endl;
     }
     else */if(numDegrees.ry()<0){
+        sliderAction = 2;
         ui->Autoscroll->setChecked(false);
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-1);
     }
@@ -504,6 +554,8 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
     }
 
     event->accept();
+
+
 
 
 }
@@ -965,5 +1017,8 @@ void TraceWindow::on_verticalScrollBar_actionTriggered(int action)
 {
     ui->selectedLabel->clear();
     lastSelected=-1;
+    std::cout<<"action value "<<ui->verticalScrollBar->value()<<std::endl;
+    sliderAction = action;
+
 }
 
