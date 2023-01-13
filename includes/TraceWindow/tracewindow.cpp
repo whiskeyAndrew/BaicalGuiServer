@@ -1,6 +1,16 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 
+//Окно отрисовывает текст как HTML. Это было сделано для того, чтобы предоставить приложению вид "консоли",
+//Но при этом сохранить байкаловскую возможность кликать по строкам чтобы получать о них информацию.
+//Из-за этого вытекло куча проблем, к примеру тэги /n и /t приходится заменять ХТМЛовским аналогом
+//Для генерации строк и данных приходится использовать URL-тип строк
+//К примеру мы перехватываем ссылку по которой кликнули и получаем "как ссылку" уникальные данные строки, которые генерируем
+//в getGuiRow. Для разделения данных (а они исключительно в виде текста передаются) использую ' _splt_ ' поэтому желательно это сочетание не использовать в текстах (костыль)
+//Короче генерация строк на экране здесь - это один большой и страшный костыль, альтернативу которому не получается придумать из-за нехватки опыта.
+//Проще пытаться придумать альтернативу чем пытаться это все глобально отрефакторить
+
+
 TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig, QDialog* parent) :
     QDialog(parent),
     ui(new Ui::TraceWindow)
@@ -209,7 +219,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     ui->Autoscroll->setChecked(false);
     QString s = link.path();
     //небольшой костыль передачи стринга в линке
-    QStringList sl = link.path().split(" ___ ");
+    QStringList sl = link.path().split(" _splt_ ");
     tUINT32 sequence = sl.at(0).toInt();
     QString rawTrace = sl.at(1);
     lastSelected = sl.at(2).toInt();
@@ -677,7 +687,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
     QString formattedWithEnumGUI = traceToGUI;
 
-    QString sequenceHref = sequenceToGUI+" ___ "+traceToRightPanel+" ___ "+QString::number(g.positionInMap);
+    QString sequenceHref = sequenceToGUI+" _splt_ "+traceToRightPanel+" _splt_ "+QString::number(g.positionInMap);
     sequenceHref = sequenceHref.trimmed();
 
     traceToGUI.insert(0," ");
@@ -708,10 +718,23 @@ QString TraceWindow::getGuiRow(GUIData g){
         traceToGUI="";
     }
 
+    //Может быть высокая нагрузка
+    //Очередной костыль, который является последствием использования HTML страницы для вывода текста
+    //Если мы хотим делать столбцы, нужно добавлять отступ перед следующей строкой если мы делаем перенос
     if(traceToGUI.contains("\n")){
-        traceToGUI.replace("\n","<br>");
+        QString lineBreak = "<br>";
+        for(int i =0;i<timeToGUI.length()+sequenceToGUI.length();i++){
+            lineBreak.append("&nbsp;");
+        }
+        traceToGUI.replace("\n",lineBreak);
     }
+    //HTML удаляет лишние пробелы, нам это не надо
+    traceToGUI.trimmed().replace(" ", "&nbsp;");
 
+    //Замена табуляций
+    if(traceToGUI.contains("\t")){
+        traceToGUI.replace("\t","&nbsp;&nbsp;&nbsp;&nbsp;");
+    }
 
 
     //Для того чтобы текст бьыл кликабельным и все выглядело "как в консоли"
