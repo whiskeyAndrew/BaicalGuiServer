@@ -141,6 +141,7 @@ std::string string_format( const std::string& format, Args ... args )
 QString Trace::formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition>* argsPosition)
 {
     QString str = uniqueTrace->traceLineData;
+    std::cout<<"Last string: "<<str.toStdString()<<std::endl;
     tUINT32 argsCount = uniqueTrace->traceFormat.args_Len;
     tUINT32 wID = uniqueTrace->traceFormat.wID;
     char argEnd[] = {'i','d','u','f','X'};

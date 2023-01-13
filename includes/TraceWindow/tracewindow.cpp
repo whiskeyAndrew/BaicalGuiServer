@@ -123,7 +123,6 @@ void TraceWindow::reloadTracesFromBelow(int value)
     ui->textBrowser->setText("");
     //    std::cout<<value<<std::endl;
 
-    std::cout<<sliderAction<<std::endl;
     //Переменные для скипа пустых строк
     tBOOL foundFirstRow = false;
     tINT32 rowsSkipped = 0;
@@ -202,7 +201,6 @@ void TraceWindow::reloadTracesFromBelow(int value)
 
 void TraceWindow::reloadTracesFromAbove(int value)
 {
-    std::cout<<"Reloading from Above"<<std::endl;
     tUINT32 rememberValue = value;
     ui->textBrowser->setText("");
 
@@ -323,7 +321,7 @@ void TraceWindow::recountNumberOfRowsToShow()
     }
 
     reloadTracesInsideWindow();
-    std::cout<<"Rows on screen: "<<numberOfRowsToShow<<std::endl;
+//    std::cout<<"Rows on screen: "<<numberOfRowsToShow<<std::endl;
 }
 
 TraceWindowSettings* TraceWindow::getTraceSettings() const
@@ -546,6 +544,7 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
     else */if(numDegrees.ry()<0){
         //Это для скролла лишних данных
         sliderAction = 2;
+
         ui->Autoscroll->setChecked(false);
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-1);
     }
@@ -1018,7 +1017,6 @@ void TraceWindow::on_verticalScrollBar_actionTriggered(int action)
 {
     ui->selectedLabel->clear();
     lastSelected=-1;
-    std::cout<<"action value "<<ui->verticalScrollBar->value()<<std::endl;
     sliderAction = action;
 
 }
