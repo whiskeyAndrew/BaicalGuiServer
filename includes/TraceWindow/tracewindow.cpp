@@ -544,6 +544,7 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
         std::cout<<ui->verticalScrollBar->value()<<std::endl;
     }
     else */if(numDegrees.ry()<0){
+        //Это для скролла лишних данных
         sliderAction = 2;
         ui->Autoscroll->setChecked(false);
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-1);
