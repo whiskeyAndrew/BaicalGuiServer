@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         includes/serverstatussender.h includes/serverstatussender.cpp
         icons/icons.qrc
         includes/enumparser.h includes/enumparser.cpp
+        includes/debuglogger.h includes/debuglogger.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

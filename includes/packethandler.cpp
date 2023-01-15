@@ -4,6 +4,7 @@
 
 void PacketHandler::run()
 {
+    DebugLogger::writeData("PacketHandler:: Thread was launched");
     //Нам надо один раз запустить и запомнить поток обработки чанков, это мы сделаем здесь
     packetHello = {0,0,0,0,0,0};
     chunkHandler.start();
@@ -25,9 +26,11 @@ void PacketHandler::run()
         free(packetBuffer);
     }
     std::cout<<"------"<<"Packet handler is ending"<<"------"<<std::endl;
+    DebugLogger::writeData("PacketHandler:: Interruption Requested, closing chunkHandler...");
     chunkHandler.requestInterruption();
     chunkHandler.waitCondition.wakeOne();
     chunkHandler.wait();
+    DebugLogger::writeData("PacketHandler:: My chunkhandler was closed, closing myself...");
     this->exit();
 }
 
@@ -61,17 +64,21 @@ time_t PacketHandler::getLastPacketTime()
 
 bool PacketHandler::getPacketFromQueue()
 {
+    DebugLogger::writeData("PacketHandler:: Trying to get new packet");
     //Ждем пока очередь чем-то заполнится, НА ВСЯКИЙ СЛУЧАЙ
     if(packetQueue.empty()){
+        DebugLogger::writeData("PacketHandler:: PacketQueue is waiting, going to sleep");
         syncThreads.tryLock(-1);
         waitCondition.wait(&syncThreads);
         syncThreads.unlock();
+        DebugLogger::writeData("PacketHandler:: Someone woke me up, trying to get new packet");
     }
-
-    //Сюда пришли если очередь не пуста, откусываем и начинаем обработку
+    //Доп проверка на выходит из waitCondition
     if(packetQueue.empty()){
         return false;
     }
+    //Сюда пришли если очередь не пуста, откусываем и начинаем обработку
+    DebugLogger::writeData("PacketHandler:: Got new packet! Trying to cut it...");
     mutex.tryLock(-1);
     tempVector = packetQueue.front();
     packetQueue.pop();
@@ -81,11 +88,13 @@ bool PacketHandler::getPacketFromQueue()
     packetBuffer = (tUINT8*)malloc(packetSize);
     memcpy(packetBuffer,tempVector.data(),packetSize);
     packetCursor = packetBuffer;
+    DebugLogger::writeData("PacketHandler:: Cut new packet!");
     return true;
 }
 
 bool PacketHandler::packetProcessing()
 {
+    DebugLogger::writeData("PacketHandler:: Started packet processing...");
     //Читаем заголовок пакета и перескакиваем его
     memcpy(&packetHeader,packetCursor,sizeof(sH_Packet_Header));
     packetSize = packetHeader.wSize;
@@ -98,13 +107,16 @@ bool PacketHandler::packetProcessing()
     {
     case ETPT_CLIENT_DATA:
     {
+        DebugLogger::writeData("PacketHandler:: Its ETPT_CLIENT_DATA packet!");
         if(packetHello.dwProcess_ID==0){
             char buffer = '0';
             sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
             break;
         }
 
+        DebugLogger::writeData("PacketHandler:: started handling data packet");
         bool dataReady = initData();
+        DebugLogger::writeData("PacketHandler:: ended handling data packet");
 
         if(dataReady==FALSE){
             return false;
@@ -115,6 +127,7 @@ bool PacketHandler::packetProcessing()
 
     case ETPT_CLIENT_DATA_REPORT:
     {
+        DebugLogger::writeData("PacketHandler:: Its ETPT_CLIEND_DATA_REPORT packet!");
         if(packetHello.dwProcess_ID==0){
             char buffer = '0';
             sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
@@ -128,6 +141,7 @@ bool PacketHandler::packetProcessing()
     }
     case ETPT_CLIENT_PING:
     {
+        DebugLogger::writeData("PacketHandler:: Its ETPT_CLIEND_PING packet!");
         if(packetHello.dwProcess_ID==0){
             char buffer = '0';
             sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
@@ -141,6 +155,7 @@ bool PacketHandler::packetProcessing()
     }
     case ETPT_CLIENT_HELLO:
     {
+        DebugLogger::writeData("PacketHandler:: Its ETPT_CLIEND_HELLO packet!");
         if(!handleHelloPacket()){
             return false;
         }
@@ -148,6 +163,7 @@ bool PacketHandler::packetProcessing()
     }
     case ETPT_CLIENT_BYE:
     {
+        DebugLogger::writeData("PacketHandler:: Its ETPT_CLIEND_DATA_BYE packet!");
         if(packetHello.dwProcess_ID==0){
             char buffer = '0';
             sendto(socketIn, &buffer, 1, 0, (sockaddr*)&client, sizeof(client));
@@ -157,12 +173,13 @@ bool PacketHandler::packetProcessing()
     }
     default:
     {
+        DebugLogger::writeData("PacketHandler:: ---UNKNOW PACKET!!!---");
         std::cout<<"Can't get packet type"<<std::endl;
         return false;
         break;
     }
-        return true;
     }
+    DebugLogger::writeData("PacketHandler:: Packet was processed, ending THIS packet processing...");
     return true;
 }
 

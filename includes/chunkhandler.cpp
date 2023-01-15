@@ -1,5 +1,5 @@
 #include "chunkhandler.h"
-
+#include "debuglogger.h"
 
 void ChunkHandler::run()
 {
@@ -7,6 +7,8 @@ void ChunkHandler::run()
     //временный костыль для того, чтобы AutoOpen успевал первые пакеты прогрузить внутри окна.
     //Нужно удалить из кода когда запилю чтение из мапы при открытии окна
     Sleep(200);
+    DebugLogger::writeData("ChunkHandler:: chunkHandler is running");
+
     while((!chunks.empty()) || (fileEnded == false))
     {
         if(this->isInterruptionRequested()){
@@ -14,21 +16,28 @@ void ChunkHandler::run()
             break;
         }
 
+        DebugLogger::writeData("ChunkHandler:: trying to get chunk from queue");
         if(!getChunkFromQueue()){
             continue;
         }
+        DebugLogger::writeData("ChunkHandler:: got new chunk from queue!");
 
         if(this->isInterruptionRequested()){
             std::cout<<"Second interruption of chunkHandler"<<std::endl;
             break;
         }
+
+        DebugLogger::writeData("ChunkHandler:: Started chunk processing!");
         processChunk();
+        DebugLogger::writeData("ChunkHandler:: Ended chunk processing!");
 
         if(this->isInterruptionRequested()){
             std::cout<<"Thirs interruption of chunkHandler"<<std::endl;
             break;
         }
     }
+
+    DebugLogger::writeData("ChunkHandler:: chunkHandler is ending");
     std::cout<<"------"<<"ChunkHandler is ending"<<"------"<<std::endl;
 
     if(needBackup){
@@ -139,6 +148,7 @@ bool ChunkHandler::processChunk()
 
         case EP7USER_TYPE_TRACE:
         {
+            DebugLogger::writeData("ChunkHandler:: Its EP7USER_TYPE_TRACE chunk!");
             if(needBackup){
                 //Сделано немного не так как в байкале
                 //Байкал пишет чанки здоровенными кусками в файл и только потом их пишет
@@ -149,6 +159,7 @@ bool ChunkHandler::processChunk()
             switch(structSubtype){
             case EP7TRACE_TYPE_DATA:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_DATA chunk!");
                 //Не уникальный трейс
                 traceToGUI = trace.setTraceData(chunkCursor);
                 if(isWindowOpened)
@@ -158,8 +169,10 @@ bool ChunkHandler::processChunk()
                 chunkCursor = chunkCursor+structSize;
                 break;
             }
+
             case EP7TRACE_TYPE_DESC:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_DESC chunk!");
                 //Уникальный трейс
                 UniqueTraceData uTrace = trace.setTraceFormat(chunkCursor);
 
@@ -175,24 +188,28 @@ bool ChunkHandler::processChunk()
             }
             case EP7TRACE_TYPE_INFO:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_INFO chunk!");
                 trace.setTraceInfo(chunkCursor);
                 chunkCursor = chunkCursor+structSize;
                 break;
             }
             case EP7TRACE_TYPE_THREAD_START:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_THREAD_START chunk!");
                 trace.setTraceThreadStart(chunkCursor);
                 chunkCursor+=structSize;
                 break;
             }
             case EP7TRACE_TYPE_THREAD_STOP:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_THREAD_STOP chunk!");
                 trace.setTraceThreadStop(chunkCursor);
                 chunkCursor+=structSize;
                 break;
             }
             case EP7TRACE_TYPE_MODULE:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_MODULE chunk!");
                 sP7Trace_Module tModule =  trace.setTraceModule(chunkCursor);
                 if(isWindowOpened)
                 {
@@ -203,6 +220,7 @@ bool ChunkHandler::processChunk()
             }
             case EP7TRACE_TYPE_UTC_OFFS:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_UTC_OFFS chunk!");
                 trace.setTraceUTC(chunkCursor);
                 chunkCursor+=structSize;
                 break;
@@ -210,11 +228,13 @@ bool ChunkHandler::processChunk()
 
             case EP7TRACE_TYPE_VERB:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_VERB chunk!");
                 //Пока не знаю что это
                 break;
             }
             case EP7TRACE_TYPE_CLOSE:
             {
+                DebugLogger::writeData("ChunkHandler:: Its EP7TRACE_TYPE_CLOSE chunk!");
                 //Закрытие соединения
                 //Обычно происходит если приложение завершило работу
                 //Наш сервак сам закроет соединение
@@ -222,9 +242,11 @@ bool ChunkHandler::processChunk()
             }
             default:
             {
+                DebugLogger::writeData("ChunkHandler:: Its ---UNKNOWN CHUNK---!");
                 break;
             }
             }
+            DebugLogger::writeData("ChunkHandler:: Ended chunk handling");
             break;
 
         }

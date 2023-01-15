@@ -1,6 +1,5 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
-
 //Окно отрисовывает текст как HTML. Это было сделано для того, чтобы предоставить приложению вид "консоли",
 //Но при этом сохранить байкаловскую возможность кликать по строкам чтобы получать о них информацию.
 //Из-за этого вытекло куча проблем, к примеру тэги /n и /t приходится заменять ХТМЛовским аналогом
@@ -15,6 +14,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
     QDialog(parent),
     ui(new Ui::TraceWindow)
 {
+    DebugLogger::writeData("TraceWindow:: opening new trace window! "+newClientName.ip + ":"+newClientName.port);
     ui->setupUi(this);
     clientName = newClientName;
     config = newConfig;
@@ -26,6 +26,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
 
 void TraceWindow::getTrace(TraceToGUI trace)
 {
+    DebugLogger::writeData("TraceWindow:: got new Trace from backend! "+clientName.ip + ":"+clientName.port);
     ui->verticalScrollBar->setMaximum(++verticalBarSize);
 
     //слишком большая часть хранить кучу данных в traceTime
@@ -34,10 +35,16 @@ void TraceWindow::getTrace(TraceToGUI trace)
     guiData.insert(verticalBarSize,tempGuiData);
 
     if(verticalBarSize<numberOfRowsToShow){
-        ui->textBrowser->verticalScrollBar()->setValue(0);
         QString row = getGuiRow(tempGuiData);
         ui->textBrowser->append(row);
-        ui->textBrowser->verticalScrollBar()->setValue(0);
+        ui->textBrowser->verticalScrollBar()->setValue(1);
+        return;
+    }
+
+    if(ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
+        QString row = getGuiRow(tempGuiData);
+        ui->textBrowser->append(row);
+        ui->textBrowser->verticalScrollBar()->setValue(1);
         return;
     }
 
@@ -48,6 +55,7 @@ void TraceWindow::getTrace(TraceToGUI trace)
 
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {
+    std::cout<<ui->verticalScrollBar->value()<<std::endl;
     reloadTracesInsideWindow();
 }
 
@@ -294,7 +302,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     ui->dwSequence->setText(QString::number(traceData.dwSequence));
 
     //Нужно добваить игнорирование тэгов
-    ui->traceText->setPlainText(traceFormat.traceLineData+"\n\n"+rawTrace);
+    ui->traceText->setText(traceFormat.traceLineData+"\n\n"+rawTrace);
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
 
@@ -321,7 +329,7 @@ void TraceWindow::recountNumberOfRowsToShow()
     }
 
     reloadTracesInsideWindow();
-//    std::cout<<"Rows on screen: "<<numberOfRowsToShow<<std::endl;
+    //    std::cout<<"Rows on screen: "<<numberOfRowsToShow<<std::endl;
 }
 
 TraceWindowSettings* TraceWindow::getTraceSettings() const
@@ -399,8 +407,6 @@ void TraceWindow::mousePressEvent(QMouseEvent* eventPress)
     ui->selectedLabel->clear();
     lastSelected = -1;
     ui->Autoscroll->setChecked(false);
-
-
 }
 
 bool TraceWindow::event(QEvent* event)
@@ -497,8 +503,8 @@ void TraceWindow::initWindow(){
     recountNumberOfRowsToShow();
     ui->textBrowser->setText("");
 
-    ui->verticalScrollBar->setMaximum(0);
-    ui->verticalScrollBar->setMinimum(0);
+    ui->verticalScrollBar->setMaximum(1);
+    ui->verticalScrollBar->setMinimum(1);
     ui->verticalScrollBar->setPageStep(1);
 
     QPalette pallete = ui->textBrowser->palette();
@@ -523,7 +529,7 @@ void TraceWindow::initWindow(){
     ui->textBrowser->verticalScrollBar()->setDisabled(true);
     ui->textBrowser->verticalScrollBar()->setVisible(false);
     ui->infinite_line->setChecked(true);
-    ui->traceText->viewport()->setAutoFillBackground(false);
+    //    ui->traceText->viewport()->setAutoFillBackground(false);
 }
 
 void TraceWindow::setStyle(QString newStyleSheet)
@@ -535,6 +541,8 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
 {
     //При автоскролле работает немного неправильно, надо будет переделать, пока не критично
     QPoint numDegrees = event->angleDelta() / 8*(-1);
+    lastSelected = -1;
+    ui->selectedLabel->clear();
 
     /*    if(ui->Autoscroll->isChecked()){
         ui->Autoscroll->setChecked(false);
@@ -610,6 +618,7 @@ void TraceWindow::on_infinite_line_stateChanged(int arg1)
 }
 
 QString TraceWindow::getGuiRow(GUIData g){
+    DebugLogger::writeData("TraceWindow:: frontend asked to generate new message, generatiing...! "+clientName.ip + ":"+clientName.port);
     //"style=\"background-color:#33475b\""
     QString color= "color:#C0C0C0\">";
 
@@ -799,6 +808,7 @@ QString TraceWindow::getGuiRow(GUIData g){
             +traceLinkMiddle+color+sequenceToGUI + timeToGUI
             +traceToGUI+traceLinkEnd;
 
+    DebugLogger::writeData("TraceWindow:: message generating to frontend is ended! Message: "+returnableHTMLRow+ " __FROM__ " +clientName.ip + ":"+clientName.port);
     return returnableHTMLRow;
 }
 

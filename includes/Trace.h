@@ -7,6 +7,8 @@
 #include <QMap>
 #include "enumparser.h"
 #include <memory>
+#include "debuglogger.h"
+
 #define TIME_OFFSET_1601_1970                            (116444736000000000ULL)
 
 #define TIME_HRS_100NS                                            36000000000ull

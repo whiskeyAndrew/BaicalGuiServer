@@ -8,6 +8,7 @@ ConnectionTimeoutChecker::ConnectionTimeoutChecker(QList<ClientData> *newWindows
 
 void ConnectionTimeoutChecker::run()
 {
+    DebugLogger::writeData("ConnectionTimeoutChecker:: launched!");
     while(true){
 
         for(int i=0;i<windowsList->size();i++){
@@ -25,7 +26,7 @@ tryAgain:
                 emit clientStatusIsChanged(windowsList->at(i).connectionThread->getClient(),OFFLINE);
                 windowsList->at(i).connectionThread->requestInterruption();
                 windowsList->at(i).connectionThread->waitCondition.wakeAll();
-
+                DebugLogger::writeData(&"Connection lost from " [ ntohs(windowsList->at(i).clientIp.sin_port)]);
                 continue;
             }
 
@@ -59,6 +60,6 @@ tryAgain:
         }
         this->msleep(TIMEOUT_MSECS);
     }
-
+    DebugLogger::writeData("ConnectionTimeoutChecker:: ending!");
     std::cout<<"------"<<"ConnectionTimeoutChecker is ending"<<"------"<<std::endl;
 }

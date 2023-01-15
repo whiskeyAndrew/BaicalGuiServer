@@ -147,7 +147,7 @@ void ConfigHandler::saveEnumsList(QString ip, QString fileName)
 QString ConfigHandler::loadEnumsList(QString ip)
 {
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
-    settings->beginGroup(ip+" enums");
+    settings->beginGroup(ip+"_enums");
     QString fileName = settings->value("enums_file").toString();
     settings->endGroup();
     delete settings;
