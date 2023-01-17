@@ -685,7 +685,7 @@ selection-background-color: rgb(187, 187, 187);</string>
     </widget>
    </item>
    <item row="5" column="2">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="clearSelected">
      <property name="text">
       <string>Clear Select</string>
      </property>

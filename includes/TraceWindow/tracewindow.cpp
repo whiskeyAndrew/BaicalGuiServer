@@ -34,17 +34,12 @@ void TraceWindow::getTrace(TraceToGUI trace)
     GUIData tempGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime,ui->verticalScrollBar->maximum()};
     guiData.insert(verticalBarSize,tempGuiData);
 
-    if(verticalBarSize<numberOfRowsToShow){
+    if(verticalBarSize<numberOfRowsToShow || ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
         QString row = getGuiRow(tempGuiData);
-        ui->textBrowser->append(row);
-        ui->textBrowser->verticalScrollBar()->setValue(1);
-        return;
-    }
-
-    if(ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
-        QString row = getGuiRow(tempGuiData);
-        ui->textBrowser->append(row);
-        ui->textBrowser->verticalScrollBar()->setValue(1);
+        if(row!=""){
+            ui->textBrowser->append(row);
+            ui->textBrowser->verticalScrollBar()->setValue(1);
+        }
         return;
     }
 
@@ -92,23 +87,11 @@ void TraceWindow::reloadTracesInsideWindow()
 
         GUIData g = guiData.value(ui->verticalScrollBar->value());
 
-        tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
-        if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
-            return;
+        QString row = getGuiRow(g);
+        if(row!=""){
+            ui->textBrowser->append(row);
+            ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
         }
-
-        if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
-            return;
-        }
-
-
-        if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
-            return;
-        }
-
-        ui->textBrowser->append(getGuiRow(g));
-        ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
-
         //while - используется для ситуаций, где у нас требуется отображать строки не бесконечной линией
         //мы можем удалять только строки текста, следовательно нужно удалять строки сверху до тех пор, пока их не станет столько, сколько надо
         while(ui->textBrowser->document()->blockCount()>numberOfRowsToShow){
@@ -444,6 +427,7 @@ void TraceWindow::on_expandButton_clicked(bool checked)
 {
     if(checked==true)
     {
+        ui->clearSelected->setHidden(true);
         ui->groupBox->setHidden(true);
         ui->Disable->setHidden(true);
         ui->traceTextGroupbox->setHidden(true);
@@ -451,6 +435,7 @@ void TraceWindow::on_expandButton_clicked(bool checked)
     }
     else
     {
+        ui->clearSelected->setHidden(false);
         ui->groupBox->setHidden(false);
         ui->Disable->setHidden(false);
         ui->traceTextGroupbox->setHidden(false);
@@ -617,6 +602,21 @@ void TraceWindow::on_infinite_line_stateChanged(int arg1)
 }
 
 QString TraceWindow::getGuiRow(GUIData g){
+    tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
+
+    if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
+        return "";
+    }
+
+    if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
+        return "";
+    }
+
+
+    if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
+        return "";
+    }
+
     DebugLogger::writeData("TraceWindow:: frontend asked to generate new message, generatiing...! "+clientName.ip + ":"+clientName.port);
     //"style=\"background-color:#33475b\""
     QString color= "color:#C0C0C0\">";
@@ -1016,7 +1016,7 @@ void TraceWindow::clearSelect()
     ui->processName->clear();
 }
 
-void TraceWindow::on_pushButton_clicked()
+void TraceWindow::on_clearSelected_clicked()
 {
     clearSelect();
 }
