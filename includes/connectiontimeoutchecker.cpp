@@ -1,65 +1,99 @@
 #include "connectiontimeoutchecker.h"
+#define MAX_ATTEMPTS_TO_RECONNECT 5
 
-ConnectionTimeoutChecker::ConnectionTimeoutChecker(QList<ClientData> *newWindowsList, MainWindow *newMainWindow){
-    windowsList = newWindowsList;
+ConnectionTimeoutChecker::ConnectionTimeoutChecker(MainWindow *newMainWindow){
     mainWindow = newMainWindow;
     connect(this,&ConnectionTimeoutChecker::clientStatusIsChanged,this->mainWindow,&MainWindow::changeClientStatus);
 }
 
+void ConnectionTimeoutChecker::appendClientsMap(ClientData client)
+{
+    attemptsToReconect.append({client.clientIp,client.connectionThread,0});
+    isAttemptsToReconnectChanged = true;
+}
+
+void ConnectionTimeoutChecker::removeClientAt(tUINT32 clientNumber)
+{
+    ClientsAttemptToReconnect client = attemptsToReconect.at(clientNumber);
+
+    //На случай если по каким-то причинам лаунчер попросил удалить раньше времени клиента
+    //Надо убедиться что его статус изменился
+    if(client.connectionThread->isInterruptionRequested()){
+        std::cout<<"Connection lost from "<< ntohs(client.clientIp.sin_port)<<std::endl;
+        emit clientStatusIsChanged(client.connectionThread->getClient(),OFFLINE);
+        client.connectionThread->requestInterruption();
+        client.connectionThread->waitCondition.wakeAll();
+        DebugLogger::writeData(&"Connection lost from " [ ntohs(client.clientIp.sin_port)]);
+    }
+
+    attemptsToReconect.removeAt(clientNumber);
+    isAttemptsToReconnectChanged = true;
+}
 void ConnectionTimeoutChecker::run()
 {
+    //Не идеальная система, так как она проверяет по одному соединению за раз. То есть если офнуть два соединения сразу, то она будет их по очереди разбирать
+    //Можно будет доделать, если будет нужда
     DebugLogger::writeData("ConnectionTimeoutChecker:: launched!");
-    while(true){
 
-        for(int i=0;i<windowsList->size();i++){
-            tUINT32 attempts = 0;
-tryAgain:
-            if(windowsList->at(i).connectionThread==NULL){
-                continue;
-            }
-            if(windowsList->at(i).connectionThread->isFinished()){
-                continue;
+    while(!this->isInterruptionRequested()){
+        for(int i =0;i<attemptsToReconect.size();i++){
+
+            if(isAttemptsToReconnectChanged){
+                std::cout<<"ConnectionTimeoutChecker: map changed, starting from 0" <<std::endl;
+                isAttemptsToReconnectChanged = false;
+                break;
             }
 
-            if(attempts==5){
-                std::cout<<"Connection lost from "<< ntohs(windowsList->at(i).clientIp.sin_port)<<std::endl;
-                emit clientStatusIsChanged(windowsList->at(i).connectionThread->getClient(),OFFLINE);
-                windowsList->at(i).connectionThread->requestInterruption();
-                windowsList->at(i).connectionThread->waitCondition.wakeAll();
-                DebugLogger::writeData(&"Connection lost from " [ ntohs(windowsList->at(i).clientIp.sin_port)]);
+            ClientsAttemptToReconnect* client = &attemptsToReconect[i];
+
+            //Это файл, лаунчер просто должен знать что в главном окне на этом месте есть ЧТО-ТО, чтобы нужные карты не сбивались со счета
+            if(client->connectionThread==NULL){
                 continue;
             }
 
-            if(windowsList->at(i).connectionThread->getLastPacketTime()+TIMEOUT_MSECS<GetCurrentTime()){
-                attempts++;
-                std::cout<<"Connection lost? Trying again, port: "<< ntohs(windowsList->at(i).clientIp.sin_port) << " Attempt:" << attempts <<std::endl;
-                if(attempts==1){
-                    emit clientStatusIsChanged(windowsList->at(i).connectionThread->getClient(),UNKNOWN_CONNECTION_STATUS);
+            if(client->connectionThread->isFinished() || client->connectionThread->isInterruptionRequested()){
+                continue;
+            }
+
+            if(client->attempts==MAX_ATTEMPTS_TO_RECONNECT){
+                std::cout<<"Connection lost from "<< ntohs(client->clientIp.sin_port)<<std::endl;
+                emit clientStatusIsChanged(client->connectionThread->getClient(),OFFLINE);
+                client->connectionThread->requestInterruption();
+                client->connectionThread->waitCondition.wakeAll();
+                DebugLogger::writeData(&"Connection lost from " [ ntohs(client->clientIp.sin_port)]);
+                continue;
+            }
+
+            if(client->connectionThread->getLastPacketTime()+TIMEOUT_MSECS<GetCurrentTime()){
+                if(client->attempts==0){
+                    emit clientStatusIsChanged(client->connectionThread->getClient(),UNKNOWN_CONNECTION_STATUS);
                 }
-                this->msleep(1000);
-                goto tryAgain;
+                std::cout<<"Connection lost? Trying again, port: "<< ntohs(client->clientIp.sin_port) << " Attempt:" << client->attempts <<std::endl;
+                client->attempts = client->attempts+1;
+            }  else if(client->attempts!=0){
+                client->attempts = 0;
+                std::cout<<"Connection restored: "<< ntohs(client->clientIp.sin_port) <<std::endl;
+                emit clientStatusIsChanged(client->connectionThread->getClient(),ONLINE);
             }
-            else if(attempts!=0){
-                attempts = 0;
-                std::cout<<"Connection restored: "<< ntohs(windowsList->at(i).clientIp.sin_port) <<std::endl;
-                emit clientStatusIsChanged(windowsList->at(i).connectionThread->getClient(),ONLINE);
-            }
-        }
 
-        //Закрываем приложение
-        if(this->isInterruptionRequested()){
-            for(int j = 0;j<windowsList->size();j++){
-                windowsList->at(j).connectionThread->requestInterruption();
-                while(!windowsList->at(j).connectionThread->isFinished()){
-                    windowsList->at(j).connectionThread->waitCondition.wakeOne();
-                    windowsList->at(j).connectionThread->wait(50);
-                }
-
-            }
-            break;
         }
         this->msleep(TIMEOUT_MSECS);
     }
-    DebugLogger::writeData("ConnectionTimeoutChecker:: ending!");
-    std::cout<<"------"<<"ConnectionTimeoutChecker is ending"<<"------"<<std::endl;
+
+    //Закрываем приложение
+    if(this->isInterruptionRequested()){
+        for(int i =0;i<attemptsToReconect.size();i++){
+            ClientsAttemptToReconnect client = attemptsToReconect.at(i);
+            client.connectionThread->requestInterruption();
+            while(!client.connectionThread->isFinished()){
+                client.connectionThread->waitCondition.wakeOne();
+                client.connectionThread->wait(50);
+            }
+        }
+
+        DebugLogger::writeData("ConnectionTimeoutChecker:: ending!");
+        std::cout<<"------"<<"ConnectionTimeoutChecker is ending"<<"------"<<std::endl;
+    }
 }
+
+

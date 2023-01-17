@@ -55,7 +55,6 @@ void TraceWindow::getTrace(TraceToGUI trace)
 
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {
-    std::cout<<ui->verticalScrollBar->value()<<std::endl;
     reloadTracesInsideWindow();
 }
 

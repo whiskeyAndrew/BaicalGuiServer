@@ -20,7 +20,6 @@ void ChunkHandler::run()
         if(!getChunkFromQueue()){
             continue;
         }
-        DebugLogger::writeData("ChunkHandler:: got new chunk from queue!");
 
         if(this->isInterruptionRequested()){
             std::cout<<"Second interruption of chunkHandler"<<std::endl;
@@ -64,6 +63,7 @@ bool ChunkHandler::processChunk()
     }
     while(chunkCursor<chunkEnd)
     {
+
         memcpy(&ext_Raw,chunkCursor,sizeof(tUINT32));
         structType = GET_EXT_HEADER_TYPE(ext_Raw);
         structSubtype = GET_EXT_HEADER_SUBTYPE(ext_Raw);

@@ -115,6 +115,7 @@ bool PacketHandler::packetProcessing()
         }
 
         DebugLogger::writeData("PacketHandler:: started handling data packet");
+
         bool dataReady = initData();
         DebugLogger::writeData("PacketHandler:: ended handling data packet");
 
@@ -208,9 +209,14 @@ newChunk:
         }
 
         //Передаем в очередь наш вектор
+        DebugLogger::writeData(QString::number( packetSize) + " " + QString::number(bufferVector.size()));
+        //При каких-то неведомых условиях размер вектора с чанками для ChunkHandler мог равняться нулю. Делаем проверку, если мы не смогли собрать вектор и его размер = 0 - скипаем
+        if(bufferVector.size()==0){
+            return true;
+        }
         chunkHandler.appendChunksQueue(bufferVector);
 
-        chunkHandler.waitCondition.wakeOne();
+        chunkHandler.waitCondition.wakeAll();
 
         bufferVector.clear();//На всякий случай
         chunkSize=0;
@@ -240,9 +246,12 @@ PacketHandler::~PacketHandler()
 
 bool PacketHandler::handleHelloPacket()
 {
+    //Проверяем, клиент может в буфере UDP сокета хранить множество пакетов приветствия и чтобы каждый раз их не хендлить по новой, проверяем надо ли это делать еще раз
+    //Потому что здесь инициируется бэкапер
     if(helloPacketInitialized){
         return true;
     }
+
     memcpy(&packetHello,packetCursor,sizeof(sH_Client_Hello));
     packetEnd = packetCursor+sizeof(sH_Client_Hello);
 

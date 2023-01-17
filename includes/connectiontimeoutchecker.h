@@ -8,14 +8,23 @@
 
 #define TIMEOUT_MSECS 1000
 
+struct ClientsAttemptToReconnect{
+    sockaddr_in clientIp;
+    PacketHandler* connectionThread;
+    tUINT32 attempts;
+};
+
 class ConnectionTimeoutChecker:public QThread
 {
     Q_OBJECT
 public:
-    ConnectionTimeoutChecker(QList<ClientData>* newWindowsList,MainWindow* newMainWindow);
-
+    ConnectionTimeoutChecker(MainWindow* newMainWindow);
+    QWaitCondition waitCondition;
+    void appendClientsMap(ClientData client);
+    void removeClientAt(tUINT32 clientNumber);
 private:
-    QList <ClientData>* windowsList;
+    QList<ClientsAttemptToReconnect> attemptsToReconect;
+    tBOOL isAttemptsToReconnectChanged = false;
     MainWindow* mainWindow;
     void run();
 signals:

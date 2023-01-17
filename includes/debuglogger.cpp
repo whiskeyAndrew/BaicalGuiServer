@@ -1,9 +1,12 @@
 #include "debuglogger.h"
 #include <iostream>
 
+//На слабых системах выедает всю производиловку
+//Переписать
+
 void DebugLogger::writeData(QString data)
 {
-    if(false){
+    if(true){
         return;
     }
 

@@ -2,7 +2,7 @@
 
 void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo, QString connectionAddr)
 {
-    std::cout<<"Backup Writer: Opening backup file"<<std::endl;
+    std::cout<<"Backup Writer: Opening backup file "<< connectionAddr.toStdString()<<std::endl;
     if(!QDir( "Backups").exists()){
             QDir().mkdir("Backups");
     }

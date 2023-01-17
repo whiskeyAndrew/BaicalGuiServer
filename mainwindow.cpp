@@ -170,6 +170,7 @@ void MainWindow::on_actionWhite_triggered()
 
 void MainWindow::on_connectionsTable_cellDoubleClicked(int row, int column)
 {
+    std::cout<<row<<std::endl;
     if(column==0){
         //Open
         if(traceWindows.at(row)->isVisible()){
@@ -177,30 +178,8 @@ void MainWindow::on_connectionsTable_cellDoubleClicked(int row, int column)
             return;
         }
         traceWindows.at(row)->show();
-    } else if(column==1){
-        //Delete
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Delete", "Delete window?",
-                                      QMessageBox::Yes|QMessageBox::No);
-        if (reply == QMessageBox::Yes) {
-            TraceWindow* traceWnd= traceWindows.at(row);
-            if(traceWnd->getConnectionStatus()!=0){
-                ui->statusbar->showMessage("Can't close active connection!");
-                return;
-            }
-
-            ui->statusbar->showMessage("Deleted connection: "+ traceWnd->getClientName().ip+":"+traceWnd->getClientName().port);
-
-            emit sendClientToDelete(row);
-
-            traceWindows.removeAt(row);
-            traceWnd->deleteLater();
-            ui->connectionsTable->removeRow(row);
-        }
     }
-
 }
-
 
 void MainWindow::on_actionOpen_File_triggered()
 {

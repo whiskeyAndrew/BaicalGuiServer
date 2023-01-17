@@ -7,7 +7,7 @@ void Launcher::run()
     connect(this,&Launcher::sendNewConnection,mainWindow,&MainWindow::getNewConnection);
 
     clientsList = new QList<ClientData>;
-    connectionTimeoutChecker = new ConnectionTimeoutChecker(clientsList,mainWindow);
+    connectionTimeoutChecker = new ConnectionTimeoutChecker(mainWindow);
     connectionTimeoutChecker->start();
 
     std::cout<<"Launcher:: Started socket init"<<std::endl;
@@ -128,6 +128,7 @@ Launcher::Launcher(MainWindow *mw)
 
 void Launcher::deleteClient(tUINT32 clientNumber)
 {
+    connectionTimeoutChecker->removeClientAt(clientNumber);
     clientsList->removeAt(clientNumber);
     std::cout<<"deleted client at "<<clientNumber<<std::endl;
 }
@@ -147,14 +148,14 @@ bool Launcher::findClientInArray()
 
             //внезапно ловим соединение которое уже было, но с тем же самым айпишником и портом, проверяем по состоянию потока обработки пакетов
             //не уверен что работает, но в теории должно, надеюсь?
-            if(packetHandler->isFinished()){
+            if(packetHandler->isFinished() || packetHandler->isInterruptionRequested()){
                 //Если приходит какое-то соединение с тем же айпишником и портом, а до этого у нас уже поток завершился, то скипаем существующий и тогда приложение создаст новый
                 //Если придет одинаковый айпишник и одинаковый порт на активные соединения то будем считать что это аномалия
                 //Но на самом деле в теории приложение будет оба обрабатывать как одно и есть риск захлебнуться если данных будет слишком много
                 continue;
             }
             packetHandler->appendQueue(packetBuffer,bytesIn);
-            packetHandler->waitCondition.wakeOne();
+            packetHandler->waitCondition.wakeAll();
 
             return true;
         }
@@ -163,8 +164,10 @@ bool Launcher::findClientInArray()
     //Не нашли клиента, делаем нового
     PacketHandler* newPacketHandler = new PacketHandler(client);
     clientsList->append({client,newPacketHandler});
+    connectionTimeoutChecker->appendClientsMap({client,newPacketHandler});
 
     emit sendNewConnection(client,newPacketHandler);
+
     newPacketHandler->appendQueue(packetBuffer,bytesIn);
     newPacketHandler->setSocketIn(socketIn);
     return true;
