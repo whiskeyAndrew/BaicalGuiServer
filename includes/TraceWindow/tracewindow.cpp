@@ -68,8 +68,6 @@ void TraceWindow::reloadTracesInsideWindow()
     else{
         ui->verticalScrollBar->setValue(lastSelected);
         value = lastSelected;
-        std::cout<<"numberOfRowsToShow/2: " <<numberOfRowsToShow/2<<std::endl;
-        std::cout<<"numberOfRowsToShow: " <<numberOfRowsToShow<<std::endl;
     }
 
     //костыльный фикс неприятного бага с повторяющейся последней строчкой при отключении соединения
