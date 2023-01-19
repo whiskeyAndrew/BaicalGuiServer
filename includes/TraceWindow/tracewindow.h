@@ -181,7 +181,6 @@ private slots:
     void on_verticalScrollBar_sliderPressed();
     void on_clearSelected_clicked();
     void on_verticalScrollBar_actionTriggered(int action);
-    void on_expandButton_clicked();
 };
 
 #endif // TRACEWINDOW_H

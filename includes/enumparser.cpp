@@ -9,6 +9,12 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
 {
     enums.clear();
     file = new QFile(fileName);
+    QMap<tUINT32,enumFromFile> e;
+    //филлер
+    e.insert(0,{"0","0"});
+
+    enums.append({"1234567 -> 1 234 567",e});
+
     if (file->open(QIODevice::ReadOnly))
     {
         QString line;

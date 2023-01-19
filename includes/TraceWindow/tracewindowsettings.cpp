@@ -7,7 +7,14 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow* newTraceWindow, Connection
 {
     ui->setupUi(this);
     traceWindow = newTraceWindow;
-    enumParser = new EnumParser();
+    enumParser = new EnumParser();    
+
+    //0 элемент в enumParser->enums - элемент, который будет отвечать за разделение по символам элементов
+    QMap<tUINT32,enumFromFile> e;
+    //филлер
+    e.insert(0,{"0","0"});
+    enumParser->enums.append({"1234567 -> 1 234 567",e});
+
     connectionName =*clientName;
 
     initWindow();
@@ -659,9 +666,12 @@ tBOOL TraceWindowSettings::loadEnumsFromFile(QString fileName){
         return false;
     }
     enumsIdList.clear();
-    int enumId = 1;
+    //1 айди зайнят 123345678-> 12 345 678
+    int enumId = 2;
     ui->enumsList->clear();
-    for(int i =0;i<enumParser->enums.size();i++){
+
+    //i = 1 - скипаем элемент 1234567 -> 1 234 567
+    for(int i =1;i<enumParser->enums.size();i++){
         QListWidgetItem* item = new QListWidgetItem(enumParser->enums.at(i).name);
         item->setData(Qt::ToolTipRole,enumId);
         ui->enumsList->addItem(item);
@@ -785,6 +795,7 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
             int countNumber = ui->rawTracesTable->rowCount();
             QComboBox* comboBox = new QComboBox();
             comboBox->addItem("");
+
             comboBoxesToDelete.append(comboBox);
 
             for(int i =0;i<enumParser->enums.size();i++){

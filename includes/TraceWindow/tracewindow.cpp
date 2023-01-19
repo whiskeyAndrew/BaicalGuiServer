@@ -714,18 +714,19 @@ QString TraceWindow::getGuiRow(GUIData g){
         QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
         for(int i =args.size()-1;i>=0;i--){
 
-            //0 - ничего ставить не надо
+            //0 - ничего ставить не надо (судя по всему это значение аргумента)
             tUINT32 number = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart)).toInt();
             if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==0){
                 continue;
             }
 
-            if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)){
+            if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)&& argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1){
                 continue;
             }
 
             //на случай если айдишника енама нет в списке енамов то скипаем
-            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.contains(number)){
+            //в эту штуку упираемся если мы хотим пропарсить 1234567->1 234 567, поэтому в нем по енамайди1 будут филлерные данные
+            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.contains(number) && argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1){
                 continue;
             }
 
@@ -751,9 +752,24 @@ QString TraceWindow::getGuiRow(GUIData g){
                 continue;
             }
 
+            //Делаем пробелы каждые три цифры в числе если енамАйди = 1
+            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==1){
+                QString digitWithSpaces = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart));
+                tUINT32 step = 0;
+                for(int i =digitWithSpaces.length();i>0;i--){
+                    if(step==3){
+                        digitWithSpaces.insert(i, " ");
+                        step = 0;
+                    }
+                    step++;
+                }
+                traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
+                                   digitWithSpaces);
+            }else{
+                traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
+                                   boldEnumStart+italicEnumStart+traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name+italicEnumEnd+boldEnumEnd);
+            }
             traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
-            traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
-                               boldEnumStart+italicEnumStart+traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name+italicEnumEnd+boldEnumEnd);
         }
     }
 
@@ -1039,4 +1055,3 @@ void TraceWindow::on_verticalScrollBar_actionTriggered(int action)
     sliderAction = action;
 
 }
-
