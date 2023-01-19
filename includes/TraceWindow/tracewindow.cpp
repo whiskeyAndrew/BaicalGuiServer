@@ -100,7 +100,7 @@ void TraceWindow::reloadTracesInsideWindow()
             cursor = ui->textBrowser->textCursor();
             cursor.movePosition(QTextCursor::Start);
             cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
-            cursor.select(QTextCursor::LineUnderCursor);
+            cursor.select(QTextCursor::BlockUnderCursor);
             cursor.removeSelectedText();
             cursor.deleteChar();
         }
@@ -190,12 +190,14 @@ void TraceWindow::reloadTracesFromBelow(int value)
     sliderAction = 0;
     ui->textBrowser->verticalScrollBar()->setValue(0);
 
-    if(lastSelected!=-1){
+    if(lastSelected!=-1 && rowsSkipped==0){
+//        ui->textBrowser->extraSelections().first().cursor;
         QTextCursor cur = ui->textBrowser->textCursor();
         cur.movePosition(QTextCursor::MoveOperation::Start,QTextCursor::MoveMode::MoveAnchor,1);
         cur.select(QTextCursor::BlockUnderCursor);
         ui->textBrowser->setTextCursor(cur);
         ui->textBrowser->horizontalScrollBar()->setValue(0);
+
     }
 }
 
@@ -242,7 +244,7 @@ void TraceWindow::reloadTracesFromAbove(int value)
     cursor = ui->textBrowser->textCursor();
     cursor.movePosition(QTextCursor::Start);
     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
-    cursor.select(QTextCursor::LineUnderCursor);
+    cursor.select(QTextCursor::BlockUnderCursor);
     cursor.removeSelectedText();
     cursor.deleteChar();
 
