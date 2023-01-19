@@ -18,7 +18,6 @@ void TraceWindowSettings::initWindow()
     setWindowTitle(connectionName.ip+":"+connectionName.port +" settings");
     ui->traceIDforEnums->addItem("");
 
-
     ui->rawTracesTable->insertColumn(0);
     ui->rawTracesTable->setColumnWidth(0, ui->rawTracesTable->width()/10);
     ui->rawTracesTable->insertColumn(1);
@@ -38,6 +37,10 @@ void TraceWindowSettings::initWindow()
     initWindowsSize();
     loadTracesToShowByIdFromConfig();
     loadModulesToShowFromConfig();
+    loadTypesFromConfig();
+
+    wheelScrollStep = config->loadWheelScrollStep(connectionName.ip);
+    ui->wheelStepLineEdit->setText(QString::number(wheelScrollStep));
 
     QString enumsFile = config->loadEnumsList(connectionName.ip);
     if(enumsFile!=""){
@@ -47,6 +50,7 @@ void TraceWindowSettings::initWindow()
     }
 
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
+    ui->wheelStepLineEdit->setValidator(new QIntValidator(0, INT_MAX, this));
     loadConfigFileAsText();
 
     //NULL module init
@@ -478,7 +482,8 @@ void TraceWindowSettings::on_checkAllUniqueTraces_clicked()
 
 void TraceWindowSettings::on_tabWidget_tabBarClicked(int index)
 {
-    if(index==2){
+    //Менять значение если добавляешь дополнительные вкладки в traceWindowSettings
+    if(index==4){
         loadConfigFileAsText();
     }
 }
@@ -1094,5 +1099,64 @@ void TraceWindowSettings::loadModulesToShowFromConfig(){
 void TraceWindowSettings::on_saveModulesToShowToConfig_clicked()
 {
     config->saveModulesToShow(connectionName.ip,needToShowModules);
+}
+
+void TraceWindowSettings::on_loadTypesFromConfig_clicked()
+{
+    loadTypesFromConfig();
+}
+
+void TraceWindowSettings::loadTypesFromConfig(){
+    QMap<QString, Qt::CheckState>types = config->loadTypesToShow(connectionName.ip);
+
+    //При изменении чекбоксов тригерится стародобавленный сигнал, который обновляет окно traceWindw для перегенерации по "новым условиям"
+    //Загрузка происходит до инициализации окна traceWindow, следовательно блочим сигналы перед тем как внести изменения
+    ui->sequenceCheckbox->blockSignals(true);
+    ui->traceCheckbox->blockSignals(true);
+    ui->timeCheckbox->blockSignals(true);
+
+    for(QString type:types.keys()){
+        if(type=="sequence"){
+            ui->sequenceCheckbox->setCheckState(types.value("sequence"));
+        }
+        else if(type=="time"){
+            ui->timeCheckbox->setCheckState(types.value("time"));
+        }else if(type=="trace"){
+            ui->traceCheckbox->setCheckState(types.value("trace"));
+        }
+    }
+
+    ui->sequenceCheckbox->blockSignals(false);
+    ui->traceCheckbox->blockSignals(false);
+    ui->timeCheckbox->blockSignals(false);
+
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
+        traceWindow->reloadTracesInsideWindow();
+    }
+}
+void TraceWindowSettings::on_saveTypesToConfig_clicked()
+{
+    QMap<QString, Qt::CheckState> typesToShow;
+    typesToShow.insert("sequence",ui->sequenceCheckbox->checkState());
+    typesToShow.insert("time",ui->timeCheckbox->checkState());
+    typesToShow.insert("trace",ui->traceCheckbox->checkState());
+    config->saveTypesToShow(connectionName.ip,typesToShow);
+}
+
+tUINT32 TraceWindowSettings::getWheelScrollStep()
+{
+    return wheelScrollStep;
+}
+
+void TraceWindowSettings::on_wheelStepLineEdit_editingFinished()
+{
+    wheelScrollStep = ui->wheelStepLineEdit->text().toInt();
+
+    if(wheelScrollStep==0){
+        wheelScrollStep=1;
+        ui->wheelStepLineEdit->setText("1");
+    }
+    config->saveWheelScrollStep(connectionName.ip,wheelScrollStep);
+
 }
 

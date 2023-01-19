@@ -70,6 +70,8 @@ public:
 
     Qt::CheckState getIsEnumItalic();
 
+    tUINT32 getWheelScrollStep();
+
 public slots:
 
 private slots:
@@ -187,6 +189,12 @@ private slots:
 
     void on_saveModulesToShowToConfig_clicked();
 
+    void on_loadTypesFromConfig_clicked();
+
+    void on_saveTypesToConfig_clicked();
+
+    void on_wheelStepLineEdit_editingFinished();
+
 private:
     Qt::CheckState isEnumBold = Qt::Unchecked;
     Qt::CheckState isEnumItalic = Qt::Unchecked;
@@ -206,6 +214,8 @@ private:
 
     Ui::TraceWindowSettings* ui;
 
+    tUINT32 wheelScrollStep;
+
     void reloadColors();
     void initColors();
     void initTraceLevels();
@@ -219,6 +229,7 @@ private:
     tBOOL loadEnumsFromFile(QString fileName);
     void loadTracesToShowByIdFromConfig();
     void loadModulesToShowFromConfig();
+    void loadTypesFromConfig();
 signals:
     //Unique Traces List
     void reloadDataInsideTraceWindow();

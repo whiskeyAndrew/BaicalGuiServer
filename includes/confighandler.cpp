@@ -322,3 +322,73 @@ void ConfigHandler::loadModulesToShow(QString ip)
     settings->endGroup();
     delete settings;
 }
+
+QMap<QString, Qt::CheckState> ConfigHandler::loadTypesToShow(QString ip)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_other");
+    QMap<QString, Qt::CheckState> types;
+
+    if(settings->contains("sequence")){
+        types.insert("sequence",static_cast<Qt::CheckState>(settings->value("sequence").toInt()));
+    } else{
+        types.insert("sequence",Qt::Checked);
+    }
+
+    if(settings->contains("time")){
+        types.insert("time",static_cast<Qt::CheckState>(settings->value("time").toInt()));
+    }else{
+        types.insert("time",Qt::Checked);
+    }
+
+    if(settings->contains("trace")){
+        types.insert("trace",static_cast<Qt::CheckState>(settings->value("trace").toInt()));
+    }else{
+        types.insert("trace",Qt::Checked);
+    }
+
+    settings->endGroup();
+    delete settings;
+    return types;
+}
+
+void ConfigHandler::saveTypesToShow(QString ip, QMap<QString, Qt::CheckState> types)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_other");
+
+    for(QString ip: types.keys()){
+        settings->setValue(ip,types.value(ip));
+    }
+    settings->endGroup();
+    delete settings;
+}
+
+void ConfigHandler::saveWheelScrollStep(QString ip, tUINT32 step)
+{
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_other");
+    settings->setValue("wheelScrollStep",step);
+    settings->endGroup();
+    delete settings;
+}
+
+tUINT32 ConfigHandler::loadWheelScrollStep(QString ip)
+{
+    tUINT32 wheelStep;
+    QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
+    settings->beginGroup(ip+"_other");
+
+    if(settings->contains("wheelScrollStep")){
+        wheelStep =  settings->value("wheelScrollStep").toInt();
+        if(wheelStep<=0){
+            wheelStep=1;
+        }
+    } else{
+        wheelStep = 1;
+    }
+
+    settings->endGroup();
+    delete settings;
+    return wheelStep;
+}

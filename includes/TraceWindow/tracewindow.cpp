@@ -66,6 +66,8 @@ void TraceWindow::reloadTracesInsideWindow()
     else{
         ui->verticalScrollBar->setValue(lastSelected);
         value = lastSelected;
+        std::cout<<"numberOfRowsToShow/2: " <<numberOfRowsToShow/2<<std::endl;
+        std::cout<<"numberOfRowsToShow: " <<numberOfRowsToShow<<std::endl;
     }
 
     //костыльный фикс неприятного бага с повторяющейся последней строчкой при отключении соединения
@@ -187,6 +189,14 @@ void TraceWindow::reloadTracesFromBelow(int value)
     ui->verticalScrollBar->blockSignals(false);
     sliderAction = 0;
     ui->textBrowser->verticalScrollBar()->setValue(0);
+
+    if(lastSelected!=-1){
+        QTextCursor cur = ui->textBrowser->textCursor();
+        cur.movePosition(QTextCursor::MoveOperation::Start,QTextCursor::MoveMode::MoveAnchor,1);
+        cur.select(QTextCursor::BlockUnderCursor);
+        ui->textBrowser->setTextCursor(cur);
+        ui->textBrowser->horizontalScrollBar()->setValue(0);
+    }
 }
 
 void TraceWindow::reloadTracesFromAbove(int value)
@@ -538,11 +548,11 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
         sliderAction = 2;
 
         ui->Autoscroll->setChecked(false);
-        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-1);
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-traceSettings->getWheelScrollStep());
     }
     else if(numDegrees.ry()>0){
         ui->Autoscroll->setChecked(false);
-        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+1);
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+traceSettings->getWheelScrollStep());
     }
 
     event->accept();

@@ -60,6 +60,10 @@ public:
     tUINT32 saveModulesToShow(QString ip, QMap<tUINT32, tUINT32> modules);
     void loadModulesToShow(QString ip);
     QMap<tUINT32, tUINT32> getNeedToShowModules();
+    QMap<QString, Qt::CheckState> loadTypesToShow(QString ip);
+    void saveTypesToShow(QString ip, QMap<QString, Qt::CheckState> types);
+    void saveWheelScrollStep(QString ip, tUINT32 step);
+    tUINT32 loadWheelScrollStep(QString ip);
 };
 
 #endif // CONFIGHANDLER_H
