@@ -126,7 +126,7 @@ void MainWindow::onCloseConnectionClicked()
 
 TraceWindow* MainWindow::initTraceWindow(ConnectionName connectionName)
 {
-    traceWindow = new TraceWindow(connectionName,config);
+    traceWindow = new TraceWindow(connectionName,config,this);
     traceWindow->setConnectionStatus(ONLINE);
     traceWindows.append(traceWindow);
     tUINT32 index = traceWindows.size()-1;
@@ -206,7 +206,7 @@ void MainWindow::on_actionOpen_File_triggered()
     ui->statusbar->showMessage("File opened: "+ fileName);
 
     launcher->clientsList->append({NULL,NULL});
-    traceWindow = new TraceWindow({"File ",fileName},config);
+    traceWindow = new TraceWindow({"File ",fileName},config,this);
     fileReader = new FileReader(fileName,traceWindow);
     traceWindow->setTraceAsObject(fileReader->chunkHandler.getTraceHandler());
     traceWindow->setConnectionStatus(OFFLINE);

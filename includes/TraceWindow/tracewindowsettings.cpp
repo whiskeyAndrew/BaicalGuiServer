@@ -1,4 +1,5 @@
 #include "tracewindowsettings.h"
+#include "mainwindow.h"
 #include "ui_tracewindowsettings.h"
 #include "tracewindow.h"
 #include <QObject>
@@ -44,7 +45,7 @@ void TraceWindowSettings::initWindow()
     initWindowsSize();
     loadTracesToShowByIdFromConfig();
     loadModulesToShowFromConfig();
-    loadTypesFromConfig();
+    loadColumnsFromConfig();
 
     wheelScrollStep = config->loadWheelScrollStep(connectionName.ip);
     ui->wheelStepLineEdit->setText(QString::number(wheelScrollStep));
@@ -1114,11 +1115,11 @@ void TraceWindowSettings::on_saveModulesToShowToConfig_clicked()
 
 void TraceWindowSettings::on_loadTypesFromConfig_clicked()
 {
-    loadTypesFromConfig();
+    loadColumnsFromConfig();
 }
 
-void TraceWindowSettings::loadTypesFromConfig(){
-    QMap<QString, Qt::CheckState>types = config->loadTypesToShow(connectionName.ip);
+void TraceWindowSettings::loadColumnsFromConfig(){
+    QMap<QString, Qt::CheckState>types = config->loadColumnsToShow(connectionName.ip);
 
     //При изменении чекбоксов тригерится стародобавленный сигнал, который обновляет окно traceWindw для перегенерации по "новым условиям"
     //Загрузка происходит до инициализации окна traceWindow, следовательно блочим сигналы перед тем как внести изменения
@@ -1151,7 +1152,7 @@ void TraceWindowSettings::on_saveTypesToConfig_clicked()
     typesToShow.insert("sequence",ui->sequenceCheckbox->checkState());
     typesToShow.insert("time",ui->timeCheckbox->checkState());
     typesToShow.insert("trace",ui->traceCheckbox->checkState());
-    config->saveTypesToShow(connectionName.ip,typesToShow);
+    config->saveColumnsToShow(connectionName.ip,typesToShow);
 }
 
 tUINT32 TraceWindowSettings::getWheelScrollStep()
@@ -1169,5 +1170,12 @@ void TraceWindowSettings::on_wheelStepLineEdit_editingFinished()
     }
     config->saveWheelScrollStep(connectionName.ip,wheelScrollStep);
 
+}
+
+
+void TraceWindowSettings::on_openLauncher_clicked()
+{
+    traceWindow->getMainWindow()->showNormal();
+    traceWindow->getMainWindow()->raise();
 }
 

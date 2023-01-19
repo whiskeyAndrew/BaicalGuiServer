@@ -195,6 +195,8 @@ private slots:
 
     void on_wheelStepLineEdit_editingFinished();
 
+    void on_openLauncher_clicked();
+
 private:
     Qt::CheckState isEnumBold = Qt::Unchecked;
     Qt::CheckState isEnumItalic = Qt::Unchecked;
@@ -229,7 +231,7 @@ private:
     tBOOL loadEnumsFromFile(QString fileName);
     void loadTracesToShowByIdFromConfig();
     void loadModulesToShowFromConfig();
-    void loadTypesFromConfig();
+    void loadColumnsFromConfig();
 signals:
     //Unique Traces List
     void reloadDataInsideTraceWindow();

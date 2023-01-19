@@ -1,5 +1,6 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
+#include "mainwindow.h"
 //Окно отрисовывает текст как HTML. Это было сделано для того, чтобы предоставить приложению вид "консоли",
 //Но при этом сохранить байкаловскую возможность кликать по строкам чтобы получать о них информацию.
 //Из-за этого вытекло куча проблем, к примеру тэги /n и /t приходится заменять ХТМЛовским аналогом
@@ -9,11 +10,11 @@
 //Короче генерация строк на экране здесь - это один большой и страшный костыль, альтернативу которому не получается придумать из-за нехватки опыта.
 //Проще пытаться придумать альтернативу чем пытаться это все глобально отрефакторить
 
-
-TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig, QDialog* parent) :
+TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig, MainWindow* mw, QDialog* parent) :
     QDialog(parent),
     ui(new Ui::TraceWindow)
 {
+    mainWindow = mw;
     DebugLogger::writeData("TraceWindow:: opening new trace window! "+newClientName.ip + ":"+newClientName.port);
     ui->setupUi(this);
     clientName = newClientName;
@@ -39,6 +40,7 @@ void TraceWindow::getTrace(TraceToGUI trace)
         if(row!=""){
             ui->textBrowser->append(row);
             ui->textBrowser->verticalScrollBar()->setValue(1);
+            ui->textBrowser->horizontalScrollBar()->setValue(0);
         }
         return;
     }
@@ -191,13 +193,12 @@ void TraceWindow::reloadTracesFromBelow(int value)
     ui->textBrowser->verticalScrollBar()->setValue(0);
 
     if(lastSelected!=-1 && rowsSkipped==0){
-//        ui->textBrowser->extraSelections().first().cursor;
+        //        ui->textBrowser->extraSelections().first().cursor;
         QTextCursor cur = ui->textBrowser->textCursor();
         cur.movePosition(QTextCursor::MoveOperation::Start,QTextCursor::MoveMode::MoveAnchor,1);
         cur.select(QTextCursor::BlockUnderCursor);
         ui->textBrowser->setTextCursor(cur);
         ui->textBrowser->horizontalScrollBar()->setValue(0);
-
     }
 }
 
@@ -484,6 +485,11 @@ void TraceWindow::setConnectionStatus(tUINT32 status){
 
 tUINT32 TraceWindow::getConnectionStatus(){
     return connectionStatus;
+}
+
+MainWindow *TraceWindow::getMainWindow() const
+{
+    return mainWindow;
 }
 
 void TraceWindow::initWindow(){

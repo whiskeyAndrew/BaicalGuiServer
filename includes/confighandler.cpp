@@ -323,7 +323,7 @@ void ConfigHandler::loadModulesToShow(QString ip)
     delete settings;
 }
 
-QMap<QString, Qt::CheckState> ConfigHandler::loadTypesToShow(QString ip)
+QMap<QString, Qt::CheckState> ConfigHandler::loadColumnsToShow(QString ip)
 {
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup(ip+"_other");
@@ -352,7 +352,7 @@ QMap<QString, Qt::CheckState> ConfigHandler::loadTypesToShow(QString ip)
     return types;
 }
 
-void ConfigHandler::saveTypesToShow(QString ip, QMap<QString, Qt::CheckState> types)
+void ConfigHandler::saveColumnsToShow(QString ip, QMap<QString, Qt::CheckState> types)
 {
     QSettings* settings = new QSettings(configFileName, QSettings::IniFormat );
     settings->beginGroup(ip+"_other");

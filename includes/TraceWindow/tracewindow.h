@@ -29,6 +29,7 @@ enum eP7Trace_Level
     EP7TRACE_LEVEL_COUNT
 };
 
+class MainWindow;
 namespace Ui {
 class TraceWindow;
 }
@@ -38,7 +39,7 @@ class TraceWindow : public QDialog
 
 public:
     QList<tUINT32> isNeedToShowByTraceLevel;
-    explicit TraceWindow(ConnectionName newClientName,ConfigHandler* newConfig, QDialog* parent = nullptr);
+    explicit TraceWindow(ConnectionName newClientName,ConfigHandler* newConfig, MainWindow* mw, QDialog* parent = nullptr);
     ~TraceWindow();
 
     void setStyle(QString newStyleSheet);
@@ -84,7 +85,10 @@ public:
     void clearOneEnumElement(tUINT32 wID);
     void fileReadingStatus(tUINT32 percent);
     tUINT32 getConnectionStatus();
+    MainWindow *getMainWindow() const;
+
 private:
+    MainWindow* mainWindow;
     tUINT32 connectionStatus;
     tUINT32 numberOfRowsToShow;
     QMovie *fileReadingGif;
