@@ -55,9 +55,9 @@ class TraceWindow;
 #pragma pack(push,2)
 struct sP7Trace_Info
 {
-    tINT32    sCommonRaw;
-    tINT32       dwTime_Hi; //4 байта, время создания Trace
-    tINT32       dwTime_Lo; //4  байта, время создания Trace
+    tUINT32    sCommonRaw;
+    tUINT32       dwTime_Hi; //4 байта, время создания Trace
+    tUINT32       dwTime_Lo; //4  байта, время создания Trace
     tUINT64       qwTimer_Value; //8 байт, значение таймера (?)
     tUINT64       qwTimer_Frequency; //8 байт, Частота таймера (?)
     tUINT64       qwFlags; //8 байт, пока непонятно
@@ -66,42 +66,42 @@ struct sP7Trace_Info
 
 struct Args_ID
 {
-    tINT8 argID;
-    tINT8 argSize;
+    tUINT8 argID;
+    tUINT8 argSize;
 };
 
 struct sP7Trace_Utc_Offs
 {
-    tINT32 SP7ext_Raw;
+    tUINT32 SP7ext_Raw;
     tINT32 iUTCOffsetSec;
 };
 
 struct sP7Trace_Thread_Start
 {
-    tINT32 SP7ext_Raw;
-    tINT32 dwThreadID;
+    tUINT32 SP7ext_Raw;
+    tUINT32 dwThreadID;
     tUINT64 qwTimer;
     char pName[48];
 };
 
 struct sP7Trace_Module
 {
-    tINT32 SP7ext_Raw;
+    tUINT32 SP7ext_Raw;
     tUINT16 wModuleId;
-    tINT32 traceLevel;
+    tUINT32 traceLevel;
     char pName[54];
 };
 
 struct sP7Trace_Thread_Stop
 {
-    tINT32 sP7ext_Raw;
-    tINT32 dwThreadID;
+    tUINT32 sP7ext_Raw;
+    tUINT32 dwThreadID;
     tUINT64 qwTimer;
 };
 
 struct sP7Trace_Format
 {
-    tINT32 sP7ext_Raw;
+    tUINT32 sP7ext_Raw;
     tUINT16 wID;
     tUINT16 line;
     tUINT16 moduleID;

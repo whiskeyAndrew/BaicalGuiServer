@@ -191,11 +191,11 @@ QString Trace::formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> a
 }
 
 p7Time Trace::countTraceTime(){
-    tUINT64 l_dbTimeDiff = (((tDOUBLE)traceData.qwTimer - (tDOUBLE)traceInfo.qwTimer_Value)*  (tDOUBLE)TIME_SEC_100NS) / (tDOUBLE)traceInfo.qwTimer_Frequency;
+    tDOUBLE l_dbTimeDiff = (((tDOUBLE)traceData.qwTimer - (tDOUBLE)traceInfo.qwTimer_Value)*  (tDOUBLE)TIME_SEC_100NS) / (tDOUBLE)traceInfo.qwTimer_Frequency;
     tUINT64 m_qwStreamTime = (tUINT64)traceInfo.dwTime_Lo + (((tUINT64)traceInfo.dwTime_Hi) << 32);
 
     p7Time time;
-    UnpackLocalTime(m_qwStreamTime+l_dbTimeDiff,
+    UnpackLocalTime(m_qwStreamTime+(tUINT64)l_dbTimeDiff,
                     time.dwYear,
                     time.dwMonth,
                     time.dwDay,
@@ -205,16 +205,6 @@ p7Time Trace::countTraceTime(){
                     time.dwMilliseconds,
                     time.dwMicroseconds,
                     time.dwNanoseconds);
-    FILETIME creationTime;
-    SYSTEMTIME toSystemTime;
-    tUINT32 tempTime = (traceData.qwTimer-traceInfo.qwTimer_Value);/*traceInfo.qwTimer_Frequency*1000;*/
-
-    creationTime.dwLowDateTime = traceInfo.dwTime_Lo+tempTime;
-    creationTime.dwHighDateTime = traceInfo.dwTime_Hi;
-
-    FileTimeToSystemTime(&creationTime,&toSystemTime);
-    SystemTimeToTzSpecificLocalTime(NULL,&toSystemTime,&toSystemTime);
-
     return time;
 }
 
