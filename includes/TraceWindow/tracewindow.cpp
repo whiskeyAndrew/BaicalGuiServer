@@ -243,7 +243,7 @@ void TraceWindow::reloadTracesFromAbove(int value)
     cursor = ui->textBrowser->textCursor();
     cursor.movePosition(QTextCursor::Start);
     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, 0);
-    cursor.select(QTextCursor::BlockUnderCursor);
+    cursor.select(QTextCursor::LineUnderCursor);
     cursor.removeSelectedText();
     cursor.deleteChar();
 
@@ -383,7 +383,8 @@ void TraceWindow::autoscrollStateChanged(tUINT32 stat)
     }else{
         lastSelected=-1;
         ui->selectedLabel->clear();
-        reloadTracesInsideWindow();
+//        reloadTracesInsideWindow();
+        ui->verticalScrollBar->setValue(verticalBarSize);
     }
 }
 
