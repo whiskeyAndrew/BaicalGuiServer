@@ -8,7 +8,7 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow* newTraceWindow, Connection
 {
     ui->setupUi(this);
     traceWindow = newTraceWindow;
-    enumParser = new EnumParser();    
+    enumParser = new EnumParser();
 
     //0 элемент в enumParser->enums - элемент, который будет отвечать за разделение по символам элементов
     QMap<tUINT32,enumFromFile> e;
@@ -58,7 +58,7 @@ void TraceWindowSettings::initWindow()
     }
 
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
-//    ui->wheelStepLineEdit->setValidator(new QIntValidator(0, INT_MAX, this));
+    //    ui->wheelStepLineEdit->setValidator(new QIntValidator(0, INT_MAX, this));
     loadConfigFileAsText();
 
     //NULL module init
@@ -465,6 +465,10 @@ void TraceWindowSettings::on_sequenceCheckbox_stateChanged(int arg1)
     if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
         traceWindow->reloadTracesInsideWindow();
     }
+    //Неоптимизированно, т.к. быстрый перепил старого функционала, потом поправить
+    QMap<QString, Qt::CheckState> typesToShow;
+    typesToShow.insert("sequence",ui->sequenceCheckbox->checkState());
+    config->saveColumnsToShow(connectionName.ip,typesToShow);
 }
 
 void TraceWindowSettings::on_traceCheckbox_stateChanged(int arg1)
@@ -472,6 +476,11 @@ void TraceWindowSettings::on_traceCheckbox_stateChanged(int arg1)
     if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
         traceWindow->reloadTracesInsideWindow();
     }
+
+    //Неоптимизированно, т.к. быстрый перепил старого функционала, потом поправить
+    QMap<QString, Qt::CheckState> typesToShow;
+    typesToShow.insert("trace",ui->traceCheckbox->checkState());
+    config->saveColumnsToShow(connectionName.ip,typesToShow);
 }
 
 void TraceWindowSettings::on_timeCheckbox_stateChanged(int arg1)
@@ -479,6 +488,10 @@ void TraceWindowSettings::on_timeCheckbox_stateChanged(int arg1)
     if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
         traceWindow->reloadTracesInsideWindow();
     }
+    //Неоптимизированно, т.к. быстрый перепил старого функционала, потом поправить
+    QMap<QString, Qt::CheckState> typesToShow;
+    typesToShow.insert("time",ui->timeCheckbox->checkState());
+    config->saveColumnsToShow(connectionName.ip,typesToShow);
 }
 
 void TraceWindowSettings::on_checkAllUniqueTraces_clicked()
@@ -1113,11 +1126,6 @@ void TraceWindowSettings::on_saveModulesToShowToConfig_clicked()
     config->saveModulesToShow(connectionName.ip,needToShowModules);
 }
 
-void TraceWindowSettings::on_loadTypesFromConfig_clicked()
-{
-    loadColumnsFromConfig();
-}
-
 void TraceWindowSettings::loadColumnsFromConfig(){
     QMap<QString, Qt::CheckState>types = config->loadColumnsToShow(connectionName.ip);
 
@@ -1145,14 +1153,6 @@ void TraceWindowSettings::loadColumnsFromConfig(){
     if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
         traceWindow->reloadTracesInsideWindow();
     }
-}
-void TraceWindowSettings::on_saveTypesToConfig_clicked()
-{
-    QMap<QString, Qt::CheckState> typesToShow;
-    typesToShow.insert("sequence",ui->sequenceCheckbox->checkState());
-    typesToShow.insert("time",ui->timeCheckbox->checkState());
-    typesToShow.insert("trace",ui->traceCheckbox->checkState());
-    config->saveColumnsToShow(connectionName.ip,typesToShow);
 }
 
 tUINT32 TraceWindowSettings::getWheelScrollStep()

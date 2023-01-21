@@ -189,10 +189,6 @@ private slots:
 
     void on_saveModulesToShowToConfig_clicked();
 
-    void on_loadTypesFromConfig_clicked();
-
-    void on_saveTypesToConfig_clicked();
-
     void on_openLauncher_clicked();
 
     void on_wheelSpin_valueChanged(int arg1);

@@ -86,7 +86,14 @@
         </widget>
        </item>
        <item row="0" column="0" colspan="4">
-        <widget class="QListWidget" name="listWidget"/>
+        <widget class="QListWidget" name="listWidget">
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -139,7 +146,14 @@
         </widget>
        </item>
        <item row="0" column="0" colspan="4">
-        <widget class="QListWidget" name="modulesList"/>
+        <widget class="QListWidget" name="modulesList">
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -366,30 +380,35 @@
           <property name="spacing">
            <number>6</number>
           </property>
-          <item row="10" column="0">
-           <widget class="QCheckBox" name="infoCheckBox">
+          <item row="15" column="1">
+           <widget class="QPushButton" name="warningRowBold">
             <property name="minimumSize">
              <size>
-              <width>65</width>
-              <height>22</height>
+              <width>28</width>
+              <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>65</width>
-              <height>22</height>
+              <width>28</width>
+              <height>28</height>
              </size>
             </property>
-            <property name="text">
-             <string>Info</string>
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
             </property>
-            <property name="checked">
+            <property name="text">
+             <string>B</string>
+            </property>
+            <property name="checkable">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="15" column="2">
-           <widget class="QPushButton" name="warningRowItalic">
+          <item row="10" column="2">
+           <widget class="QPushButton" name="infoRowItalic">
             <property name="minimumSize">
              <size>
               <width>28</width>
@@ -412,6 +431,196 @@
             </property>
             <property name="checkable">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="4">
+           <widget class="QPushButton" name="clearDebug">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Clear Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="traceLevelCheckBox">
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Trace</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="5">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="7" column="1">
+           <widget class="QPushButton" name="debugRowBold">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>B</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="17" column="4">
+           <widget class="QPushButton" name="clearCritical">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Clear Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="3">
+           <widget class="QPushButton" name="errorColorButton">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(85, 255, 255);
+selection-color: rgb(85, 255, 255);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QPushButton" name="traceColorButton">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(85, 255, 255);
+selection-color: rgb(85, 255, 255);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="3">
+           <widget class="QPushButton" name="debugColorButton">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(85, 255, 255);
+selection-color: rgb(85, 255, 255);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -442,8 +651,135 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="traceColorButton">
+          <item row="17" column="2">
+           <widget class="QPushButton" name="criticalRowItalic">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <italic>true</italic>
+             </font>
+            </property>
+            <property name="text">
+             <string>I</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="traceRowBold">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>B</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="4">
+           <widget class="QPushButton" name="clearInfo">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Clear Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="0">
+           <widget class="QCheckBox" name="warningCheckBox">
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Warning</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="4">
+           <widget class="QPushButton" name="clearError">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Clear Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="6">
+           <widget class="QCheckBox" name="timeCheckbox">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Time</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="3">
+           <widget class="QPushButton" name="warningColorButton">
             <property name="minimumSize">
              <size>
               <width>28</width>
@@ -498,8 +834,37 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
            </widget>
           </item>
-          <item row="10" column="2">
-           <widget class="QPushButton" name="infoRowItalic">
+          <item row="10" column="3">
+           <widget class="QPushButton" name="infoColorButton">
+            <property name="minimumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>28</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(85, 255, 255);
+selection-color: rgb(85, 255, 255);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="2">
+           <widget class="QPushButton" name="errorRowItalic">
             <property name="minimumSize">
              <size>
               <width>28</width>
@@ -521,6 +886,16 @@ selection-color: rgb(85, 255, 255);</string>
              <string>I</string>
             </property>
             <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="6">
+           <widget class="QCheckBox" name="traceCheckbox">
+            <property name="text">
+             <string>Trace</string>
+            </property>
+            <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
@@ -552,243 +927,8 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
            </widget>
           </item>
-          <item row="17" column="2">
-           <widget class="QPushButton" name="criticalRowItalic">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <italic>true</italic>
-             </font>
-            </property>
-            <property name="text">
-             <string>I</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="16" column="4">
-           <widget class="QPushButton" name="clearError">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Clear Color</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="4">
-           <widget class="QPushButton" name="clearInfo">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Clear Color</string>
-            </property>
-           </widget>
-          </item>
-          <item row="16" column="2">
-           <widget class="QPushButton" name="errorRowItalic">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <italic>true</italic>
-             </font>
-            </property>
-            <property name="text">
-             <string>I</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="3">
-           <widget class="QPushButton" name="debugColorButton">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(85, 255, 255);
-selection-color: rgb(85, 255, 255);</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="default">
-             <bool>false</bool>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2">
-           <widget class="QPushButton" name="debugRowItalic">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <italic>true</italic>
-             </font>
-            </property>
-            <property name="text">
-             <string>I</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="16" column="3">
-           <widget class="QPushButton" name="errorColorButton">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(85, 255, 255);
-selection-color: rgb(85, 255, 255);</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="default">
-             <bool>false</bool>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="15" column="4">
-           <widget class="QPushButton" name="clearWarning">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Clear Color</string>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="3">
-           <widget class="QPushButton" name="infoColorButton">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(85, 255, 255);
-selection-color: rgb(85, 255, 255);</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="default">
-             <bool>false</bool>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="6">
-           <widget class="QCheckBox" name="sequenceCheckbox">
-            <property name="text">
-             <string>Sequence</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QCheckBox" name="debugCheckBox">
+          <item row="10" column="0">
+           <widget class="QCheckBox" name="infoCheckBox">
             <property name="minimumSize">
              <size>
               <width>65</width>
@@ -802,7 +942,7 @@ selection-color: rgb(85, 255, 255);</string>
              </size>
             </property>
             <property name="text">
-             <string>Debug</string>
+             <string>Info</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -836,22 +976,64 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
            </widget>
           </item>
-          <item row="17" column="4">
-           <widget class="QPushButton" name="clearCritical">
+          <item row="1" column="6">
+           <widget class="QCheckBox" name="sequenceCheckbox">
+            <property name="text">
+             <string>Sequence</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="6">
+           <widget class="QCheckBox" name="enumItalicCheckbox">
+            <property name="font">
+             <font>
+              <italic>true</italic>
+             </font>
+            </property>
+            <property name="text">
+             <string>Italic Enums</string>
+            </property>
+           </widget>
+          </item>
+          <item row="17" column="6">
+           <widget class="QCheckBox" name="enumBoldCheckbox">
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Bold Enums</string>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="2">
+           <widget class="QPushButton" name="warningRowItalic">
             <property name="minimumSize">
              <size>
-              <width>70</width>
-              <height>0</height>
+              <width>28</width>
+              <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>70</width>
+              <width>28</width>
               <height>28</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <italic>true</italic>
+             </font>
+            </property>
             <property name="text">
-             <string>Clear Color</string>
+             <string>I</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -877,8 +1059,30 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="traceRowBold">
+          <item row="17" column="0">
+           <widget class="QCheckBox" name="criticalCheckBox">
+            <property name="minimumSize">
+             <size>
+              <width>65</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>65</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Critical</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
+           <widget class="QPushButton" name="debugRowItalic">
             <property name="minimumSize">
              <size>
               <width>28</width>
@@ -893,19 +1097,57 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
             <property name="font">
              <font>
-              <bold>true</bold>
+              <italic>true</italic>
              </font>
             </property>
             <property name="text">
-             <string>B</string>
+             <string>I</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="15" column="0">
-           <widget class="QCheckBox" name="warningCheckBox">
+          <item row="1" column="4">
+           <widget class="QPushButton" name="clearTrace">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Clear Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="4">
+           <widget class="QPushButton" name="clearWarning">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>70</width>
+              <height>28</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Clear Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QCheckBox" name="debugCheckBox">
             <property name="minimumSize">
              <size>
               <width>65</width>
@@ -919,7 +1161,7 @@ selection-color: rgb(85, 255, 255);</string>
              </size>
             </property>
             <property name="text">
-             <string>Warning</string>
+             <string>Debug</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -952,272 +1194,6 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
             <property name="flat">
              <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="15" column="1">
-           <widget class="QPushButton" name="warningRowBold">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>B</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="17" column="0">
-           <widget class="QCheckBox" name="criticalCheckBox">
-            <property name="minimumSize">
-             <size>
-              <width>65</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>65</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Critical</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QPushButton" name="clearTrace">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Clear Color</string>
-            </property>
-           </widget>
-          </item>
-          <item row="15" column="3">
-           <widget class="QPushButton" name="warningColorButton">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(85, 255, 255);
-selection-color: rgb(85, 255, 255);</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="default">
-             <bool>false</bool>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="4">
-           <widget class="QPushButton" name="clearDebug">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Clear Color</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="traceLevelCheckBox">
-            <property name="minimumSize">
-             <size>
-              <width>65</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>65</width>
-              <height>22</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Trace</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QPushButton" name="debugRowBold">
-            <property name="minimumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>28</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>B</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="16" column="6">
-           <widget class="QCheckBox" name="enumItalicCheckbox">
-            <property name="font">
-             <font>
-              <italic>true</italic>
-             </font>
-            </property>
-            <property name="text">
-             <string>Italic Enums</string>
-            </property>
-           </widget>
-          </item>
-          <item row="17" column="6">
-           <widget class="QCheckBox" name="enumBoldCheckbox">
-            <property name="font">
-             <font>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Bold Enums</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="7">
-           <widget class="QPushButton" name="saveTypesToConfig">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Save Columns</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="7">
-           <widget class="QPushButton" name="loadTypesFromConfig">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>28</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Load Columns</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="5">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="7" column="6">
-           <widget class="QCheckBox" name="timeCheckbox">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>Time</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="6">
-           <widget class="QCheckBox" name="traceCheckbox">
-            <property name="text">
-             <string>Trace</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
             </property>
            </widget>
           </item>
