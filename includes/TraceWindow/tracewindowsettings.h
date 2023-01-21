@@ -193,9 +193,9 @@ private slots:
 
     void on_saveTypesToConfig_clicked();
 
-    void on_wheelStepLineEdit_editingFinished();
-
     void on_openLauncher_clicked();
+
+    void on_wheelSpin_valueChanged(int arg1);
 
 private:
     Qt::CheckState isEnumBold = Qt::Unchecked;

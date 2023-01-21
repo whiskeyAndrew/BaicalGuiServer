@@ -48,7 +48,7 @@ void TraceWindowSettings::initWindow()
     loadColumnsFromConfig();
 
     wheelScrollStep = config->loadWheelScrollStep(connectionName.ip);
-    ui->wheelStepLineEdit->setText(QString::number(wheelScrollStep));
+    ui->wheelSpin->setValue(wheelScrollStep);
 
     QString enumsFile = config->loadEnumsList(connectionName.ip);
     if(enumsFile!=""){
@@ -58,7 +58,7 @@ void TraceWindowSettings::initWindow()
     }
 
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
-    ui->wheelStepLineEdit->setValidator(new QIntValidator(0, INT_MAX, this));
+//    ui->wheelStepLineEdit->setValidator(new QIntValidator(0, INT_MAX, this));
     loadConfigFileAsText();
 
     //NULL module init
@@ -1160,22 +1160,21 @@ tUINT32 TraceWindowSettings::getWheelScrollStep()
     return wheelScrollStep;
 }
 
-void TraceWindowSettings::on_wheelStepLineEdit_editingFinished()
-{
-    wheelScrollStep = ui->wheelStepLineEdit->text().toInt();
-
-    if(wheelScrollStep==0){
-        wheelScrollStep=1;
-        ui->wheelStepLineEdit->setText("1");
-    }
-    config->saveWheelScrollStep(connectionName.ip,wheelScrollStep);
-
-}
-
 
 void TraceWindowSettings::on_openLauncher_clicked()
 {
     traceWindow->getMainWindow()->showNormal();
     traceWindow->getMainWindow()->raise();
+}
+
+void TraceWindowSettings::on_wheelSpin_valueChanged(int arg1)
+{
+    wheelScrollStep = arg1;
+
+    if(wheelScrollStep==0){
+        wheelScrollStep=1;
+        ui->wheelSpin->setValue(1);
+    }
+    config->saveWheelScrollStep(connectionName.ip,wheelScrollStep);
 }
 
