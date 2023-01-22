@@ -195,7 +195,7 @@ p7Time Trace::countTraceTime(){
     tUINT64 m_qwStreamTime = (tUINT64)traceInfo.dwTime_Lo + (((tUINT64)traceInfo.dwTime_Hi) << 32);
 
     p7Time time;
-    UnpackLocalTime(m_qwStreamTime+(tUINT64)l_dbTimeDiff,
+    UnpackLocalTime(m_qwStreamTime+(tUINT64)l_dbTimeDiff+(tUINT64)traceUTC.iUTCOffsetSec,
                     time.dwYear,
                     time.dwMonth,
                     time.dwDay,
