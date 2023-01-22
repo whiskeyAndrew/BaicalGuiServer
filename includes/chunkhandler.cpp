@@ -1,6 +1,10 @@
 #include "chunkhandler.h"
 #include "debuglogger.h"
 
+QString ChunkHandler::getBackupFileName(){
+    return backupWriter.getFileName();
+}
+
 void ChunkHandler::run()
 {
 

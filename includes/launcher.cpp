@@ -128,7 +128,9 @@ Launcher::Launcher(MainWindow *mw)
 
 void Launcher::deleteClient(tUINT32 clientNumber)
 {
-    connectionTimeoutChecker->removeClientAt(clientNumber);
+    if(clientsList->at(clientNumber).connectionThread!=NULL){
+        connectionTimeoutChecker->removeClientAt(clientNumber);
+    }
     clientsList->removeAt(clientNumber);
     std::cout<<"deleted client at "<<clientNumber<<std::endl;
 }

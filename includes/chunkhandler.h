@@ -115,6 +115,7 @@ public:
 
     Trace* getTraceHandler();
 
+    QString getBackupFileName();
 signals:
     void sendModule(sP7Trace_Module);
     void sendTrace(TraceToGUI trace);

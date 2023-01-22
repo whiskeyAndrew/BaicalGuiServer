@@ -12,6 +12,11 @@ MainWindow::MainWindow(QWidget* parent)
     setWindowIcon(QIcon("logo.png"));
     ui->setupUi(this);
 
+    connect(ui->connectionsTable,&QTableWidget::customContextMenuRequested,this,&MainWindow::showContextMenu);
+
+    ui->connectionsTable->setFocusPolicy(Qt::NoFocus);
+    ui->connectionsTable->setSelectionBehavior(QTableWidget::SelectRows);
+    ui->connectionsTable->setContextMenuPolicy(Qt::CustomContextMenu);
 
     ui->connectionsTable->setColumnCount(2);
     ui->connectionsTable->setColumnWidth(0,300);
@@ -20,6 +25,26 @@ MainWindow::MainWindow(QWidget* parent)
     ui->connectionsTable->horizontalHeader()->hide();
     ui->connectionsTable->verticalHeader()->hide();
     ui->connectionsTable->horizontalHeader()->setStretchLastSection(true);
+}
+
+void MainWindow::showContextMenu(const QPoint &pos)
+{
+    std::cout<<"I ASKED FOR IT"<<std::endl;
+
+    QTableWidgetItem *item = ui->connectionsTable->itemAt(pos);
+    if(item!=NULL){
+        QString pathToFile;
+        //Проверка является ли открываемый объект файлом
+        if(launcher->clientsList->at(item->row()).connectionThread==NULL){
+            pathToFile = traceWindows.at(item->row())->getClientName().port;
+        }
+        else{
+            pathToFile = launcher->clientsList->at(item->row()).connectionThread->chunkHandler.getBackupFileName();
+        }
+        pathToFile = pathToFile.replace("/","\\");
+        QString fileName = "/select,"+pathToFile;
+        QProcess::startDetached("C:\\Windows\\explorer.exe", {fileName});
+    }
 }
 
 void MainWindow::setLauncher(Launcher* newLauncher)

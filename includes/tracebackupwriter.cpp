@@ -60,6 +60,11 @@ void TraceBackupWriter::closeFile(){
     delete file;
 }
 
+const QString &TraceBackupWriter::getFileName() const
+{
+    return fileName;
+}
+
 TraceBackupWriter::TraceBackupWriter()
 {
 

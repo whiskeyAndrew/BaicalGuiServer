@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QList>
 #include <QPushButton>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,6 +49,7 @@ private:
 public slots:
     void getNewConnection(sockaddr_in client, PacketHandler* packetHandler);
     void changeClientStatus(sockaddr_in client, tUINT32 status);
+    void showContextMenu(const QPoint &pos);
 private slots:
     void onCloseConnectionClicked();
 
