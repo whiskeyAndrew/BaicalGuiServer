@@ -1065,6 +1065,11 @@ Qt::CheckState TraceWindowSettings::getIsEnumBold()
     return isEnumBold;
 }
 
+Qt::CheckState TraceWindowSettings::isMillisecondsChecked()
+{
+    return ui->millisecondsCheckbox->checkState();
+}
+
 void TraceWindowSettings::on_loadTracesToShowByIdFromConfig_clicked()
 {
     loadTracesToShowByIdFromConfig();
@@ -1134,7 +1139,7 @@ void TraceWindowSettings::loadColumnsFromConfig(){
     ui->sequenceCheckbox->blockSignals(true);
     ui->traceCheckbox->blockSignals(true);
     ui->timeCheckbox->blockSignals(true);
-
+    ui->millisecondsCheckbox->blockSignals(true);
     for(QString type:types.keys()){
         if(type=="sequence"){
             ui->sequenceCheckbox->setCheckState(types.value("sequence"));
@@ -1144,11 +1149,15 @@ void TraceWindowSettings::loadColumnsFromConfig(){
         }else if(type=="trace"){
             ui->traceCheckbox->setCheckState(types.value("trace"));
         }
+        else if(type=="milliseconds"){
+            ui->millisecondsCheckbox->setCheckState(types.value("milliseconds"));
+        }
     }
 
     ui->sequenceCheckbox->blockSignals(false);
     ui->traceCheckbox->blockSignals(false);
     ui->timeCheckbox->blockSignals(false);
+    ui->millisecondsCheckbox->blockSignals(false);
 
     if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
         traceWindow->reloadTracesInsideWindow();
@@ -1176,5 +1185,17 @@ void TraceWindowSettings::on_wheelSpin_valueChanged(int arg1)
         ui->wheelSpin->setValue(1);
     }
     config->saveWheelScrollStep(connectionName.ip,wheelScrollStep);
+}
+
+
+void TraceWindowSettings::on_millisecondsCheckbox_stateChanged(int arg1)
+{
+    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
+        traceWindow->reloadTracesInsideWindow();
+    }
+
+    QMap<QString, Qt::CheckState> typesToShow;
+    typesToShow.insert("milliseconds",ui->millisecondsCheckbox->checkState());
+    config->saveColumnsToShow(connectionName.ip,typesToShow);
 }
 

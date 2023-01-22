@@ -72,6 +72,7 @@ public:
 
     tUINT32 getWheelScrollStep();
 
+    Qt::CheckState isMillisecondsChecked();
 public slots:
 
 private slots:
@@ -192,6 +193,8 @@ private slots:
     void on_openLauncher_clicked();
 
     void on_wheelSpin_valueChanged(int arg1);
+
+    void on_millisecondsCheckbox_stateChanged(int arg1);
 
 private:
     Qt::CheckState isEnumBold = Qt::Unchecked;

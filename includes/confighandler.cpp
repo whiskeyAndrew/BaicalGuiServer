@@ -347,6 +347,12 @@ QMap<QString, Qt::CheckState> ConfigHandler::loadColumnsToShow(QString ip)
         types.insert("trace",Qt::Checked);
     }
 
+    if(settings->contains("milliseconds")){
+        types.insert("milliseconds",static_cast<Qt::CheckState>(settings->value("milliseconds").toInt()));
+    }else{
+        types.insert("milliseconds",Qt::Checked);
+    }
+
     settings->endGroup();
     delete settings;
     return types;

@@ -806,7 +806,17 @@ QString TraceWindow::getGuiRow(GUIData g){
         if(hour.length()<2){
             hour.insert(0,"0");
         }
-        timeToGUI = " " + hour+":"+minutes+":"+seconds+" ";
+        timeToGUI = " " + hour+":"+minutes+":"+seconds;
+
+        if(traceSettings->isMillisecondsChecked()==Qt::Checked){
+            QString milisec = QString::number(g.time.dwMilliseconds);
+            while(milisec.length()!=3){
+                milisec.insert(0,"0");
+            }
+            timeToGUI.append("."+milisec + " ");
+        } else{
+            timeToGUI.append(" ");
+        }
     }
 
     if(traceSettings->isTraceColumnNeedToShow()==Qt::Unchecked){
