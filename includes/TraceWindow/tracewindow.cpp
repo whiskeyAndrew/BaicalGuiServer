@@ -383,7 +383,7 @@ void TraceWindow::autoscrollStateChanged(tUINT32 stat)
     }else{
         lastSelected=-1;
         ui->selectedLabel->clear();
-//        reloadTracesInsideWindow();
+        //        reloadTracesInsideWindow();
         ui->verticalScrollBar->setValue(verticalBarSize);
     }
 }
@@ -727,13 +727,13 @@ QString TraceWindow::getGuiRow(GUIData g){
                 continue;
             }
 
-            if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)&& argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1){
-                continue;
-            }
+            //            if(!traceSettings->enumsIdList.contains(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId)/*&& argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1*/){
+            //                continue;
+            //            }
 
             //на случай если айдишника енама нет в списке енамов то скипаем
             //в эту штуку упираемся если мы хотим пропарсить 1234567->1 234 567, поэтому в нем по енамайди1 будут филлерные данные
-            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(number) && argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1){
+            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(number) /*&& argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1*/){
                 continue;
             }
 
@@ -752,31 +752,61 @@ QString TraceWindow::getGuiRow(GUIData g){
                 italicEnumEnd = "</i>";
             }
 
-            //если все проверки прошли, но нам не надо показывать в главном экране измененный енам, но надо справа, делаем тут правку
-            //костыль, попозже поправить
-            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).needToShow==Qt::Unchecked){
-                traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name);
-                continue;
-            }
+            //Если мы добавляем уникальные значения енамов из кода, то нам надо обработать этот момент в этом участке кода
+            //if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==##ENUM_ID##)
+            //Все енамы, подгруженные из файла, будут обрабатываться дальше сами, поэтому для добавления своих обработчиков аргументов достаточно просто
+            //Указать его айдишник. Айдишник - номер элемента в enumParser по добавлению, начинается с 1, последний не больше 100-а!
+            //В блоке case:{ } мы обрабатываем полученное значение нужным нам образом
+            //К примеру: аргумент {%I64D}, в digitToGUI мы получаем уже готовое значение аргумента: 500600700800
+            //Если у нас выбран модуль 1, то на выходе из кейса значение digitToGUI будет 500 600 700 800
+            //Дальше приложение само сделает нужные подстановки, так что, по сути, от разработчика самое главное
+            //Просто обработать аргумент в значении digitToGUI
 
-            //Делаем пробелы каждые три цифры в числе если енамАйди = 1
-            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==1){
-                QString digitWithSpaces = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart));
+            QString digitToGUI = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart));
+
+            //получаем ID енама и смотрим по свичу куда его применить
+            switch(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId){
+            case(1):{
+                //АЛГОРИТМ ОБРАБОТКИ СТРОКИ
                 tUINT32 step = 0;
-                for(int i =digitWithSpaces.length();i>0;i--){
+                for(int i =digitToGUI.length();i>0;i--){
                     if(step==3){
-                        digitWithSpaces.insert(i, " ");
+                        digitToGUI.insert(i, " ");
                         step = 0;
                     }
                     step++;
                 }
-                traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
-                                   digitWithSpaces);
-            }else{
-                traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
-                                   boldEnumStart+italicEnumStart+traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name+italicEnumEnd+boldEnumEnd);
+                //~АЛГОРИТМ ОБРАБОТКИ СТРОКИ
+                break;
             }
-            traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name);
+
+            case(2):{
+                //АЛГОРИТМ ОБРАБОТКИ СТРОКИ
+                if(digitToGUI.size()<10){
+                    continue;
+                }
+                digitToGUI.insert(digitToGUI.length()-9,".");
+                //~АЛГОРИТМ ОБРАБОТКИ СТРОКИ
+                break;
+            }
+
+                //enumID - енам из файла
+            default:{
+                if(traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name!="NULL"){
+                    //проверка на случай если значение не подходит под енам
+                    tUINT64 digitToGUIInt = digitToGUI.toDouble();
+                    if(traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(digitToGUIInt)){
+                        digitToGUI = traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name;
+                    }
+                }
+                break;
+            }
+            }
+            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).needToShow==Qt::Checked){
+                traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
+                                   boldEnumStart+italicEnumStart+digitToGUI+italicEnumEnd+boldEnumEnd);
+            }
+            traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),digitToGUI);
         }
     }
 

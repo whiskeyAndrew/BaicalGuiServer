@@ -14,7 +14,7 @@ TraceWindowSettings::TraceWindowSettings(TraceWindow* newTraceWindow, Connection
     QMap<tUINT32,enumFromFile> e;
     //филлер
     e.insert(0,{"0","0"});
-    enumParser->enums.append({"1234567 -> 1 234 567",e});
+//    enumParser->enums.append({"1234567 -> 1 234 567",e});
 
     connectionName =*clientName;
 
@@ -55,6 +55,8 @@ void TraceWindowSettings::initWindow()
         if(loadEnumsFromFile(enumsFile)){
             loadEnumsFromConfig();
         }
+    } else{
+        loadEnumsFromConfig();
     }
 
     ui->rowsOnScreen->setValidator(new QIntValidator(0, INT_MAX, this));
@@ -856,13 +858,13 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
 }
 
 void TraceWindowSettings::loadEnumsFromConfig(){
-    if(ui->enumsList->count()==0){
-        QMessageBox msg;
-        msg.setWindowTitle("Ошибка");
-        msg.setText("Загрузите файл enum-ов в первую очередь");
-        msg.exec();
-        return;
-    }
+//    if(ui->enumsList->count()==0){
+//        QMessageBox msg;
+//        msg.setWindowTitle("Ошибка");
+//        msg.setText("Загрузите файл enum-ов в первую очередь");
+//        msg.exec();
+//        return;
+//    }
     traceWindow->setArgsThatNeedToBeChangedByEnum(config->loadEnums(connectionName.ip));
     ui->enumsStatus->setText("Loaded rows from config: "+QString::number(traceWindow->getArgsThatNeedToBeChangedByEnum().size()));
     reloadListOfArgsAndEnums();
