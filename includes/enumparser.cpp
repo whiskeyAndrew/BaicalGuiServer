@@ -9,11 +9,20 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
 {
     enums.clear();
     file = new QFile(fileName);
-    QMap<tUINT32,enumFromFile> e;
+    QMap<tUINT32,enumFromFile> nullEnum;
     //филлер
-    e.insert(0,{"0","0"});
+    nullEnum.insert(0,{"0","0"});
 
-    enums.append({"1234567 -> 1 234 567",e});
+    //0 ID - енам не нужен
+    enums.append({"0",nullEnum});
+
+    enums.append({"1234567 -> 1 234 567",nullEnum});
+    enums.append({"321234567890->321.234567890",nullEnum});
+
+    //Резервируем 100 айдишников для модулей, которые будут вписываться вручную
+    while(enums.size()<101){
+        enums.append({"0",nullEnum});
+    }
 
     if (file->open(QIODevice::ReadOnly))
     {
@@ -71,7 +80,7 @@ tBOOL EnumParser::readEnumsFromFile(QString fileName)
                         counter++;
                     }
                 }
-                enums.append({enumName,tempEnums});
+                enums.insert(100+enums.size(),{enumName,tempEnums});
             }
         }
     } else{

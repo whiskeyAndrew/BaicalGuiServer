@@ -267,7 +267,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     //небольшой костыль передачи стринга в линке
     QStringList sl = link.path().split(" _splt_ ");
     tUINT32 sequence = sl.at(0).toInt();
-    QString rawTrace = sl.at(1);
+    QString rawTraceWithEnums = sl.at(1);
     lastSelected = sl.at(2).toInt();
 
     sP7Trace_Data traceData = traceThread->getTraceData(sequence);
@@ -295,7 +295,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     ui->dwSequence->setText(QString::number(traceData.dwSequence));
 
     //Нужно добваить игнорирование тэгов
-    ui->traceText->setText(traceFormat.traceLineData+"\n\n"+rawTrace);
+    ui->traceText->setText(traceFormat.traceLineData+"\n\n"+rawTraceWithEnums);
     ui->traceDest->setText(traceFormat.fileDest);
     ui->processName->setText(traceFormat.functionName);
 
@@ -733,7 +733,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
             //на случай если айдишника енама нет в списке енамов то скипаем
             //в эту штуку упираемся если мы хотим пропарсить 1234567->1 234 567, поэтому в нем по енамайди1 будут филлерные данные
-            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.contains(number) && argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1){
+            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(number) && argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1){
                 continue;
             }
 
@@ -755,7 +755,7 @@ QString TraceWindow::getGuiRow(GUIData g){
             //если все проверки прошли, но нам не надо показывать в главном экране измененный енам, но надо справа, делаем тут правку
             //костыль, попозже поправить
             if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).needToShow==Qt::Unchecked){
-                traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
+                traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name);
                 continue;
             }
 
@@ -774,9 +774,9 @@ QString TraceWindow::getGuiRow(GUIData g){
                                    digitWithSpaces);
             }else{
                 traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
-                                   boldEnumStart+italicEnumStart+traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name+italicEnumEnd+boldEnumEnd);
+                                   boldEnumStart+italicEnumStart+traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name+italicEnumEnd+boldEnumEnd);
             }
-            traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId-1).enums.value(number).name);
+            traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.value(number).name);
         }
     }
 

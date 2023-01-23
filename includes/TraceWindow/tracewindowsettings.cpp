@@ -680,17 +680,16 @@ tBOOL TraceWindowSettings::loadEnumsFromFile(QString fileName){
         return false;
     }
     enumsIdList.clear();
-    //1 айди зайнят 123345678-> 12 345 678
-    int enumId = 2;
+
+
     ui->enumsList->clear();
 
-    //i = 1 - скипаем элемент 1234567 -> 1 234 567
-    for(int i =1;i<enumParser->enums.size();i++){
+    //Начинаем итерацию с 101, так как 0-100 зарезервированы для внедрения преобразований кодом
+    for(int i =101;i<enumParser->enums.size();i++){
         QListWidgetItem* item = new QListWidgetItem(enumParser->enums.at(i).name);
-        item->setData(Qt::ToolTipRole,enumId);
+        item->setData(Qt::ToolTipRole,i);
         ui->enumsList->addItem(item);
-        enumsIdList.append(enumId);
-        enumId++;
+        enumsIdList.append(i);
     }
     config->saveEnumsList(connectionName.ip,fileName);
     ui->enumsStatus->setText("Loaded enums from " + fileName +": " +QString::number(enumParser->enums.size()));
@@ -699,16 +698,10 @@ tBOOL TraceWindowSettings::loadEnumsFromFile(QString fileName){
 
 void TraceWindowSettings::on_enumsList_itemClicked(QListWidgetItem* item)
 {
-    tUINT32 rowId = item->data(Qt::ToolTipRole).toInt()-1;
+    tUINT32 rowId = item->data(Qt::ToolTipRole).toInt();
     likeEnum _enum = enumParser->enums.at(rowId);
     int enumId = 0;
     ui->enumsElements->clear();
-
-    //    for(int i =0;i<_enum.enums.size();i++){
-    //        QListWidgetItem* item = new QListWidgetItem(_enum.enums.value(i).name+" "+QString::number(_enum.enums.ke));
-    //        item->setData(Qt::ToolTipRole,++enumId);
-    //        ui->enumsElements->addItem(item);
-    //    }
 
     for(tUINT32 key:_enum.enums.keys()){
         QListWidgetItem* item = new QListWidgetItem(_enum.enums.value(key).name+" "+QString::number(key) +" " +_enum.enums.value(key).comment);
@@ -731,7 +724,7 @@ void TraceWindowSettings::on_applyEnumToTraceById_clicked(){
     for(int i =0;i<ui->rawTracesTable->rowCount();i++){
         tUINT32 argId = ui->rawTracesTable->item(i,0)->text().toInt();
         QComboBox* comboBox = qobject_cast<QComboBox*>(ui->rawTracesTable->cellWidget(i,1));
-        tUINT32 enumId = comboBox->currentIndex();
+        tUINT32 enumId = comboBox->itemData(comboBox->currentIndex(),Qt::ToolTipRole).toInt();
         args.append({argId,enumId,ui->rawTracesTable->item(i,0)->checkState()});
     }
 
@@ -812,11 +805,19 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
 
             comboBoxesToDelete.append(comboBox);
 
-            for(int i =0;i<enumParser->enums.size();i++){
-                comboBox->addItem(enumParser->enums.at(i).name);
+            for(int j =0;j<enumParser->enums.size();j++){
+                if(enumParser->enums.at(j).name=="0"){
+                    continue;
+                }
+                comboBox->addItem(enumParser->enums.at(j).name);
+                comboBox->setItemData(comboBox->count()-1,j,Qt::ToolTipRole);
+
+                if(j==traceWindow->getArgsThatNeedToBeChangedByEnum().value(wID).at(i).enumId){
+                    comboBox->setCurrentIndex(comboBox->count()-1);
+                }
             }
 
-            comboBox->setCurrentIndex(traceWindow->getArgsThatNeedToBeChangedByEnum().value(wID).at(i).enumId);
+//            comboBox->setCurrentIndex(traceWindow->getArgsThatNeedToBeChangedByEnum().value(wID).at(i).enumId);
 
             ui->rawTracesTable->insertRow(ui->rawTracesTable->rowCount());
 
@@ -840,7 +841,11 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
         comboBox->addItem("");
         comboBoxesToDelete.append(comboBox);
         for(int i =0;i<enumParser->enums.size();i++){
+            if(enumParser->enums.at(i).name=="0"){
+                continue;
+            }
             comboBox->addItem(enumParser->enums.at(i).name);
+            comboBox->setItemData(comboBox->count()-1,i,Qt::ToolTipRole);
         }
         ui->rawTracesTable->insertRow(ui->rawTracesTable->rowCount());
 
