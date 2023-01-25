@@ -34,11 +34,17 @@ void TraceWindowSettings::initWindow()
 
     connect(ui->listWidget,&QListWidget::itemChanged,this,&TraceWindowSettings::uniqueTracesItemChanged);
     connect(ui->modulesList,&QListWidget::itemChanged,this,&TraceWindowSettings::modulesItemChanged);
-    connect(this,&TraceWindowSettings::reloadDataInsideTraceWindow,traceWindow,&TraceWindow::traceRowListCheckboxChanged);
 
     colorDialog = new QColorDialog();
     colorDialog->setOption(QColorDialog::ShowAlphaChannel);
-    config = new ConfigHandler(connectionName.ip);
+
+    if(connectionName.ip.startsWith("File")){
+        QString configSettingsNameGenerated = connectionName.port.mid(connectionName.port.lastIndexOf("/"));
+        configSettingsName = configSettingsNameGenerated;
+    }else{
+        configSettingsName = connectionName.ip;
+    }
+    config = new ConfigHandler(configSettingsName);
 
     initTraceLevels();
     initColors();
@@ -47,10 +53,10 @@ void TraceWindowSettings::initWindow()
     loadModulesToShowFromConfig();
     loadColumnsFromConfig();
 
-    wheelScrollStep = config->loadWheelScrollStep(connectionName.ip);
+    wheelScrollStep = config->loadWheelScrollStep(configSettingsName);
     ui->wheelSpin->setValue(wheelScrollStep);
 
-    QString enumsFile = config->loadEnumsList(connectionName.ip);
+    QString enumsFile = config->loadEnumsList(configSettingsName);
     if(enumsFile!=""){
         if(loadEnumsFromFile(enumsFile)){
             loadEnumsFromConfig();
@@ -85,7 +91,9 @@ void TraceWindowSettings::uniqueTracesItemChanged(QListWidgetItem* item)
     tUINT32 wID = item->data(Qt::ToolTipRole).toInt();
     tUINT32 state = item->checkState();
     needToShowTraceByID.insert(wID,state);
-    emit reloadDataInsideTraceWindow();
+    traceWindow->recountNubmerOfTracesToShow();
+    traceWindow->reloadTracesInsideWindow();
+
 }
 
 void TraceWindowSettings::modulesItemChanged(QListWidgetItem* item)
@@ -93,7 +101,8 @@ void TraceWindowSettings::modulesItemChanged(QListWidgetItem* item)
     tUINT16 id = item->data(Qt::ToolTipRole).toInt();
     tUINT32 state = item->checkState();
     needToShowModules.insert(id,state);
-    emit reloadDataInsideTraceWindow();
+    traceWindow->recountNubmerOfTracesToShow();
+    traceWindow->reloadTracesInsideWindow();
 }
 
 void TraceWindowSettings::appendUniqueTracesList(QString text, tUINT32 wID)
@@ -424,6 +433,7 @@ void TraceWindowSettings::on_traceLevelCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_TRACE,arg1);
     config->traceLevel = static_cast<Qt::CheckState>(arg1);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 
@@ -431,6 +441,7 @@ void TraceWindowSettings::on_debugCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_DEBUG,arg1);
     config->debugLevel = static_cast<Qt::CheckState>(arg1);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 
@@ -438,6 +449,7 @@ void TraceWindowSettings::on_infoCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_INFO,arg1);
     config->infoLevel = static_cast<Qt::CheckState>(arg1);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 
@@ -445,6 +457,7 @@ void TraceWindowSettings::on_warningCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_WARNING,arg1);
     config->warningLevel = static_cast<Qt::CheckState>(arg1);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 
@@ -452,6 +465,7 @@ void TraceWindowSettings::on_errorCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_ERROR,arg1);
     config->errorLevel = static_cast<Qt::CheckState>(arg1);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 
@@ -459,48 +473,51 @@ void TraceWindowSettings::on_criticalCheckBox_stateChanged(int arg1)
 {
     traceWindow->changeTraceLevelIsShownElement(EP7TRACE_LEVEL_CRITICAL,arg1);
     config->criticalLevel = static_cast<Qt::CheckState>(arg1);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 
 void TraceWindowSettings::on_sequenceCheckbox_stateChanged(int arg1)
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+
     //Неоптимизированно, т.к. быстрый перепил старого функционала, потом поправить
     QMap<QString, Qt::CheckState> typesToShow;
     typesToShow.insert("sequence",ui->sequenceCheckbox->checkState());
-    config->saveColumnsToShow(connectionName.ip,typesToShow);
+    config->saveColumnsToShow(configSettingsName,typesToShow);
+    traceWindow->reloadTracesInsideWindow();
 }
 
 void TraceWindowSettings::on_traceCheckbox_stateChanged(int arg1)
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
 
     //Неоптимизированно, т.к. быстрый перепил старого функционала, потом поправить
     QMap<QString, Qt::CheckState> typesToShow;
     typesToShow.insert("trace",ui->traceCheckbox->checkState());
-    config->saveColumnsToShow(connectionName.ip,typesToShow);
+    config->saveColumnsToShow(configSettingsName,typesToShow);
+    traceWindow->reloadTracesInsideWindow();
 }
 
 void TraceWindowSettings::on_timeCheckbox_stateChanged(int arg1)
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+
     //Неоптимизированно, т.к. быстрый перепил старого функционала, потом поправить
     QMap<QString, Qt::CheckState> typesToShow;
     typesToShow.insert("time",ui->timeCheckbox->checkState());
-    config->saveColumnsToShow(connectionName.ip,typesToShow);
+    config->saveColumnsToShow(configSettingsName,typesToShow);
+    traceWindow->reloadTracesInsideWindow();
 }
 
 void TraceWindowSettings::on_checkAllUniqueTraces_clicked()
 {
+    ui->listWidget->blockSignals(true);
     for(int i=0;i<ui->listWidget->count();i++){
         ui->listWidget->item(i)->setCheckState(Qt::CheckState::Checked);
+        tUINT32 wID = ui->listWidget->item(i)->data(Qt::ToolTipRole).toInt();
+        tUINT32 state = ui->listWidget->item(i)->checkState();
+        needToShowTraceByID.insert(wID,state);
     }
+    ui->listWidget->blockSignals(false);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 void TraceWindowSettings::on_tabWidget_tabBarClicked(int index)
@@ -609,9 +626,15 @@ void TraceWindowSettings::on_LoadDataFromConfig_clicked()
 
 void TraceWindowSettings::on_uncheckAllUniqueTraces_clicked()
 {
+    ui->listWidget->blockSignals(true);
     for(int i=0;i<ui->listWidget->count();i++){
         ui->listWidget->item(i)->setCheckState(Qt::CheckState::Unchecked);
+        tUINT32 wID = ui->listWidget->item(i)->data(Qt::ToolTipRole).toInt();
+        tUINT32 state = ui->listWidget->item(i)->checkState();
+        needToShowTraceByID.insert(wID,state);
     }
+    ui->listWidget->blockSignals(false);
+    traceWindow->recountNubmerOfTracesToShow();
 }
 
 void TraceWindowSettings::on_saveAllTraceCheckboxes_clicked()
@@ -693,7 +716,7 @@ tBOOL TraceWindowSettings::loadEnumsFromFile(QString fileName){
         ui->enumsList->addItem(item);
         enumsIdList.append(i);
     }
-    config->saveEnumsList(connectionName.ip,fileName);
+    config->saveEnumsList(configSettingsName,fileName);
     ui->enumsStatus->setText("Loaded enums from " + fileName +": " +QString::number(enumParser->enums.size()));
     return true;
 }
@@ -758,7 +781,7 @@ void TraceWindowSettings::on_saveAllSettings_clicked()
 
 void TraceWindowSettings::on_saveEnumsToConfig_clicked()
 {
-    ui->enumsStatus->setText("Saved enums: " + QString::number(config->saveEnums(traceWindow->getArgsThatNeedToBeChangedByEnum(),connectionName.ip)));
+    ui->enumsStatus->setText("Saved enums: " + QString::number(config->saveEnums(traceWindow->getArgsThatNeedToBeChangedByEnum(),configSettingsName)));
 }
 
 
@@ -865,13 +888,12 @@ void TraceWindowSettings::loadEnumsFromConfig(){
     //        msg.exec();
     //        return;
     //    }
-    traceWindow->setArgsThatNeedToBeChangedByEnum(config->loadEnums(connectionName.ip));
+    traceWindow->setArgsThatNeedToBeChangedByEnum(config->loadEnums(configSettingsName));
     ui->enumsStatus->setText("Loaded rows from config: "+QString::number(traceWindow->getArgsThatNeedToBeChangedByEnum().size()));
     reloadListOfArgsAndEnums();
 
-    if(traceWindow->isInitialized()){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
+
 }
 void TraceWindowSettings::on_loadEnumsFromConfig_clicked()
 {
@@ -888,97 +910,73 @@ void TraceWindowSettings::on_clearEnum_clicked()
 
 void TraceWindowSettings::on_traceRowBold_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_traceRowItalic_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_debugRowBold_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_debugRowItalic_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_infoRowBold_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_infoRowItalic_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_warningRowBold_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_warningRowItalic_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_errorRowBold_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_errorRowItalic_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_criticalRowBold_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_criticalRowItalic_clicked()
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 bool TraceWindowSettings::isTraceBold(){
@@ -1032,34 +1030,44 @@ bool TraceWindowSettings::isCriticalItalic(){
 
 void TraceWindowSettings::on_checkAllModules_clicked()
 {
+    ui->modulesList->blockSignals(true);
     for(int i=0;i<ui->modulesList->count();i++){
         ui->modulesList->item(i)->setCheckState(Qt::CheckState::Checked);
+        tUINT16 id = ui->modulesList->item(i)->data(Qt::ToolTipRole).toInt();
+        tUINT32 state = ui->modulesList->item(i)->checkState();
+        needToShowModules.insert(id,state);
     }
+    ui->modulesList->blockSignals(false);
+    traceWindow->recountNubmerOfTracesToShow();
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_uncheckAllModules_clicked()
 {
+    ui->modulesList->blockSignals(true);
     for(int i=0;i<ui->modulesList->count();i++){
         ui->modulesList->item(i)->setCheckState(Qt::CheckState::Unchecked);
+        tUINT16 id = ui->modulesList->item(i)->data(Qt::ToolTipRole).toInt();
+        tUINT32 state = ui->modulesList->item(i)->checkState();
+        needToShowModules.insert(id,state);
     }
+    ui->modulesList->blockSignals(false);
+    traceWindow->recountNubmerOfTracesToShow();
+    traceWindow->reloadTracesInsideWindow();
 }
 
 void TraceWindowSettings::on_enumItalicCheckbox_stateChanged(int arg1)
 {
     isEnumItalic = ui->enumItalicCheckbox->checkState();
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 
 void TraceWindowSettings::on_enumBoldCheckbox_stateChanged(int arg1)
 {
     isEnumBold = ui->enumBoldCheckbox->checkState();
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 Qt::CheckState TraceWindowSettings::getIsEnumItalic()
@@ -1083,7 +1091,7 @@ void TraceWindowSettings::on_loadTracesToShowByIdFromConfig_clicked()
 }
 
 void TraceWindowSettings::loadTracesToShowByIdFromConfig(){
-    config->loadTracesToShowById(connectionName.ip);
+    config->loadTracesToShowById(configSettingsName);
     for(tUINT32 key:config->getTracesToShowByIdFromConfig().keys()){
         needToShowTraceByID.insert(key,config->getTracesToShowByIdFromConfig().value(key));
     }
@@ -1095,16 +1103,14 @@ void TraceWindowSettings::loadTracesToShowByIdFromConfig(){
         }
     }
 
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 
 
 }
 
 void TraceWindowSettings::on_saveTracesToShowByIdToConfig_clicked()
 {
-    config->saveTracesToShowById(connectionName.ip,needToShowTraceByID);
+    config->saveTracesToShowById(configSettingsName,needToShowTraceByID);
 }
 
 
@@ -1114,7 +1120,7 @@ void TraceWindowSettings::on_loadModulesToShowFromConfig_clicked()
 }
 
 void TraceWindowSettings::loadModulesToShowFromConfig(){
-    config->loadModulesToShow(connectionName.ip);
+    config->loadModulesToShow(configSettingsName);
 
     for(tUINT32 key:config->getNeedToShowModules().keys()){
         needToShowModules.insert(key,config->getNeedToShowModules().value(key));
@@ -1127,19 +1133,17 @@ void TraceWindowSettings::loadModulesToShowFromConfig(){
         }
     }
 
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 
 }
 
 void TraceWindowSettings::on_saveModulesToShowToConfig_clicked()
 {
-    config->saveModulesToShow(connectionName.ip,needToShowModules);
+    config->saveModulesToShow(configSettingsName,needToShowModules);
 }
 
 void TraceWindowSettings::loadColumnsFromConfig(){
-    QMap<QString, Qt::CheckState>types = config->loadColumnsToShow(connectionName.ip);
+    QMap<QString, Qt::CheckState>types = config->loadColumnsToShow(configSettingsName);
 
     //При изменении чекбоксов тригерится стародобавленный сигнал, который обновляет окно traceWindw для перегенерации по "новым условиям"
     //Загрузка происходит до инициализации окна traceWindow, следовательно блочим сигналы перед тем как внести изменения
@@ -1166,9 +1170,7 @@ void TraceWindowSettings::loadColumnsFromConfig(){
     ui->timeCheckbox->blockSignals(false);
     ui->millisecondsCheckbox->blockSignals(false);
 
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked &&traceWindow->isInitialized()){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 }
 
 tUINT32 TraceWindowSettings::getWheelScrollStep()
@@ -1191,18 +1193,16 @@ void TraceWindowSettings::on_wheelSpin_valueChanged(int arg1)
         wheelScrollStep=1;
         ui->wheelSpin->setValue(1);
     }
-    config->saveWheelScrollStep(connectionName.ip,wheelScrollStep);
+    config->saveWheelScrollStep(configSettingsName,wheelScrollStep);
 }
 
 
 void TraceWindowSettings::on_millisecondsCheckbox_stateChanged(int arg1)
 {
-    if(traceWindow->isAutoscrollChecked()==Qt::Unchecked){
-        traceWindow->reloadTracesInsideWindow();
-    }
+    traceWindow->reloadTracesInsideWindow();
 
     QMap<QString, Qt::CheckState> typesToShow;
     typesToShow.insert("milliseconds",ui->millisecondsCheckbox->checkState());
-    config->saveColumnsToShow(connectionName.ip,typesToShow);
+    config->saveColumnsToShow(configSettingsName,typesToShow);
 }
 

@@ -88,6 +88,8 @@ public:
     MainWindow *getMainWindow() const;
 
     void setAutoscrollDisabled(bool status);
+    bool isRowNeedToBeShown(GUIData g);
+    void recountNubmerOfTracesToShow();
 private:
     MainWindow* mainWindow;
     tUINT32 connectionStatus;
@@ -130,8 +132,7 @@ private:
     QCheckBox* infiniteLine;
 
     QMap<tUINT32, GUIData> guiData;
-
-    tUINT32 verticalBarSize = 0; //==guiData.size
+    QList<tUINT32> listOfRowsThatWeNeedToShow;
 
     Ui::TraceWindow* ui;
     QMap<int,QString> bLevels = {{0,"TRACE"},
@@ -161,6 +162,7 @@ private:
 
     void closeEvent(QCloseEvent *event);
     void clearSelect();
+    void deleteFirstLineInsideTracesWindow();
 public slots:
     void getTrace(TraceToGUI trace);
     void setTraceAsObject(Trace* trace);

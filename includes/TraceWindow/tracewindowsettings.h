@@ -199,7 +199,7 @@ private slots:
 private:
     Qt::CheckState isEnumBold = Qt::Unchecked;
     Qt::CheckState isEnumItalic = Qt::Unchecked;
-
+    QString configSettingsName;
     ConnectionName connectionName;
     ConfigHandler* config;
     EnumParser* enumParser;
@@ -233,7 +233,6 @@ private:
     void loadColumnsFromConfig();
 signals:
     //Unique Traces List
-    void reloadDataInsideTraceWindow();
 };
 
 #endif // TRACEWINDOWSETTINGS_H

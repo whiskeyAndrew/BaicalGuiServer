@@ -29,8 +29,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::showContextMenu(const QPoint &pos)
 {
-    std::cout<<"I ASKED FOR IT"<<std::endl;
-
     QTableWidgetItem *item = ui->connectionsTable->itemAt(pos);
     if(item!=NULL){
         QString pathToFile;

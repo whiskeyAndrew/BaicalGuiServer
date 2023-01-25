@@ -9,8 +9,7 @@ FileReader::FileReader(QString fileName, TraceWindow* newTraceWindow)
 {    
     file = new QFile(fileName);
     traceWindow = newTraceWindow;
-    traceWindow->setAutoscrollDisabled(true);
-
+    traceWindow->setConnectionStatus(3);
 }
 
 void FileReader::run()
@@ -70,14 +69,16 @@ bool FileReader::HandlingChunks()
         dataVector.clear();
         chunkSize=0;
     }
-    traceWindow->fileReadingStatus(100);
+
     file->close();
     delete file;
     data.clear();
     while(!chunkHandler.chunks.empty()){
+        QApplication::processEvents();
         this->sleep(1);
     }
     chunkHandler.requestInterruption();
     chunkHandler.waitCondition.wakeOne();
+    traceWindow->fileReadingStatus(100);
     return true;
 }
