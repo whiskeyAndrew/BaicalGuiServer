@@ -129,9 +129,8 @@ void TraceWindow::reloadTracesFromBelow(int value)
         }
 
         GUIData g = guiData.value(value);
-
-        tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
-        if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
+        QString row = getGuiRow(g);
+        if(row==""){
             //Генерация строк идет с верхней и вниз.
             //Если мы поднимаемся наверх по скроллу, нам надо найти ту строку, которая нам подходит для генерации по условиям
             //И начинать генерацию с нее
@@ -152,36 +151,8 @@ void TraceWindow::reloadTracesFromBelow(int value)
             continue;
         }
 
-        if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
-            if(!foundFirstRow && (sliderAction==QAbstractSlider::SliderSingleStepSub || sliderAction==QAbstractSlider::SliderPageStepSub)){
-                value--;
-                rowsSkipped--;
-                continue;
-            }
-
-            if(!foundFirstRow){
-                rowsSkipped++;
-            }
-            value++;
-            continue;
-        }
-
-        if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
-            if(!foundFirstRow && (sliderAction==QAbstractSlider::SliderSingleStepSub || sliderAction==QAbstractSlider::SliderPageStepSub)){
-                value--;
-                rowsSkipped--;
-                continue;
-            }
-
-            if(!foundFirstRow){
-                rowsSkipped++;
-            }
-            value++;
-            continue;
-        }
-
         foundFirstRow = true;
-        ui->textBrowser->append(getGuiRow(g));
+        ui->textBrowser->append(row);
         value++;
     }
     ui->verticalScrollBar->blockSignals(true);
@@ -190,6 +161,7 @@ void TraceWindow::reloadTracesFromBelow(int value)
     sliderAction = 0;
     ui->textBrowser->verticalScrollBar()->setValue(0);
 
+    //выделение выбранной строки если она не удаляется после изменения фильтров
     if(lastSelected!=-1 && rowsSkipped==0){
         //        ui->textBrowser->extraSelections().first().cursor;
         QTextCursor cur = ui->textBrowser->textCursor();
@@ -202,6 +174,7 @@ void TraceWindow::reloadTracesFromBelow(int value)
 
 void TraceWindow::reloadTracesFromAbove(int value)
 {
+    std::cout<<"reloading from above"<<std::endl;
     tUINT32 rememberValue = value;
     ui->textBrowser->setText("");
 
@@ -562,6 +535,7 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+traceSettings->getWheelScrollStep());
     }
 
+    reloadTracesInsideWindow();
     event->accept();
 
 
@@ -1060,6 +1034,11 @@ void TraceWindow::fileReadingStatus(tUINT32 percent){
     }
 }
 
+void TraceWindow::setAutoscrollDisabled(bool status)
+{
+    ui->Autoscroll->setDisabled(status);
+    ui->Autoscroll->setCheckable(!status);
+}
 void TraceWindow::on_verticalScrollBar_sliderPressed()
 {
     lastSelected=-1;

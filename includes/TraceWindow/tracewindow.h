@@ -87,6 +87,7 @@ public:
     tUINT32 getConnectionStatus();
     MainWindow *getMainWindow() const;
 
+    void setAutoscrollDisabled(bool status);
 private:
     MainWindow* mainWindow;
     tUINT32 connectionStatus;

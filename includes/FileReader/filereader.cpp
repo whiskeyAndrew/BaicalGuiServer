@@ -9,6 +9,7 @@ FileReader::FileReader(QString fileName, TraceWindow* newTraceWindow)
 {    
     file = new QFile(fileName);
     traceWindow = newTraceWindow;
+    traceWindow->setAutoscrollDisabled(true);
 
 }
 
