@@ -232,7 +232,7 @@ void MainWindow::on_actionOpen_File_triggered()
     traceWindow = new TraceWindow({"File ",fileName},config,this);
     fileReader = new FileReader(fileName,traceWindow);
     traceWindow->setTraceAsObject(fileReader->chunkHandler.getTraceHandler());
-    traceWindow->setConnectionStatus(OFFLINE);
+    traceWindow->setConnectionStatus(FILE_CONNECTION);
     traceWindows.append(traceWindow);
 
     if(ui->actionAuto_Open->isChecked()){

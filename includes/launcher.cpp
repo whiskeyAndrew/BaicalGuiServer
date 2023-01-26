@@ -37,11 +37,15 @@ void Launcher::run()
     connectionTimeoutChecker->wait();
 
     for(int i =0;i<clientsList->size();i++){
-        clientsList->at(i).connectionThread->requestInterruption();
+        if(clientsList->at(i).connectionThread!=NULL){
+            clientsList->at(i).connectionThread->requestInterruption();
+        }
 
     }
     for(int i =0;i<clientsList->size();i++){
-        clientsList->at(i).connectionThread->wait();
+        if(clientsList->at(i).connectionThread!=NULL){
+            clientsList->at(i).connectionThread->wait();
+        }
     }
     std::cout<<"------"<<"Launcher is ending"<<"------"<<std::endl;
     DebugLogger::writeData("Launcher:: All connections is closed, ending...");

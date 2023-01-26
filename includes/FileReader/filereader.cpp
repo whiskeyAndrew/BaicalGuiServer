@@ -9,11 +9,13 @@ FileReader::FileReader(QString fileName, TraceWindow* newTraceWindow)
 {    
     file = new QFile(fileName);
     traceWindow = newTraceWindow;
-    traceWindow->setConnectionStatus(3);
+    connect(this,FileReader::setSettingsDisabled,traceWindow,TraceWindow::setSettingsDisabled);
 }
 
 void FileReader::run()
-{    
+{
+    //неадекватное поведение если влезать в настройки до окончания чтения файла
+    emit setSettingsDisabled(true);
     chunkHandler.setNeedBackup(false);
     chunkHandler.setTraceWindow(traceWindow);
     chunkHandler.start();
@@ -21,6 +23,7 @@ void FileReader::run()
     ReadFileData();
     //-------------Обработка----------------//
     HandlingChunks();
+    emit setSettingsDisabled(false);
     //this->~FileReader();
     std::cout<<"------FileReader:: closing myself------"<<std::endl;
     this->quit();
@@ -48,6 +51,9 @@ bool FileReader::HandlingChunks()
     sP7File_Header fileHeader;
     bufferCursor = data.begin();
     memcpy(&fileHeader,bufferCursor,sizeof(sP7File_Header));
+    if(fileHeader.qwMarker!=P7_DAMP_FILE_MARKER_V1){
+        return false;
+    }
     bufferCursor+=sizeof(sP7File_Header);
 
     traceWindow->fileReadingStatus(0);

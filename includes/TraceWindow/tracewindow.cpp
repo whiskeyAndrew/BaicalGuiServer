@@ -67,8 +67,19 @@ void TraceWindow::deleteFirstLineInsideTracesWindow()
     cursor.deleteChar();
 }
 
+void TraceWindow::setSettingsDisabled(bool status)
+{
+    ui->WindowSettings->setDisabled(status);
+}
+
 void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {
+    //Если нам надо перестроить все окно, нам надо знать с какой точки его перестраивать, чтобы не переходить в самый ноль
+    //Надо запомнить sequence строки и ориентируясь по нему мы поймем когда сделано то, что надо
+    if(value<guiData.size() && value<listOfRowsThatWeNeedToShow.size()){
+        sequenceToRememberForReloadingAtProperPlace = guiData.value(listOfRowsThatWeNeedToShow.at(value)).sequence;
+    }
+    std::cout<<sequenceToRememberForReloadingAtProperPlace<<std::endl;
     reloadTracesInsideWindow();
 }
 
@@ -85,6 +96,7 @@ void TraceWindow::reloadTracesInsideWindow()
 
     if(!ui->Autoscroll->isChecked()){
         value = ui->verticalScrollBar->value();
+
     } else{
         value = ui->verticalScrollBar->maximum()-numberOfRowsToShow;
     }
@@ -160,7 +172,7 @@ void TraceWindow::openHyperlink(const QUrl &link)
     QStringList sl = link.path().split(" _splt_ ");
     tUINT32 sequence = sl.at(0).toInt();
     QString rawTraceWithEnums = sl.at(1);
-    lastSelected = sl.at(2).toInt();
+    lastSelected = sequence;
 
     sP7Trace_Data traceData = traceThread->getTraceData(sequence);
     UniqueTraceData traceFormat = traceThread->getTraceFormat(traceData.wID);
@@ -365,19 +377,19 @@ void TraceWindow::setActionStatusText(QString text)
 
 void TraceWindow::setConnectionStatus(tUINT32 status){
     connectionStatus = status;
-    if(status==2){
+    if(status==ONLINE){
         QIcon icon;
         icon.addPixmap(QPixmap(":/green-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
         ui->actionsStatusLabel->setText("Connected");
     }
-    else if(status==1){
+    else if(status==UNKNOWN_CONNECTION_STATUS){
         QIcon icon;
         icon.addPixmap(QPixmap(":/yellow-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
         ui->actionsStatusLabel->setText("Trying to reconnect");
     }
-    else if(status==0){
+    else if(status==OFFLINE){
         QIcon icon;
         icon.addPixmap(QPixmap(":/red-dot.png"), QIcon::Disabled);
         ui->connectionStatus->setIcon(icon);
@@ -387,7 +399,7 @@ void TraceWindow::setConnectionStatus(tUINT32 status){
         ui->Autoscroll->setDisabled(true);
     }
     //File
-    else if(status ==3){
+    else if(status ==FILE_CONNECTION){
         ui->Autoscroll->setDisabled(status);
         ui->Autoscroll->setCheckable(!status);
         ui->connectionStatus->setHidden(true);
@@ -411,7 +423,7 @@ void TraceWindow::initWindow(){
     for(int i =0;i<6;i++){
         isNeedToShowByTraceLevel.append(2);
     }
-
+    loadingGif = new QMovie(":/loading.gif");
     traceSettings = new TraceWindowSettings(this,&clientName);
     recountNumberOfRowsToShow();
     ui->textBrowser->setText("");
@@ -949,15 +961,14 @@ void TraceWindow::on_hideServerStatus_clicked()
 
 void TraceWindow::fileReadingStatus(tUINT32 percent){
     if(percent==100){
-        delete fileReadingGif;
+        ui->fileReadingStatus->clear();
         ui->fileReadingStatus->setPixmap(QPixmap(":/tick.png"));
         ui->fileReadingStatus->setScaledContents(true);
         ui->actionsStatusLabel->setText("File has been read");
     }else{
-        fileReadingGif = new QMovie(":/loading.gif");
         ui->connectionStatus->setIcon(QIcon());
-        ui->fileReadingStatus->setMovie(fileReadingGif);
-        fileReadingGif->start();
+        ui->fileReadingStatus->setMovie(loadingGif);
+        loadingGif->start();
         ui->actionsStatusLabel->setText("Reading file...");
     }
 }
@@ -1030,25 +1041,44 @@ void TraceWindow::on_verticalScrollBar_actionTriggered(int action)
 
 void TraceWindow::recountNubmerOfTracesToShow()
 {
+    bool isRowWhereWeNeedToStartUpdatingFound = false;
+    tUINT32 selectedRowPositionInScrollbar = 0;
+
     listOfRowsThatWeNeedToShow.clear();
     ui->verticalScrollBar->blockSignals(true);
     ui->verticalScrollBar->setMaximum(0);
     ui->verticalScrollBar->setValue(0);
     ui->verticalScrollBar->blockSignals(false);
+
     for(tUINT32 key: guiData.keys()){
         if(isRowNeedToBeShown( guiData.value(key))){
             listOfRowsThatWeNeedToShow.append(key);
-            ui->verticalScrollBar->setMaximum(ui->verticalScrollBar->maximum()+1);
-            if(key>=lastSelected && lastSelected==-1){
-                lastSelected = listOfRowsThatWeNeedToShow.size()-1;
-                ui->selectedLabel->setText(QString::number(lastSelected));
+
+            //ищем если у нас была выбрана строка до этого
+            if(!isRowWhereWeNeedToStartUpdatingFound && guiData.value(key).sequence>=lastSelected){
+                selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
+                isRowWhereWeNeedToStartUpdatingFound = true;
+                //если строки не было выбрано ищем строку которая была в последний раз перед переделкой страницы
+            } else if(!isRowWhereWeNeedToStartUpdatingFound &&lastSelected==-1 && guiData.value(key).sequence>=sequenceToRememberForReloadingAtProperPlace){
+                selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
+                isRowWhereWeNeedToStartUpdatingFound = true;
+
             }
         }
-
     }
+
+    ui->verticalScrollBar->setMaximum(listOfRowsThatWeNeedToShow.size());
+    if(isRowWhereWeNeedToStartUpdatingFound){
+        ui->verticalScrollBar->blockSignals(true);
+        ui->verticalScrollBar->setValue(selectedRowPositionInScrollbar);
+        ui->verticalScrollBar->blockSignals(false);
+    }
+
     std::cout<<"maximum - "<<ui->verticalScrollBar->maximum()<<std::endl;
     std::cout<<"list size - "<<listOfRowsThatWeNeedToShow.size()<<std::endl;
     std::cout<<"guidata size - "<<guiData.size()<<std::endl;
     std::cout<<"value - "<<ui->verticalScrollBar->value()<<std::endl;
     reloadTracesInsideWindow();
 }
+
+

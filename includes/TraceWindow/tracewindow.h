@@ -91,10 +91,11 @@ public:
     bool isRowNeedToBeShown(GUIData g);
     void recountNubmerOfTracesToShow();
 private:
+    QMovie* loadingGif;
+    tUINT32 sequenceToRememberForReloadingAtProperPlace = 0;
     MainWindow* mainWindow;
     tUINT32 connectionStatus;
     tUINT32 numberOfRowsToShow;
-    QMovie *fileReadingGif;
     QMap<tUINT32, QList<ArgsThatNeedToBeChangedByEnum>> argsThatNeedToBeChangedByEnum;
     QCheckBox autoscroll;
     TraceWindowSettings* traceSettings;
@@ -164,6 +165,7 @@ private:
     void clearSelect();
     void deleteFirstLineInsideTracesWindow();
 public slots:
+    void setSettingsDisabled(bool status);
     void getTrace(TraceToGUI trace);
     void setTraceAsObject(Trace* trace);
     void getTraceFromFile(std::queue<TraceToGUI>);

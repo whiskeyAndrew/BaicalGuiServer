@@ -45,6 +45,8 @@ public:
     FileReader(QString fileName, TraceWindow* newTraceWindow);
     ~FileReader();
     void run();
+signals:
+    void setSettingsDisabled(bool status);
 };
 
 #endif // FILEREADER_H
