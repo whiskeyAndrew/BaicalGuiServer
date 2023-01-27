@@ -26,6 +26,11 @@ void FileReader::run()
     emit setSettingsDisabled(false);
     //this->~FileReader();
     std::cout<<"------FileReader:: closing myself------"<<std::endl;
+    traceWindow->setFileReader(NULL);
+    if(isInterruptionRequested()){
+        traceWindow->deleteLater();
+    }
+
     this->quit();
 }
 
@@ -57,9 +62,9 @@ bool FileReader::HandlingChunks()
     bufferCursor+=sizeof(sP7File_Header);
 
     traceWindow->fileReadingStatus(0);
-    while(bufferCursor<data.end())
+    while(bufferCursor<data.end() && !isInterruptionRequested())
     {
-        QApplication::processEvents();
+        //        QApplication::processEvents();
         memcpy(&chunkSize,bufferCursor,sizeof(tUINT32));
         chunkSize = GET_USER_HEADER_SIZE(chunkSize);
         if(chunkSize==0){
@@ -79,8 +84,8 @@ bool FileReader::HandlingChunks()
     file->close();
     delete file;
     data.clear();
-    while(!chunkHandler.chunks.empty()){
-        QApplication::processEvents();
+    while(!chunkHandler.chunks.empty() && !isInterruptionRequested()){
+        //        QApplication::processEvents();
         this->sleep(1);
     }
     chunkHandler.requestInterruption();

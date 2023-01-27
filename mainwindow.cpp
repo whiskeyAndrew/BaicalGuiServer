@@ -71,7 +71,7 @@ void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* pack
 
     QTableWidgetItem* connectionWidgetItem = new QTableWidgetItem(connectionName.ip+":"+connectionName.port);
 
-    QPushButton* closeButton = new QPushButton("Delete");
+    QPushButton* closeButton = new QPushButton("Clear");
 
     closeButton->setDisabled(true);
     closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
@@ -125,7 +125,7 @@ void MainWindow::onCloseConnectionClicked()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         TraceWindow* traceWnd= traceWindows.at(row);
-        if(traceWnd->getConnectionStatus()!=0){
+        if(traceWnd->getConnectionStatus()!=OFFLINE && traceWnd->getConnectionStatus()!=FILE_CONNECTION){
             ui->statusbar->showMessage("Can't close active connection!");
             return;
         }
@@ -135,9 +135,21 @@ void MainWindow::onCloseConnectionClicked()
         emit sendClientToDelete(row);
 
         traceWindows.removeAt(row);
-        traceWnd->deleteLater();
         ui->connectionsTable->removeRow(row);
+
+        //QWindow->deleteLater почему-то иногда вызывает полный статтер ГУИ
+        //Для избежания этого просто чистим дату внутри окна, как пишут умные люди интернета
+        //QT сам чистит окна когда надо
+        if(traceWnd->getFileReader()!=NULL && !traceWnd->getFileReader()->isFinished()){
+            traceWnd->getFileReader()->requestInterruption();
+        }
+        else{
+//            traceWnd->clearData();
+            traceWnd->deleteLater();
+        }
+
     }
+//    QApplication::processEvents();
     std::cout<<"deleted"<<std::endl;
 
     for(int i =0;i<ui->connectionsTable->rowCount();i++){
@@ -231,6 +243,7 @@ void MainWindow::on_actionOpen_File_triggered()
     launcher->clientsList->append({NULL,NULL});
     traceWindow = new TraceWindow({"File ",fileName},config,this);
     fileReader = new FileReader(fileName,traceWindow);
+    traceWindow->setFileReader(fileReader);
     traceWindow->setTraceAsObject(fileReader->chunkHandler.getTraceHandler());
     traceWindow->setConnectionStatus(FILE_CONNECTION);
     traceWindows.append(traceWindow);

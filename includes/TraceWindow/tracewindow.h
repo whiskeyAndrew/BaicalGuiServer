@@ -17,6 +17,7 @@
 #include <QIcon>
 #include <QMovie>
 
+
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -30,6 +31,7 @@ enum eP7Trace_Level
 };
 
 class MainWindow;
+class FileReader;
 namespace Ui {
 class TraceWindow;
 }
@@ -90,7 +92,12 @@ public:
     void setAutoscrollDisabled(bool status);
     bool isRowNeedToBeShown(GUIData g);
     void recountNubmerOfTracesToShow();
+    FileReader *getFileReader() const;
+    void setFileReader(FileReader *newFileReader);
+
 private:
+    FileReader* fileReader = NULL;
+    tINT32 fileHasBeenRead = -1; // -1 = not exists, 0 - reading, 1 - read
     QMovie* loadingGif;
     tUINT32 sequenceToRememberForReloadingAtProperPlace = 0;
     MainWindow* mainWindow;

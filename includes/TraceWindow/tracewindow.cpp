@@ -1,6 +1,7 @@
 #include "ui_tracewindow.h"
 #include "tracewindow.h"
 #include "mainwindow.h"
+#include "../FileReader/filereader.h"
 //Окно отрисовывает текст как HTML. Это было сделано для того, чтобы предоставить приложению вид "консоли",
 //Но при этом сохранить байкаловскую возможность кликать по строкам чтобы получать о них информацию.
 //Из-за этого вытекло куча проблем, к примеру тэги /n и /t приходится заменять ХТМЛовским аналогом
@@ -79,7 +80,6 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
     if(value<guiData.size() && value<listOfRowsThatWeNeedToShow.size()){
         sequenceToRememberForReloadingAtProperPlace = guiData.value(listOfRowsThatWeNeedToShow.at(value)).sequence;
     }
-    std::cout<<sequenceToRememberForReloadingAtProperPlace<<std::endl;
     reloadTracesInsideWindow();
 }
 
@@ -303,10 +303,14 @@ void TraceWindow::autoscrollStateChanged(tUINT32 stat)
 
 TraceWindow::~TraceWindow()
 {
+    this->close();
     std::cout<<"------Deleting TraceWindow------"<<std::endl;
     traceSettings->deleteLater();
-    guiData.clear();
-    listOfRowsThatWeNeedToShow.clear();
+
+    //Память не очищается не смотря на то, что мы чистим за собой мапу. Зато удаление мапы сжирает всю производиловку.
+    //Надо будет обязательно исправить
+    //    guiData.clear();
+    //    listOfRowsThatWeNeedToShow.clear();
     delete ui;
 }
 
@@ -444,7 +448,7 @@ void TraceWindow::initWindow(){
     ui->textBrowser->setOpenLinks(false);
 
     connect(ui->Autoscroll,&QCheckBox::stateChanged,this,&TraceWindow::autoscrollStateChanged);
-    connect(ui->infinite_line,&QCheckBox::stateChanged,this,&TraceWindow::autoscrollStateChanged);
+//    connect(ui->infinite_line,&QCheckBox::stateChanged,this,&TraceWindow::autoscrollStateChanged);
     connect(ui->verticalScrollBar,&QScrollBar::sliderPressed,this,&TraceWindow::offAutoscroll);
     connect(ui->verticalScrollBar,&QScrollBar::sliderReleased,this,&TraceWindow::verticalSliderReleased);
     connect(ui->textBrowser,&QTextBrowser::anchorClicked,this,&TraceWindow::openHyperlink);
@@ -531,16 +535,19 @@ void TraceWindow::on_Disable_clicked()
     ui->traceText->clear();
     ui->traceDest->clear();
     ui->processName->clear();
+    reloadTracesInsideWindow();
 }
 
 void TraceWindow::on_infinite_line_stateChanged(int arg1)
 {
+//    reloadTracesInsideWindow();
     if(arg1==Qt::Checked){
         ui->textBrowser->setLineWrapMode(QTextBrowser::LineWrapMode::NoWrap);
     }
     else{
         ui->textBrowser->setLineWrapMode(QTextBrowser::LineWrapMode::WidgetWidth);
     }
+
 }
 
 QString TraceWindow::getGuiRow(GUIData g){
@@ -961,11 +968,13 @@ void TraceWindow::on_hideServerStatus_clicked()
 
 void TraceWindow::fileReadingStatus(tUINT32 percent){
     if(percent==100){
+        fileHasBeenRead = 1;
         ui->fileReadingStatus->clear();
         ui->fileReadingStatus->setPixmap(QPixmap(":/tick.png"));
         ui->fileReadingStatus->setScaledContents(true);
         ui->actionsStatusLabel->setText("File has been read");
     }else{
+        fileHasBeenRead = 0;
         ui->connectionStatus->setIcon(QIcon());
         ui->fileReadingStatus->setMovie(loadingGif);
         loadingGif->start();
@@ -1079,6 +1088,16 @@ void TraceWindow::recountNubmerOfTracesToShow()
     std::cout<<"guidata size - "<<guiData.size()<<std::endl;
     std::cout<<"value - "<<ui->verticalScrollBar->value()<<std::endl;
     reloadTracesInsideWindow();
+}
+
+FileReader *TraceWindow::getFileReader() const
+{
+    return fileReader;
+}
+
+void TraceWindow::setFileReader(FileReader *newFileReader)
+{
+    fileReader = newFileReader;
 }
 
 
