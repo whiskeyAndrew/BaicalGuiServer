@@ -18,6 +18,11 @@
 #include <QMovie>
 #include <QDebug>
 
+struct rowsInsideTrace{
+    tUINT32 traceNumber;
+    tUINT32 lineNumber;
+};
+
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -140,7 +145,7 @@ private:
     QCheckBox* infiniteLine;
 
     QList<GUIData>* guiData;
-    QList<tUINT32> listOfRowsThatWeNeedToShow;
+    QList<rowsInsideTrace> listOfRowsThatWeNeedToShow;
 
     Ui::TraceWindow* ui;
     QMap<int,QString> bLevels = {{0,"TRACE"},

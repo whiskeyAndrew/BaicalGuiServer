@@ -33,12 +33,15 @@ void TraceWindow::getTrace(TraceToGUI trace)
 
     //слишком большая чсть хранить кучу данных в traceTime
     //оптимизировать чуть позже
-    GUIData currentGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime,ui->verticalScrollBar->maximum()};
+    tUINT32 rowsToShow = trace.trace.count("\n")+1;
+    GUIData currentGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime,ui->verticalScrollBar->maximum(),rowsToShow};
 
     guiData->append(currentGuiData);
 
     if(isRowNeedToBeShown(currentGuiData)){
-        listOfRowsThatWeNeedToShow.append(guiData->size()-1);
+        for(tUINT32 i = 1;i<=rowsToShow;i++){
+            listOfRowsThatWeNeedToShow.append({static_cast<tUINT32>(guiData->size()-1),i});
+        }
         ui->verticalScrollBar->setMaximum(ui->verticalScrollBar->maximum()+1);
     }
     if((ui->verticalScrollBar->maximum()<numberOfRowsToShow || ui->textBrowser->document()->blockCount()<numberOfRowsToShow || ui->Autoscroll->isChecked())
@@ -79,7 +82,7 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
     //Если нам надо перестроить все окно, нам надо знать с какой точки его перестраивать, чтобы не переходить в самый ноль
     //Надо запомнить sequence строки и ориентируясь по нему мы поймем когда сделано то, что надо
     if(value<guiData->size() && value<listOfRowsThatWeNeedToShow.size()){
-        sequenceToRememberForReloadingAtProperPlace = guiData->at(listOfRowsThatWeNeedToShow.at(value)).sequence;
+        sequenceToRememberForReloadingAtProperPlace = guiData->at(listOfRowsThatWeNeedToShow.at(value).traceNumber).sequence;
     }
     reloadTracesInsideWindow();
 }
@@ -105,16 +108,33 @@ void TraceWindow::reloadTracesInsideWindow()
     reloadTracesFromBelow(value);
 
     if(!ui->Autoscroll->isChecked()){
-        ui->textBrowser->verticalScrollBar()->setValue(0);
+        //        ui->textBrowser->verticalScrollBar()->setValue(listOfRowsThatWeNeedToShow.at(value).lineNumber-1);
+        QTextCursor textCursor = ui->textBrowser->textCursor();
+        textCursor.movePosition(QTextCursor::Start);
+        if(value<listOfRowsThatWeNeedToShow.size()){
+            for(int i =0;i<listOfRowsThatWeNeedToShow.at(value).lineNumber-1;i++){
+                textCursor.movePosition(QTextCursor::Down);
+                //для более плавного скролла пихаем пустые строки в конец
+                ui->textBrowser->append("<br> &nbsp;");
+            }
+            textCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+            ui->textBrowser->setTextCursor(textCursor);
+        }
+        else{
+            ui->textBrowser->verticalScrollBar()->setValue(0);
+        }
+
     } else{
         ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
     }
+
+    //небольшие статтеры происходят если мы крутим последние элементы, это костылефикс
 }
 
 void TraceWindow::reloadTracesFromBelow(int value)
 {
     ui->textBrowser->setText("");
-
+    bool firstTraceGenerated = false;
 
     while(ui->textBrowser->document()->blockCount()<numberOfRowsToShow){
         if(value<0){
@@ -125,11 +145,22 @@ void TraceWindow::reloadTracesFromBelow(int value)
         if(value==listOfRowsThatWeNeedToShow.size() ){
             return;
         }
-        tUINT32 positionOfTraceInsideGuiDataMap = listOfRowsThatWeNeedToShow.at(value);
+        tUINT32 positionOfTraceInsideGuiDataMap = listOfRowsThatWeNeedToShow.at(value).traceNumber;
+
+        if(value<listOfRowsThatWeNeedToShow.size()){
+            if(listOfRowsThatWeNeedToShow.at(value).lineNumber!=1 && firstTraceGenerated){
+                value++;
+                continue;
+            }
+        }
+
         GUIData g = guiData->at(positionOfTraceInsideGuiDataMap);
         QString row = getGuiRow(g);
         ui->textBrowser->append(row);
         value++;
+        if(!firstTraceGenerated){
+            firstTraceGenerated = true;
+        }
     }
 
     if(ui->textBrowser->document()->lineCount()<numberOfRowsToShow){
@@ -147,7 +178,7 @@ void TraceWindow::reloadTracesFromAbove(int value)
         if(value>=listOfRowsThatWeNeedToShow.size() || value<1){
             return;
         }
-        tUINT32 positionOfTraceInsideGuiDataMap = listOfRowsThatWeNeedToShow.at(value);
+        tUINT32 positionOfTraceInsideGuiDataMap = listOfRowsThatWeNeedToShow.at(value).traceNumber;
         GUIData g = guiData->at(positionOfTraceInsideGuiDataMap);
         QString row = getGuiRow(g);
         ui->textBrowser->append(row);
@@ -310,9 +341,9 @@ TraceWindow::~TraceWindow()
 
     //Память не очищается не смотря на то, что мы чистим за собой лист. Зато удаление листа сжирает всю производиловку.
     //Надо будет обязательно исправить
-//    qDebug()<<QDateTime::currentDateTime();
-//    guiData->clear();
-//    listOfRowsThatWeNeedToShow.clear();
+    //    qDebug()<<QDateTime::currentDateTime();
+    //    guiData->clear();
+    //    listOfRowsThatWeNeedToShow.clear();
     qDebug()<<QDateTime::currentDateTime();
     delete ui;
 }
@@ -1064,18 +1095,19 @@ void TraceWindow::recountNubmerOfTracesToShow()
 
     for(int i =0;i<guiData->size();i++){
         if(isRowNeedToBeShown(guiData->at(i))){
-            listOfRowsThatWeNeedToShow.append(i);
+            for(tUINT32 j =1;j<=guiData->at(i).rowsToShow;j++)
+                listOfRowsThatWeNeedToShow.append({static_cast<tUINT32>(i),j});
+        }
 
-            //ищем если у нас была выбрана строка до этого
-            if(!isRowWhereWeNeedToStartUpdatingFound && guiData->at(i).sequence>=lastSelected){
-                selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
-                isRowWhereWeNeedToStartUpdatingFound = true;
-                //если строки не было выбрано ищем строку которая была в последний раз перед переделкой страницы
-            } else if(!isRowWhereWeNeedToStartUpdatingFound &&lastSelected==-1 && guiData->at(i).sequence>=sequenceToRememberForReloadingAtProperPlace){
-                selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
-                isRowWhereWeNeedToStartUpdatingFound = true;
+        //ищем если у нас была выбрана строка до этого
+        if(!isRowWhereWeNeedToStartUpdatingFound && guiData->at(i).sequence>=lastSelected){
+            selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
+            isRowWhereWeNeedToStartUpdatingFound = true;
+            //если строки не было выбрано ищем строку которая была в последний раз перед переделкой страницы
+        } else if(!isRowWhereWeNeedToStartUpdatingFound &&lastSelected==-1 && guiData->at(i).sequence>=sequenceToRememberForReloadingAtProperPlace){
+            selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
+            isRowWhereWeNeedToStartUpdatingFound = true;
 
-            }
         }
     }
 

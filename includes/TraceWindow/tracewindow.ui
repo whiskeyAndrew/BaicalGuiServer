@@ -597,30 +597,6 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" rowspan="6">
-    <widget class="QTextBrowser" name="textBrowser">
-     <property name="styleSheet">
-      <string notr="true">selection-color: rgb(63, 63, 63);
-color: rgb(255, 255, 255);
-selection-background-color: rgb(187, 187, 187);</string>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="lineWrapMode">
-      <enum>QTextEdit::NoWrap</enum>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-     </property>
-     <property name="placeholderText">
-      <string/>
-     </property>
-    </widget>
-   </item>
    <item row="7" column="2">
     <widget class="QPushButton" name="Disable">
      <property name="enabled">
@@ -688,6 +664,30 @@ selection-background-color: rgb(187, 187, 187);</string>
     <widget class="QPushButton" name="clearSelected">
      <property name="text">
       <string>Clear Select</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" rowspan="6">
+    <widget class="QTextBrowser" name="textBrowser">
+     <property name="styleSheet">
+      <string notr="true">selection-color: rgb(63, 63, 63);
+color: rgb(255, 255, 255);
+selection-background-color: rgb(187, 187, 187);</string>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QTextEdit::NoWrap</enum>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+     </property>
+     <property name="placeholderText">
+      <string/>
      </property>
     </widget>
    </item>
