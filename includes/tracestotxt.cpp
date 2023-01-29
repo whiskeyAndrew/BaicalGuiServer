@@ -1,7 +1,7 @@
 #include "tracestotxt.h"
 #include "TraceWindow/tracewindow.h"
 
-TracesToText::TracesToText(QMap<tUINT32, GUIData>* traces, QString filePath, TraceWindow* newTraceWindow)
+TracesToText::TracesToText(QList<GUIData>* traces, QString filePath, TraceWindow* newTraceWindow)
 {
     fileDirectory = filePath;
     data = traces;
@@ -24,8 +24,8 @@ void TracesToText::run()
             traceWindow->setActionStatusText("Started to write .txt: " + QString::number(percent) +"%");
             percent+=25;
         }
-        GUIData dataToFile = data->value(i);
-        out<<QString::number(dataToFile.sequence)+" " + QString::number(dataToFile.time.dwHour)+":"+QString::number(dataToFile.time.dwMinutes)+":"+QString::number(dataToFile.time.dwSeconds)+" " + dataToFile.trace+"\n";
+        GUIData dataToFile = data->at(i);
+        out<<QString::number(dataToFile.sequence)+" " + QString::number(dataToFile.time.dwHour)+":"+QString::number(dataToFile.time.dwMinutes)+":"+QString::number(dataToFile.time.dwSeconds)+"."+QString::number(dataToFile.time.dwMilliseconds)+" " + dataToFile.trace+"\n";
     }
     traceWindow->setActionStatusText("Traces has been written to a file");
     file.close();

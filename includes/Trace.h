@@ -50,6 +50,7 @@ struct GUIData{
     QList<ArgsPosition> argsPosition;
     p7Time time;
     tINT32 positionInMap;
+    tUINT32 rowsToShow = 1;
 };
 class TraceWindow;
 #pragma pack(push,2)

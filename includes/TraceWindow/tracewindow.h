@@ -16,7 +16,7 @@
 #include <QCloseEvent>
 #include <QIcon>
 #include <QMovie>
-
+#include <QDebug>
 
 enum eP7Trace_Level
 {
@@ -139,7 +139,7 @@ private:
 
     QCheckBox* infiniteLine;
 
-    QMap<tUINT32, GUIData> guiData;
+    QList<GUIData>* guiData;
     QList<tUINT32> listOfRowsThatWeNeedToShow;
 
     Ui::TraceWindow* ui;

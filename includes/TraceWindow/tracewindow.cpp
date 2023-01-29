@@ -16,6 +16,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
     ui(new Ui::TraceWindow)
 {
     mainWindow = mw;
+    guiData = new QList<GUIData>;
     DebugLogger::writeData("TraceWindow:: opening new trace window! "+newClientName.ip + ":"+newClientName.port);
     ui->setupUi(this);
     clientName = newClientName;
@@ -34,10 +35,10 @@ void TraceWindow::getTrace(TraceToGUI trace)
     //оптимизировать чуть позже
     GUIData currentGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime,ui->verticalScrollBar->maximum()};
 
-    guiData.insert(guiData.size(),currentGuiData);
+    guiData->append(currentGuiData);
 
     if(isRowNeedToBeShown(currentGuiData)){
-        listOfRowsThatWeNeedToShow.append(guiData.size()-1);
+        listOfRowsThatWeNeedToShow.append(guiData->size()-1);
         ui->verticalScrollBar->setMaximum(ui->verticalScrollBar->maximum()+1);
     }
     if((ui->verticalScrollBar->maximum()<numberOfRowsToShow || ui->textBrowser->document()->blockCount()<numberOfRowsToShow || ui->Autoscroll->isChecked())
@@ -77,8 +78,8 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
 {
     //Если нам надо перестроить все окно, нам надо знать с какой точки его перестраивать, чтобы не переходить в самый ноль
     //Надо запомнить sequence строки и ориентируясь по нему мы поймем когда сделано то, что надо
-    if(value<guiData.size() && value<listOfRowsThatWeNeedToShow.size()){
-        sequenceToRememberForReloadingAtProperPlace = guiData.value(listOfRowsThatWeNeedToShow.at(value)).sequence;
+    if(value<guiData->size() && value<listOfRowsThatWeNeedToShow.size()){
+        sequenceToRememberForReloadingAtProperPlace = guiData->at(listOfRowsThatWeNeedToShow.at(value)).sequence;
     }
     reloadTracesInsideWindow();
 }
@@ -125,7 +126,7 @@ void TraceWindow::reloadTracesFromBelow(int value)
             return;
         }
         tUINT32 positionOfTraceInsideGuiDataMap = listOfRowsThatWeNeedToShow.at(value);
-        GUIData g = guiData.value(positionOfTraceInsideGuiDataMap);
+        GUIData g = guiData->at(positionOfTraceInsideGuiDataMap);
         QString row = getGuiRow(g);
         ui->textBrowser->append(row);
         value++;
@@ -147,7 +148,7 @@ void TraceWindow::reloadTracesFromAbove(int value)
             return;
         }
         tUINT32 positionOfTraceInsideGuiDataMap = listOfRowsThatWeNeedToShow.at(value);
-        GUIData g = guiData.value(positionOfTraceInsideGuiDataMap);
+        GUIData g = guiData->at(positionOfTraceInsideGuiDataMap);
         QString row = getGuiRow(g);
         ui->textBrowser->append(row);
         value--;
@@ -307,10 +308,12 @@ TraceWindow::~TraceWindow()
     std::cout<<"------Deleting TraceWindow------"<<std::endl;
     traceSettings->deleteLater();
 
-    //Память не очищается не смотря на то, что мы чистим за собой мапу. Зато удаление мапы сжирает всю производиловку.
+    //Память не очищается не смотря на то, что мы чистим за собой лист. Зато удаление листа сжирает всю производиловку.
     //Надо будет обязательно исправить
-    //    guiData.clear();
-    //    listOfRowsThatWeNeedToShow.clear();
+//    qDebug()<<QDateTime::currentDateTime();
+//    guiData->clear();
+//    listOfRowsThatWeNeedToShow.clear();
+    qDebug()<<QDateTime::currentDateTime();
     delete ui;
 }
 
@@ -448,7 +451,7 @@ void TraceWindow::initWindow(){
     ui->textBrowser->setOpenLinks(false);
 
     connect(ui->Autoscroll,&QCheckBox::stateChanged,this,&TraceWindow::autoscrollStateChanged);
-//    connect(ui->infinite_line,&QCheckBox::stateChanged,this,&TraceWindow::autoscrollStateChanged);
+    //    connect(ui->infinite_line,&QCheckBox::stateChanged,this,&TraceWindow::autoscrollStateChanged);
     connect(ui->verticalScrollBar,&QScrollBar::sliderPressed,this,&TraceWindow::offAutoscroll);
     connect(ui->verticalScrollBar,&QScrollBar::sliderReleased,this,&TraceWindow::verticalSliderReleased);
     connect(ui->textBrowser,&QTextBrowser::anchorClicked,this,&TraceWindow::openHyperlink);
@@ -540,7 +543,7 @@ void TraceWindow::on_Disable_clicked()
 
 void TraceWindow::on_infinite_line_stateChanged(int arg1)
 {
-//    reloadTracesInsideWindow();
+    //    reloadTracesInsideWindow();
     if(arg1==Qt::Checked){
         ui->textBrowser->setLineWrapMode(QTextBrowser::LineWrapMode::NoWrap);
     }
@@ -931,8 +934,8 @@ void TraceWindow::on_traceToTxt_clicked()
     //Надо что-нибудь придумать
     //Получается маленький меморилик
     QString fileName;
-    if(guiData.size()>1){
-        p7Time time = guiData.value(1).time;
+    if(guiData->size()>1){
+        p7Time time = guiData->at(1).time;
         fileName = clientName.ip+"."+clientName.port+"-"+QString::number(time.dwHour)+"."+QString::number(time.dwMinutes)+"."+QString::number(time.dwSeconds);
     }
     else{
@@ -944,7 +947,7 @@ void TraceWindow::on_traceToTxt_clicked()
         return;
     }
 
-    TracesToText* traces = new TracesToText(new QMap(guiData),filePath,this);
+    TracesToText* traces = new TracesToText(new QList(*guiData),filePath,this);
     traces->start();
 }
 
@@ -1059,22 +1062,23 @@ void TraceWindow::recountNubmerOfTracesToShow()
     ui->verticalScrollBar->setValue(0);
     ui->verticalScrollBar->blockSignals(false);
 
-    for(tUINT32 key: guiData.keys()){
-        if(isRowNeedToBeShown( guiData.value(key))){
-            listOfRowsThatWeNeedToShow.append(key);
+    for(int i =0;i<guiData->size();i++){
+        if(isRowNeedToBeShown(guiData->at(i))){
+            listOfRowsThatWeNeedToShow.append(i);
 
             //ищем если у нас была выбрана строка до этого
-            if(!isRowWhereWeNeedToStartUpdatingFound && guiData.value(key).sequence>=lastSelected){
+            if(!isRowWhereWeNeedToStartUpdatingFound && guiData->at(i).sequence>=lastSelected){
                 selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
                 isRowWhereWeNeedToStartUpdatingFound = true;
                 //если строки не было выбрано ищем строку которая была в последний раз перед переделкой страницы
-            } else if(!isRowWhereWeNeedToStartUpdatingFound &&lastSelected==-1 && guiData.value(key).sequence>=sequenceToRememberForReloadingAtProperPlace){
+            } else if(!isRowWhereWeNeedToStartUpdatingFound &&lastSelected==-1 && guiData->at(i).sequence>=sequenceToRememberForReloadingAtProperPlace){
                 selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
                 isRowWhereWeNeedToStartUpdatingFound = true;
 
             }
         }
     }
+
 
     ui->verticalScrollBar->setMaximum(listOfRowsThatWeNeedToShow.size());
     if(isRowWhereWeNeedToStartUpdatingFound){
@@ -1085,7 +1089,7 @@ void TraceWindow::recountNubmerOfTracesToShow()
 
     std::cout<<"maximum - "<<ui->verticalScrollBar->maximum()<<std::endl;
     std::cout<<"list size - "<<listOfRowsThatWeNeedToShow.size()<<std::endl;
-    std::cout<<"guidata size - "<<guiData.size()<<std::endl;
+    std::cout<<"guidata size - "<<guiData->size()<<std::endl;
     std::cout<<"value - "<<ui->verticalScrollBar->value()<<std::endl;
     reloadTracesInsideWindow();
 }

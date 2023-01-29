@@ -30,8 +30,6 @@ void FileReader::run()
     if(isInterruptionRequested()){
         traceWindow->deleteLater();
     }
-
-    this->quit();
 }
 
 FileReader::~FileReader()
@@ -41,18 +39,20 @@ FileReader::~FileReader()
 
 bool FileReader::ReadFileData()
 {
+    std::cout<<"Start reading file"<<std::endl;
     // Создаем объект класса QByteArray, куда мы будем считывать данные
     if (!file->open(QIODevice::ReadOnly)){
         return 0;
     }
     data = file->readAll();
+    std::cout<<"File was read"<<std::endl;
 
 }
 
 
 bool FileReader::HandlingChunks()
 {
-
+    std::cout<<"start handling chunks"<<std::endl;
     sP7File_Header fileHeader;
     bufferCursor = data.begin();
     memcpy(&fileHeader,bufferCursor,sizeof(sP7File_Header));
@@ -84,6 +84,7 @@ bool FileReader::HandlingChunks()
     file->close();
     delete file;
     data.clear();
+    std::cout<<"ended handling chunks, waiting for chunkHandler to be empty"<<std::endl;
     while(!chunkHandler.chunks.empty() && !isInterruptionRequested()){
         //        QApplication::processEvents();
         this->sleep(1);
@@ -91,5 +92,6 @@ bool FileReader::HandlingChunks()
     chunkHandler.requestInterruption();
     chunkHandler.waitCondition.wakeOne();
     traceWindow->fileReadingStatus(100);
+    std::cout<<"ended all work"<<std::endl;
     return true;
 }
