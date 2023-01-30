@@ -94,6 +94,7 @@ void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* pack
 
 void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
 {
+    std::cout<<"changing client status"<<std::endl;
     QString clientName = inet_ntoa(client.sin_addr);
     clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
 
@@ -110,9 +111,9 @@ void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
                 ui->connectionsTable->item(i,0)->setIcon(QIcon(":/green-dot.png"));
                 traceWindows.at(i)->setConnectionStatus(2);
             }
-            return;
         }
     }
+    std::cout<<"changed client status"<<std::endl;
 }
 
 void MainWindow::onCloseConnectionClicked()
@@ -144,12 +145,12 @@ void MainWindow::onCloseConnectionClicked()
             traceWnd->getFileReader()->requestInterruption();
         }
         else{
-//            traceWnd->clearData();
+            //            traceWnd->clearData();
             traceWnd->deleteLater();
         }
 
     }
-//    QApplication::processEvents();
+    //    QApplication::processEvents();
     std::cout<<"deleted"<<std::endl;
 
     for(int i =0;i<ui->connectionsTable->rowCount();i++){
@@ -178,7 +179,18 @@ TraceWindow* MainWindow::initTraceWindow(ConnectionName connectionName)
 
 void MainWindow::on_actionHigh_Contrast_Black_triggered()
 {
-    styleSheet = "color: white; background-color: rgb(0,0,0);";
+    styleSheet = "color: white; background-color: rgb(0,0,0); "
+                 "selection-background-color: rgb(28, 28, 28);";
+
+    ui->connectionsTable->setStyleSheet("color: white;"
+                                        "background-color: rgb(14,14,14);"
+                                        "selection-background-color: rgb(28, 28, 28);"
+                                        "selection-color: rgb(255, 255, 255); "
+                                        "alternate-background-color: rgb(255, 255, 255);");
+
+    ui->menubar->setStyleSheet("QMenuBar::item:selected { background: #282828; } "
+                               "QMenuBar::item:pressed {  background: #282828; }"
+);
     this->setStyleSheet(styleSheet);
     for(int i = 0;i<traceWindows.size();i++){
         traceWindows.at(i)->setStyle(styleSheet);
@@ -197,6 +209,8 @@ void MainWindow::on_actionLike_in_QT_triggered()
 void MainWindow::on_actionWhite_triggered()
 {
     styleSheet = "";
+    ui->connectionsTable->setStyleSheet("");
+    ui->menubar->setStyleSheet("");
     this->setStyleSheet(styleSheet);
     for(int i = 0;i<traceWindows.size();i++){
         traceWindows.at(i)->setStyle(styleSheet);

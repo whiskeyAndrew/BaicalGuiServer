@@ -4,7 +4,7 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
 {
     std::cout<<"Backup Writer: Opening backup file "<< connectionAddr.toStdString()<<std::endl;
     if(!QDir( "Backups").exists()){
-            QDir().mkdir("Backups");
+        QDir().mkdir("Backups");
     }
     //Инициализация файла, в файл запишем его заголовок
     fileHeader.dwProcess_ID = dwProcess_ID;
@@ -20,7 +20,7 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
     //временно, исправить
 
     if(!file->open(QFile::ReadWrite)){
-    std::cout<<"File opening error"<<std::endl;
+        std::cout<<"File opening error"<<std::endl;
     }
 
     data = (tINT8*)malloc(FILE_HEADER_SIZE);
@@ -56,8 +56,12 @@ void TraceBackupWriter::writeChunk(tINT8* chunk, tUINT32 size)
 
 void TraceBackupWriter::closeFile(){
     std::cout<<"BackupWriter: closing backupFile"<<std::endl;
-    file->close();
-    delete file;
+    if(file->isOpen()){
+        file->close();
+//        free(data);
+//        delete file;
+    }
+    std::cout<<"exit backupWrited"<<std::endl;
 }
 
 const QString &TraceBackupWriter::getFileName() const
