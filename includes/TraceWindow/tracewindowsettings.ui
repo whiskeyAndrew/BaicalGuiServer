@@ -35,7 +35,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="uniqueTraces">
       <attribute name="title">
@@ -1171,6 +1171,9 @@ selection-color: rgb(85, 255, 255);</string>
             </property>
             <property name="accelerated">
              <bool>false</bool>
+            </property>
+            <property name="maximum">
+             <number>500</number>
             </property>
             <property name="stepType">
              <enum>QAbstractSpinBox::DefaultStepType</enum>

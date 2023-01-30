@@ -230,7 +230,7 @@ void MainWindow::on_actionOpen_File_triggered()
     connectionWidgetItem->setIcon(QIcon(":/baicalFile.png"));
     connectionWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
-    QPushButton* closeButton = new QPushButton("Delete");
+    QPushButton* closeButton = new QPushButton("Clear");
     closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
 
     connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);

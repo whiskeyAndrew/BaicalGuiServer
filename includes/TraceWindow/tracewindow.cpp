@@ -127,8 +127,6 @@ void TraceWindow::reloadTracesInsideWindow()
     } else{
         ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
     }
-
-    //небольшие статтеры происходят если мы крутим последние элементы, это костылефикс
 }
 
 void TraceWindow::reloadTracesFromBelow(int value)
@@ -686,9 +684,9 @@ QString TraceWindow::getGuiRow(GUIData g){
             //                continue;
             //            }
 
-            //на случай если айдишника енама нет в списке енамов то скипаем
-            //в эту штуку упираемся если мы хотим пропарсить 1234567->1 234 567, поэтому в нем по енамайди1 будут филлерные данные
-            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(number) /*&& argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId!=1*/){
+
+            //если енамайди больше ста, ты мы используем сгенерированные из файла енамы и надо проверять, есть ли нужный нам енам внутри
+            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(number) && argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId>100){
                 continue;
             }
 
@@ -740,7 +738,7 @@ QString TraceWindow::getGuiRow(GUIData g){
                 if(digitToGUI.size()<10){
                     continue;
                 }
-                digitToGUI.insert(digitToGUI.length()-9,".");
+                digitToGUI.insert(digitToGUI.length()-10,".");
                 //~АЛГОРИТМ ОБРАБОТКИ СТРОКИ
                 break;
             }
