@@ -1,7 +1,8 @@
 #include "Trace.h"
-#include "qdatetime.h"
-#include <ctime>
-#include "time.h"
+
+
+//Обработчик трейсов. Обрабатывает пришедшие ему маленькие чанки, внутри которых содержатся различные данные о трейсах. memcpy - сила
+
 static __attribute__ ((unused)) void UnpackLocalTime(tUINT64  i_qwTime,
                                                      tUINT32 &o_rYear,
                                                      tUINT32 &o_rMonth,

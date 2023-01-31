@@ -1,5 +1,9 @@
 #include "connectiontimeoutchecker.h"
-#define MAX_ATTEMPTS_TO_RECONNECT 4
+
+
+//Отдельный поток, создающийся в launcher.cpp. Отвечает за проверку активности всех соединений посредством времени получения последнего пакета
+//Клиент поддерживает ПОСТОЯННУЮ связь с сервером посредством прокидывания пинг пакетов, поэтому если пакета нет больше TIMEOUT_MSECS, то еще перепроверяем MAX_ATTEMTS_TO_RECONNECT раз
+//активен ли клиент. Делает проверку раз в COOLDOWN_MSECS
 
 ConnectionTimeoutChecker::ConnectionTimeoutChecker(MainWindow *newMainWindow){
     mainWindow = newMainWindow;
@@ -74,7 +78,7 @@ void ConnectionTimeoutChecker::run()
             }
 
         }
-        this->msleep(TIMEOUT_MSECS);
+        this->msleep(COOLDOWN_MSECS);
     }
 
     //Закрываем приложение

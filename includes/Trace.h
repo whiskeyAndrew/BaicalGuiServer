@@ -5,9 +5,8 @@
 #include <vector>
 #include <QString>
 #include <QMap>
-#include "enumparser.h"
 #include <memory>
-#include "debuglogger.h"
+#include <ctime>
 
 #define TIME_OFFSET_1601_1970                            (116444736000000000ULL)
 

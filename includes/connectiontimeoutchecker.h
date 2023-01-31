@@ -7,6 +7,8 @@
 #include "launcher.h"
 
 #define TIMEOUT_MSECS 1000
+#define MAX_ATTEMPTS_TO_RECONNECT 4
+#define COOLDOWN_MSECS 1000
 
 struct ClientsAttemptToReconnect{
     sockaddr_in clientIp;

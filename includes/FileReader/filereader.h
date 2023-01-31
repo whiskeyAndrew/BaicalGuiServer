@@ -7,7 +7,7 @@
 #include <vector>
 #include <QFile>
 #include "../chunkhandler.h"
-//ради одного енама? Надо будет поправить
+//ради одного дефайна? Надо будет поправить
 #include "../packethandler.h"
 #include <QApplication>
 #pragma pack(push,2)

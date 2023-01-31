@@ -4,6 +4,8 @@
 #include "includes/launcher.h"
 #include "includes/packethandler.h"
 
+//Главное окно, отсюда создаются новые потоки traceWindow и ведется управление соединениями
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)

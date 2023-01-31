@@ -2,6 +2,10 @@
 #include "tracewindow.h"
 #include "mainwindow.h"
 #include "../FileReader/filereader.h"
+
+//Отображение трейсов на экране. Небольшие возможности редактирования трейсов, отсюда же создается traceWindowSettings, для того чтобы делать настройки отображения трейсов
+//Основной алгоритм отображения трейсов расписан ниже, во всем остальном простой набор виджетов с различными сигналами
+
 //Окно отрисовывает текст как HTML. Это было сделано для того, чтобы предоставить приложению вид "консоли",
 //Но при этом сохранить байкаловскую возможность кликать по строкам чтобы получать о них информацию.
 //Из-за этого вытекло куча проблем, к примеру тэги /n и /t приходится заменять ХТМЛовским аналогом
@@ -15,9 +19,10 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
     QDialog(parent),
     ui(new Ui::TraceWindow)
 {
+    ui->setupUi(this);
+
     mainWindow = mw;
     guiData = new QList<GUIData>;
-    ui->setupUi(this);
     clientName = newClientName;
     config = newConfig;
 

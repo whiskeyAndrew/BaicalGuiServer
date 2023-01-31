@@ -1,5 +1,10 @@
 #include "tracebackupwriter.h"
 
+//Бэкапер, пишет в формате .p7d, который можно открывать байкалом.
+//Немного неоптимизирован, потому что вместо генерации больших чанков из подчанков
+//делает чанк на каждый подчанк, из-за чего 4 байта размера чанка пишутся на каждый подчанк
+//Еще одно "починить по нужде"
+
 void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo, QString connectionAddr)
 {
     std::cout<<"Backup Writer: Opening backup file "<< connectionAddr.toStdString()<<std::endl;

@@ -3,6 +3,8 @@
 //
 #include "filereader.h"
 
+//читаем и парсим .p7d
+
 //файл в 2600kb отжирает 50мб оперативы
 //надо будет посмотреть откуда такой жирный меморилик
 FileReader::FileReader(QString fileName, TraceWindow* newTraceWindow)

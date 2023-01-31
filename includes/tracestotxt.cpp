@@ -1,6 +1,8 @@
 #include "tracestotxt.h"
 #include "TraceWindow/tracewindow.h"
 
+//Класс пишет все трейсы из traceWindow в текстовик. Фильтры и енамы не используются при сохранении, пишется чистый текст с подставленными аргументами
+
 TracesToText::TracesToText(QList<GUIData>* traces, QString filePath, TraceWindow* newTraceWindow)
 {
     fileDirectory = filePath;
