@@ -73,6 +73,10 @@ void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* pack
 
     QPushButton* closeButton = new QPushButton("Clear");
 
+    if(currentTheme==DARK){
+        closeButton->setStyleSheet("QPushButton:disabled {background-color:#606060; color:#A0A0A0}");
+    }
+
     closeButton->setDisabled(true);
     closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
 
@@ -170,29 +174,34 @@ TraceWindow* MainWindow::initTraceWindow(ConnectionName connectionName)
         traceWindow->show();
     }
 
-    traceWindow->setStyle(styleSheet);
+    traceWindow->changeTheme(currentTheme);
 
     return traceWindow;
 }
 
 void MainWindow::on_actionHigh_Contrast_Black_triggered()
 {
-    styleSheet = "color: white; background-color: rgb(0,0,0); "
-                 "selection-background-color: rgb(28, 28, 28);";
-
     ui->connectionsTable->setStyleSheet("color: white;"
-                                        "background-color: rgb(14,14,14);"
-                                        "selection-background-color: rgb(28, 28, 28);"
+                                        "background-color: rgb(28,28,28);"
+                                        "selection-background-color: rgb(63, 100, 204);"
                                         "selection-color: rgb(255, 255, 255); "
                                         "alternate-background-color: rgb(255, 255, 255);");
 
-    ui->menubar->setStyleSheet("QMenuBar::item:selected { background: #282828; } "
-                               "QMenuBar::item:pressed {  background: #282828; }"
-);
-    this->setStyleSheet(styleSheet);
-    for(int i = 0;i<traceWindows.size();i++){
-        traceWindows.at(i)->setStyle(styleSheet);
+    for(int i = 0;i<ui->connectionsTable->rowCount();i++){
+        ui->connectionsTable->item(i,0)->setBackgroundColor(QColor(36,36,36));
+        ui->connectionsTable->cellWidget(i,1)->setStyleSheet("QPushButton:disabled {background-color:#121212; color:#484848}");
     }
+
+    ui->menubar->setStyleSheet("QMenuBar::item:selected { background: #2b2b2b; } "
+                               "QMenuBar::item:pressed {  background: #2b2b2b; }"
+                               );
+
+    this->setStyleSheet("color: white; background-color: rgb(0,0,0); "
+                        "selection-background-color: rgb(63, 100, 204);");
+    for(int i = 0;i<traceWindows.size();i++){
+        traceWindows.at(i)->changeTheme(DARK);
+    }
+    currentTheme = DARK;
 }
 
 void MainWindow::on_actionLike_in_QT_triggered()
@@ -200,7 +209,7 @@ void MainWindow::on_actionLike_in_QT_triggered()
     styleSheet = "color: white; background-color: rgb(42,43,44);";
     this->setStyleSheet(styleSheet);
     for(int i = 0;i<traceWindows.length();i++){
-        traceWindows.at(i)->setStyle(styleSheet);
+        //        traceWindows.at(i)->setStyle(styleSheet);
     }
 }
 
@@ -209,10 +218,17 @@ void MainWindow::on_actionWhite_triggered()
     styleSheet = "";
     ui->connectionsTable->setStyleSheet("");
     ui->menubar->setStyleSheet("");
+
+    for(int i = 0;i<ui->connectionsTable->rowCount();i++){
+        ui->connectionsTable->item(i,0)->setBackgroundColor(Qt::white);
+        ui->connectionsTable->cellWidget(i,1)->setStyleSheet("");
+    }
+
     this->setStyleSheet(styleSheet);
     for(int i = 0;i<traceWindows.size();i++){
-        traceWindows.at(i)->setStyle(styleSheet);
+        traceWindows.at(i)->changeTheme(DEFAULT);
     }
+    currentTheme = DEFAULT;
 }
 
 void MainWindow::on_connectionsTable_cellDoubleClicked(int row, int column)
@@ -243,6 +259,9 @@ void MainWindow::on_actionOpen_File_triggered()
     connectionWidgetItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
 
     QPushButton* closeButton = new QPushButton("Clear");
+    if(currentTheme==DARK){
+        closeButton->setStyleSheet("QPushButton:disabled {background-color:#606060; color:#A0A0A0}");
+    }
     closeButton->setToolTip(QString::number(ui->connectionsTable->rowCount()-1));
 
     connect(closeButton, &QPushButton::clicked, this, &MainWindow::onCloseConnectionClicked);
@@ -264,7 +283,7 @@ void MainWindow::on_actionOpen_File_triggered()
         traceWindow->show();
     }
 
-    traceWindow->setStyle(styleSheet);
+    traceWindow->changeTheme(currentTheme);
 
     fileReader->start();
     ui->statusbar->showMessage("New file opened: "+ fileName);

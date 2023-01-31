@@ -490,11 +490,6 @@ void TraceWindow::initWindow(){
     //    ui->traceText->viewport()->setAutoFillBackground(false);
 }
 
-void TraceWindow::setStyle(QString newStyleSheet)
-{
-    setStyleSheet(newStyleSheet);
-}
-
 void TraceWindow::wheelEvent(QWheelEvent* event)
 {
     //При автоскролле работает немного неправильно, надо будет переделать, пока не критично
@@ -832,6 +827,68 @@ QString TraceWindow::getGuiRow(GUIData g){
     return returnableHTMLRow;
 }
 
+void TraceWindow::changeTheme(Theme theme)
+{
+    switch(theme){
+    case DARK:{
+        this->setStyleSheet("border-color: rgb(0, 0, 0);"
+                            "gridline-color: rgb(0, 0, 0);");
+
+        //        ui->groupBox->setStyleSheet("background-color: rgb(0,0,0);"
+        //                                    "selection-background-color: rgb(63, 100, 204);"
+        //                                    "color:rgb(255,255,255");
+
+        ui->groupBox->setStyleSheet("color: white; background-color: rgb(28,28,28); "
+                                    "selection-background-color: rgb(63, 100, 204);");
+
+        ui->groupBox_2->setStyleSheet("color: white; background-color: rgb(28,28,28); "
+                                      "selection-background-color: rgb(63, 100, 204);");
+
+        ui->traceTextGroupbox->setStyleSheet("color: white; background-color: rgb(28,28,28); "
+                                             "selection-background-color: rgb(63, 100, 204);");
+
+        ui->traceToTxt->setStyleSheet("background-color: rgb(164, 164, 164);");
+        ui->WindowSettings->setStyleSheet("background-color: rgb(164, 164, 164);");
+        ui->Disable->setStyleSheet("color: white;"
+                                   "background-color: rgb(28,28,28);"
+                                   "selection-background-color: rgb(63, 100, 204);"
+                                   "selection-color: rgb(255, 255, 255); "
+                                   "border-color: rgb(0, 0, 0);");
+
+        ui->clearSelected->setStyleSheet("color: white;"
+                                         "background-color: rgb(28,28,28);"
+                                         "selection-background-color: rgb(63, 100, 204);"
+                                         "selection-color: rgb(255, 255, 255); "
+                                         "border-color: rgb(0, 0, 0);");
+        ui->serverStatus->setStyleSheet("color: white;"
+                                        "background-color: rgb(28,28,28);");
+        break;
+    }
+
+    case DEFAULT:{
+        this->setStyleSheet("");
+        ui->traceToTxt->setStyleSheet("");
+        ui->WindowSettings->setStyleSheet("");
+        ui->groupBox->setStyleSheet("");
+
+        ui->groupBox_2->setStyleSheet("");
+
+        ui->traceTextGroupbox->setStyleSheet("");
+        ui->Disable->setStyleSheet("");
+        ui->clearSelected->setStyleSheet("");
+
+        ui->serverStatus->setStyleSheet("");
+        break;
+    }
+    }
+    ui->textBrowser->setStyleSheet("selection-color: rgb(63, 63, 63);"
+                                   "color: rgb(255, 255, 255);"
+                                   "selection-background-color: rgb(187, 187, 187);"
+                                   "background-color: rgb(0,0,0)");
+    ui->textBrowser->horizontalScrollBar()->setStyleSheet("");
+    ui->verticalScrollBar->setStyleSheet("");
+
+}
 void TraceWindow::changeTraceLevelIsShownElement(tUINT32 id, tUINT32 state){
     isNeedToShowByTraceLevel[id] = state;
     if(!ui->Autoscroll->isChecked()){

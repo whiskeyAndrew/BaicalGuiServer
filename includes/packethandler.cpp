@@ -62,11 +62,9 @@ bool PacketHandler::getPacketFromQueue()
 {
     //Ждем пока очередь чем-то заполнится, НА ВСЯКИЙ СЛУЧАЙ
     if(packetQueue.empty()){
-        std::cout<<"PacketHandler:: PacketQueue is waiting, going to sleep"<<std::endl;
         syncThreads.tryLock(-1);
         waitCondition.wait(&syncThreads);
         syncThreads.unlock();
-        std::cout<<"PacketHandler:: Someone woke me up, trying to get new packet"<<std::endl;
     }
     //Доп проверка на выходит из waitCondition
     if(packetQueue.empty()){

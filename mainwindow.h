@@ -23,6 +23,8 @@ enum CONNECTION_STATUS{
     FILE_CONNECTION
 };
 
+
+
 class PacketHandler;
 class Launcher;
 class MainWindow : public QMainWindow
@@ -37,6 +39,7 @@ public:
     QList<TraceWindow*> traceWindows;
     void setLauncher(Launcher* newLauncher);
 private:
+    Theme currentTheme = DEFAULT;
     ConnectionName connectionName;
     ConfigHandler* config;
     tUINT32 connectionsCounter = 0;

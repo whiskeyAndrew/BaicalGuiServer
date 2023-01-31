@@ -23,6 +23,11 @@ struct rowsInsideTrace{
     tUINT32 lineNumber;
 };
 
+enum Theme{
+    DEFAULT = 0,
+    DARK
+};
+
 enum eP7Trace_Level
 {
     EP7TRACE_LEVEL_TRACE        = 0,
@@ -49,7 +54,7 @@ public:
     explicit TraceWindow(ConnectionName newClientName,ConfigHandler* newConfig, MainWindow* mw, QDialog* parent = nullptr);
     ~TraceWindow();
 
-    void setStyle(QString newStyleSheet);
+
     void setClientName(const QString &newClientName);
 
     QColor getTraceColor();
@@ -100,6 +105,7 @@ public:
     FileReader *getFileReader() const;
     void setFileReader(FileReader *newFileReader);
 
+    void changeTheme(Theme theme);
 private:
     FileReader* fileReader = NULL;
     tINT32 fileHasBeenRead = -1; // -1 = not exists, 0 - reading, 1 - read
