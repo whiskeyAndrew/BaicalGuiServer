@@ -104,7 +104,7 @@ public:
     QMutex syncThreads;
     std::queue<std::vector<tINT8>> chunks;
 
-    void initBackupWriter(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
+    void initBackupWriter(tWCHAR* processName, tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo);
     void appendChunksQueue(std::vector<tINT8> newVector);
 
     bool getChunkFromQueue();

@@ -5,7 +5,7 @@
 //делает чанк на каждый подчанк, из-за чего 4 байта размера чанка пишутся на каждый подчанк
 //Еще одно "починить по нужде"
 
-void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo, QString connectionAddr)
+void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_Start_Time_Hi, tUINT32 dwProcess_Start_Time_Lo, QString connectionAddr, tWCHAR* processName)
 {
     std::cout<<"Backup Writer: Opening backup file "<< connectionAddr.toStdString()<<std::endl;
     if(!QDir( "Backups").exists()){
@@ -15,7 +15,8 @@ void TraceBackupWriter::setFileHeader(tUINT32 dwProcess_ID, tUINT32 dwProcess_St
     fileHeader.dwProcess_ID = dwProcess_ID;
     fileHeader.dwProcess_Start_Time_Hi = dwProcess_Start_Time_Hi;
     fileHeader.dwProcess_Start_Time_Lo = dwProcess_Start_Time_Lo;
-
+    memcpy(&fileHeader.process_Name,const_cast<wchar_t *>(connectionAddr.toStdWString().c_str()),256);
+    memcpy(&fileHeader.host_Name,processName,96);
     QDateTime date = QDateTime::currentDateTime();
     QString formattedTime = date.toString("hh.mm.ss");
 

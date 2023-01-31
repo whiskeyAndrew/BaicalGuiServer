@@ -243,7 +243,8 @@ bool PacketHandler::handleHelloPacket()
         return false;
     }
 
-    chunkHandler.initBackupWriter(packetHello.dwProcess_ID,
+    chunkHandler.initBackupWriter(packetHello.pProcess_Name,
+                packetHello.dwProcess_ID,
                                   packetHello.dwProcess_Start_Time_Hi,
                                   packetHello.dwProcess_Start_Time_Lo);
 
