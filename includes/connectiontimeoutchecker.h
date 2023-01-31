@@ -29,6 +29,7 @@ private:
     void run();
 signals:
     void clientStatusIsChanged(sockaddr_in client, tUINT32 status);
+    void turnOffClient(tUINT32 clientNumber);
 };
 
 #endif // CONECTIONTIMEOUTCHECKER_H

@@ -16,8 +16,6 @@
 #include <QList>
 #include <QApplication>
 #include <QDebug>
-#include "serverstatussender.h"
-#include "debuglogger.h"
 
 //std::vector<char> vectorChunk;
 //std::queue<std::vector<char>> queueChunks;

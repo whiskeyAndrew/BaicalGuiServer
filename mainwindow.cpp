@@ -94,7 +94,6 @@ void MainWindow::getNewConnection(sockaddr_in newConnection, PacketHandler* pack
 
 void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
 {
-    std::cout<<"changing client status"<<std::endl;
     QString clientName = inet_ntoa(client.sin_addr);
     clientName.push_back(":"+QString::number(ntohs(client.sin_port)));
 
@@ -113,7 +112,6 @@ void MainWindow::changeClientStatus(sockaddr_in client, tUINT32 status)
             }
         }
     }
-    std::cout<<"changed client status"<<std::endl;
 }
 
 void MainWindow::onCloseConnectionClicked()

@@ -72,9 +72,7 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
             argsValue.push_back(arguments);
             chunkCursor+=uniqueTrace.argsID[i].argSize;
         }
-        DebugLogger::writeData("Trace:: trying to format not unique trace: " + uniqueTrace.traceLineData + " " + uniqueTrace.functionName);
         traceTextToGUI = formatVector(&uniqueTrace,argsValue,argsPosition);
-        DebugLogger::writeData("Trace:: ended formatting not unique trace: " + uniqueTrace.traceLineData + " " + uniqueTrace.functionName);
 
     }
     else{
@@ -116,9 +114,7 @@ UniqueTraceData Trace::setTraceFormat(tINT8* chunkCursor)
         for(tUINT64 i =1; i<=uniqueTrace.traceFormat.args_Len;i++){
             tempVector.push_back(i);
         }
-        DebugLogger::writeData("Trace:: trying to format unique trace: " + uniqueTrace.traceLineData + " " + uniqueTrace.functionName);
         uniqueTrace.traceLineForEnumWindow = formatVector(&uniqueTrace,tempVector,NULL);
-        DebugLogger::writeData("Trace:: ended formatting unique trace: " + uniqueTrace.traceLineData + " " + uniqueTrace.functionName);
     } else{
         uniqueTrace.traceLineForEnumWindow = uniqueTrace.traceLineData;
     }

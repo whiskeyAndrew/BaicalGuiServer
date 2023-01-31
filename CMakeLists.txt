@@ -30,7 +30,6 @@ set(PROJECT_SOURCES
         includes/TraceWindow/tracewindowsettings.h includes/TraceWindow/tracewindowsettings.cpp includes/TraceWindow/tracewindowsettings.ui
         includes/confighandler.h includes/confighandler.cpp
         includes/tracestotxt.h includes/tracestotxt.cpp
-        includes/serverstatussender.h includes/serverstatussender.cpp
         icons/icons.qrc
         includes/enumparser.h includes/enumparser.cpp
         includes/debuglogger.h includes/debuglogger.cpp

@@ -17,7 +17,6 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
 {
     mainWindow = mw;
     guiData = new QList<GUIData>;
-    DebugLogger::writeData("TraceWindow:: opening new trace window! "+newClientName.ip + ":"+newClientName.port);
     ui->setupUi(this);
     clientName = newClientName;
     config = newConfig;
@@ -29,8 +28,6 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
 
 void TraceWindow::getTrace(TraceToGUI trace)
 {
-    DebugLogger::writeData("TraceWindow:: got new Trace from backend! "+clientName.ip + ":"+clientName.port);
-
     //слишком большая чсть хранить кучу данных в traceTime
     //оптимизировать чуть позже
     tUINT32 rowsToShow = trace.trace.count("\n")+1;
@@ -587,7 +584,6 @@ QString TraceWindow::getGuiRow(GUIData g){
         return "";
     }
 
-    DebugLogger::writeData("TraceWindow:: frontend asked to generate new message, generatiing...! "+clientName.ip + ":"+clientName.port);
     //"style=\"background-color:#33475b\""
     QString color= "color:#C0C0C0\">";
 
@@ -833,7 +829,6 @@ QString TraceWindow::getGuiRow(GUIData g){
             +traceLinkMiddle+color+sequenceToGUI + timeToGUI
             +traceToGUI+traceLinkEnd;
 
-    DebugLogger::writeData("TraceWindow:: message generating to frontend is ended! Message: "+returnableHTMLRow+ " __FROM__ " +clientName.ip + ":"+clientName.port);
     return returnableHTMLRow;
 }
 

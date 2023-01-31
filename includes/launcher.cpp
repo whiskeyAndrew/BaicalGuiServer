@@ -2,8 +2,6 @@
 #include "connectiontimeoutchecker.h"
 void Launcher::run()
 {
-
-    DebugLogger::writeData("Launcher is starting");
     connect(this,&Launcher::sendNewConnection,mainWindow,&MainWindow::getNewConnection);
 
     clientsList = new QList<ClientData>;
@@ -11,9 +9,7 @@ void Launcher::run()
     connectionTimeoutChecker->start();
 
     std::cout<<"Launcher:: Started socket init"<<std::endl;
-    DebugLogger::writeData("Launcher:: Started socket init");
-    //чистим при старте список клиентов
-    //memset(clientsList,0,sizeof(clientsList));
+
     //Инициализируем сокет
     while(!socketStarted)
     {
@@ -23,16 +19,13 @@ void Launcher::run()
 
     //Сокет инициализирован, начинаем слушать порт
     std::cout<<"Launcher:: Socket is ready!"<<std::endl;
-    DebugLogger::writeData("Launcher:: Socket is ready!");
 
     std::cout<<"Launcher:: Start listening for incoming connections"<<std::endl;
-    DebugLogger::writeData("Launcher:: Start listening for incoming connections");
 
     while(!this->isInterruptionRequested())
     {
         listenSocket();
     }
-    DebugLogger::writeData("Launcher:: Interruption Requested, closing myself");
     connectionTimeoutChecker->requestInterruption();
     connectionTimeoutChecker->wait();
 
@@ -48,7 +41,6 @@ void Launcher::run()
         }
     }
     std::cout<<"------"<<"Launcher is ending"<<"------"<<std::endl;
-    DebugLogger::writeData("Launcher:: All connections is closed, ending...");
     QApplication::quit();
 }
 
@@ -91,12 +83,6 @@ bool Launcher::initSocket()
     //Создаем место для буфера клиента, сюда помещается информация о клиенте
     ZeroMemory(&client, sizeof(client));
 
-    //--DELETE LATER--//
-
-    //    ServerStatusSender* serverStatusSender = new ServerStatusSender(this);
-    //    serverStatusSender->start();
-
-    //--NOT DELETE LATER--//
     return true;
 }
 
