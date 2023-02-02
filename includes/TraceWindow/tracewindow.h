@@ -1,6 +1,8 @@
 #ifndef TRACEWINDOW_H
 #define TRACEWINDOW_H
 
+#define TRACES_UNTIL_RELOAD_PAGE 500
+
 #include "../Trace.h"
 #include <QWidget>
 #include <queue>
@@ -107,6 +109,7 @@ public:
 
     void changeTheme(Theme theme);
 private:
+    tUINT32 tracesToReloadCounter = 0;
     FileReader* fileReader = NULL;
     tINT32 fileHasBeenRead = -1; // -1 = not exists, 0 - reading, 1 - read
     QMovie* loadingGif;
@@ -173,7 +176,7 @@ private:
 
     tUINT32 lastRenderedRow = -1;
 
-    QString getGuiRow(GUIData g);
+    QString getGuiRow(GUIData* g);
     bool event(QEvent* event);
     void reloadTracesFromBelow(int value);
     tUINT32 sliderAction = 0;
@@ -184,9 +187,8 @@ private:
     void deleteFirstLineInsideTracesWindow();
 public slots:
     void setSettingsDisabled(bool status);
-    void getTrace(TraceToGUI trace);
+    void getTrace(GUIData uniqueTrace);
     void setTraceAsObject(Trace* trace);
-    void getTraceFromFile(std::queue<TraceToGUI>);
     void traceRowListCheckboxChanged();
     void addUniqueTrace(UniqueTraceData trace);
 

@@ -76,7 +76,7 @@ private:
 
 
     TraceWindow* traceWindow;
-    TraceToGUI traceToGUI;
+    GUIData traceToGUI;
     TraceBackupWriter backupWriter;
 
     QMutex mutex;
@@ -118,7 +118,7 @@ public:
     QString getBackupFileName();
 signals:
     void sendModule(sP7Trace_Module);
-    void sendTrace(TraceToGUI trace);
+    void sendTrace(GUIData uniqueTrace);
     void sendUniqueTrace(UniqueTraceData trace);
     void sendTraceAsObject(Trace* trace);
     void sendQueueSize(tUINT32 size);

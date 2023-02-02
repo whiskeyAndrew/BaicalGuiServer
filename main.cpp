@@ -19,8 +19,7 @@ int main(int argc, char* argv[])
 {
     qRegisterMetaType<sockaddr_in>("sockaddr_in");
     qRegisterMetaType<tUINT32>("tUINT32");
-    qRegisterMetaType<TraceToGUI>("TraceToGUI");
-    qRegisterMetaType<std::queue<TraceToGUI>>("std::queue<TraceToGUI>");
+    qRegisterMetaType<GUIData>("GUIData");
     qRegisterMetaType<UniqueTraceData>("UniqueTraceData");
     qRegisterMetaType<PacketHandler*>("PacketHandler*");
     qRegisterMetaType<sP7Trace_Module>("sP7Trace_Module");

@@ -631,7 +631,7 @@ color: rgb(255, 255, 255);
 selection-background-color: rgb(187, 187, 187);</string>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarAlwaysOn</enum>
      </property>
      <property name="lineWrapMode">
       <enum>QTextEdit::NoWrap</enum>

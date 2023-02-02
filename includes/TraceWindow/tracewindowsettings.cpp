@@ -819,11 +819,11 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
 
     tUINT32 wID = ui->traceIDforEnums->currentText().toInt();
     Trace* traceHandler = traceWindow->traceThread;
-    ui->uniqueTraceLabel->setText(traceWindow->traceThread->uniqueTraces.value(wID).traceLineForEnumWindow);
+    ui->uniqueTraceLabel->setText(traceWindow->traceThread->getUniqueTraces().value(wID).traceLineForEnumWindow);
 
     //Если у нас уже есть изменения по wID, подгружаем их
     if(traceWindow->getArgsThatNeedToBeChangedByEnum().contains(wID)){
-        for(int i =0;i<traceHandler->uniqueTraces.value(wID).argsID.size();i++){
+        for(int i =0;i<traceHandler->getUniqueTraces().value(wID).argsID.size();i++){
             int countNumber = ui->rawTracesTable->rowCount();
             QComboBox* comboBox = new QComboBox();
             comboBox->addItem("");
@@ -855,8 +855,8 @@ void TraceWindowSettings::reloadListOfArgsAndEnums(){
 
 
 
-    for(int i =0;i<traceHandler->uniqueTraces.value(wID).argsID.size();i++){
-        if(traceHandler->uniqueTraces.value(wID).argsID.size()==0){
+    for(int i =0;i<traceHandler->getUniqueTraces().value(wID).argsID.size();i++){
+        if(traceHandler->getUniqueTraces().value(wID).argsID.size()==0){
             return;
         }
         int countNumber = ui->rawTracesTable->rowCount();

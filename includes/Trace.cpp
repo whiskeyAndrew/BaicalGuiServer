@@ -3,59 +3,13 @@
 
 //Обработчик трейсов. Обрабатывает пришедшие ему маленькие чанки, внутри которых содержатся различные данные о трейсах. memcpy - сила
 
-static __attribute__ ((unused)) void UnpackLocalTime(tUINT64  i_qwTime,
-                                                     tUINT32 &o_rYear,
-                                                     tUINT32 &o_rMonth,
-                                                     tUINT32 &o_rDay,
-                                                     tUINT32 &o_rHour,
-                                                     tUINT32 &o_rMinutes,
-                                                     tUINT32 &o_rSeconds,
-                                                     tUINT32 &o_rMilliseconds,
-                                                     tUINT32 &o_rMicroseconds,
-                                                     tUINT32 &o_rNanoseconds
-                                                     )
-{
-    tUINT32 l_dwReminder = i_qwTime % TIME_MLSC_100NS; //micro & 100xNanoseconds
-    tUINT32 l_dwNano     = i_qwTime % 10;
-    tUINT32 l_dwMicro    = l_dwReminder / 10;
 
-    i_qwTime -= l_dwReminder;
 
-    tUINT32 l_dwMilli = (i_qwTime % TIME_SEC_100NS) / TIME_MLSC_100NS;
-
-    i_qwTime -= TIME_OFFSET_1601_1970;
-
-    time_t  l_llTime = i_qwTime / TIME_SEC_100NS;
-    tm    * l_pTime  = localtime(&l_llTime);
-    if (l_pTime){
-        o_rYear         = 1900 + l_pTime->tm_year;
-        o_rMonth        = 1 + l_pTime->tm_mon;
-        o_rDay          = l_pTime->tm_mday;
-        o_rHour         = l_pTime->tm_hour;
-        o_rMinutes      = l_pTime->tm_min;
-        o_rSeconds      = l_pTime->tm_sec;
-        o_rMilliseconds = l_dwMilli;
-        o_rMicroseconds = l_dwMicro;
-        o_rNanoseconds  = l_dwNano;
-    }
-    else{
-        o_rYear         = 0;
-        o_rMonth        = 0;
-        o_rDay          = 0;
-        o_rHour         = 0;
-        o_rMinutes      = 0;
-        o_rSeconds      = 0;
-        o_rMilliseconds = l_dwMilli;
-        o_rMicroseconds = l_dwMicro;
-        o_rNanoseconds  = l_dwNano;
-    }
-}//UnpackLocalTime
-
-TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
+GUIData Trace::setTraceData(tINT8* chunkCursor)
 {
     UniqueTraceData uniqueTrace;
     QString traceTextToGUI;
-    QList<ArgsPosition>* argsPosition = new QList<ArgsPosition>();
+
     //Не уникальный трейс
     //Читаем его структуру и записываем в TraceData
     memcpy(&traceData,chunkCursor,sizeof(sP7Trace_Data));
@@ -64,8 +18,6 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
     //Находим по wID структуру с остальными даннными трейса
     uniqueTrace = uniqueTraces.value(traceData.wID);
 
-    //Теперь надо прочитать аргументы и записать в arguments, чтобы после этого записать в вектор
-    //Кидаем поинтер на начало вектора структур, как только прочли нужное - перемещаем поинтер дальше
     if(uniqueTrace.traceFormat.args_Len!=0){
         for(int i =0; i<uniqueTrace.traceFormat.args_Len;i++){
             memcpy(&arguments,chunkCursor,uniqueTrace.argsID[i].argSize);
@@ -73,19 +25,11 @@ TraceToGUI Trace::setTraceData(tINT8* chunkCursor)
             argsValue.push_back(arguments);
             chunkCursor+=uniqueTrace.argsID[i].argSize;
         }
-        traceTextToGUI = formatVector(&uniqueTrace,argsValue,argsPosition);
-
     }
-    else{
-        traceTextToGUI = uniqueTrace.traceLineData;
-    }
-
-    argsValue.clear();
-    traceToShow.insert(traceData.dwSequence,traceData);
 
     //traceTime = CountTraceTime();
-    TraceToGUI traceToGUI = {traceTextToGUI,traceData.dwSequence,countTraceTime(),uniqueTrace.traceFormat.wID,traceData.bLevel,*argsPosition};
-    delete argsPosition;
+    GUIData traceToGUI = {traceData,0,1,argsValue};
+    argsValue.clear();
     return traceToGUI;
 }
 
@@ -133,9 +77,12 @@ std::string string_format( const std::string& format, Args ... args )
         throw std::runtime_error( "Error during formatting." );
     }
     auto size = static_cast<size_t>( size_s );
-    std::unique_ptr<char[]> buf( new char[ size ] );
-    std::snprintf( buf.get(), size, format.c_str(), args ... );
-    return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
+    //    std::unique_ptr<char[]> buf( new char[ size ] );
+    char* buf = new char[size];
+    std::snprintf( buf, size, format.c_str(), args ... );
+    std::string returnable = std::string( buf, buf + size - 1 );
+    delete[] buf;
+    return returnable; // We don't want the '\0' inside
 }
 
 //Переписать когда пройдет тильт
@@ -187,8 +134,8 @@ QString Trace::formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> a
     return toOutput;
 }
 
-p7Time Trace::countTraceTime(){
-    tDOUBLE l_dbTimeDiff = (((tDOUBLE)traceData.qwTimer - (tDOUBLE)traceInfo.qwTimer_Value)*  (tDOUBLE)TIME_SEC_100NS) / (tDOUBLE)traceInfo.qwTimer_Frequency;
+p7Time Trace::countTraceTime(sP7Trace_Data data){
+    tDOUBLE l_dbTimeDiff = (((tDOUBLE)data.qwTimer - (tDOUBLE)traceInfo.qwTimer_Value)*  (tDOUBLE)TIME_SEC_100NS) / (tDOUBLE)traceInfo.qwTimer_Frequency;
     tUINT64 m_qwStreamTime = (tUINT64)traceInfo.dwTime_Lo + (((tUINT64)traceInfo.dwTime_Hi) << 32);
 
     p7Time time;
@@ -199,10 +146,13 @@ p7Time Trace::countTraceTime(){
                     time.dwHour,
                     time.dwMinutes,
                     time.dwSeconds,
-                    time.dwMilliseconds,
-                    time.dwMicroseconds,
-                    time.dwNanoseconds);
+                    time.dwMilliseconds);
     return time;
+}
+
+const QMap<tUINT32, UniqueTraceData> &Trace::getUniqueTraces() const
+{
+    return uniqueTraces;
 }
 
 
@@ -239,17 +189,6 @@ QString Trace::getModule(tUINT32 moduleID)
     return QString(modules.value(moduleID).pName);
 }
 
-
-sP7Trace_Data Trace::getTraceData(tUINT32 sequence)
-{
-    return traceToShow.value(sequence);
-}
-
-UniqueTraceData Trace::getTraceFormat(tUINT32 wID)
-{
-    return uniqueTraces.value(wID);
-}
-
 tINT8* Trace::readTraceText(tINT8* tempChunkCursor, UniqueTraceData* trace)
 {
     while(*tempChunkCursor!='\0'){
@@ -272,3 +211,48 @@ tINT8* Trace::readTraceText(tINT8* tempChunkCursor, UniqueTraceData* trace)
     return tempChunkCursor;
 }
 
+void Trace::UnpackLocalTime(tUINT64  i_qwTime,
+                     short &o_rYear,
+                     short &o_rMonth,
+                     short &o_rDay,
+                     short &o_rHour,
+                     short &o_rMinutes,
+                     short &o_rSeconds,
+                     short &o_rMilliseconds
+                     )
+{
+    tUINT32 l_dwReminder = i_qwTime % TIME_MLSC_100NS; //micro & 100xNanoseconds
+    //    tUINT32 l_dwNano     = i_qwTime % 10;
+    //    tUINT32 l_dwMicro    = l_dwReminder / 10;
+
+    i_qwTime -= l_dwReminder;
+
+    tUINT32 l_dwMilli = (i_qwTime % TIME_SEC_100NS) / TIME_MLSC_100NS;
+
+    i_qwTime -= TIME_OFFSET_1601_1970;
+
+    time_t  l_llTime = i_qwTime / TIME_SEC_100NS;
+    tm    * l_pTime  = localtime(&l_llTime);
+    if (l_pTime){
+        o_rYear         = 1900 + l_pTime->tm_year;
+        o_rMonth        = 1 + l_pTime->tm_mon;
+        o_rDay          = l_pTime->tm_mday;
+        o_rHour         = l_pTime->tm_hour;
+        o_rMinutes      = l_pTime->tm_min;
+        o_rSeconds      = l_pTime->tm_sec;
+        o_rMilliseconds = l_dwMilli;
+        //        o_rMicroseconds = l_dwMicro;
+        //        o_rNanoseconds  = l_dwNano;
+    }
+    else{
+        o_rYear         = 0;
+        o_rMonth        = 0;
+        o_rDay          = 0;
+        o_rHour         = 0;
+        o_rMinutes      = 0;
+        o_rSeconds      = 0;
+        o_rMilliseconds = l_dwMilli;
+        //        o_rMicroseconds = l_dwMicro;
+        //        o_rNanoseconds  = l_dwNano;
+    }
+}//UnpackLocalTime

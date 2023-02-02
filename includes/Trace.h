@@ -30,27 +30,18 @@ struct ArgsPosition{
 
 
 struct p7Time{
-    tUINT32        dwYear;            //year
-    tUINT32        dwMonth;           //month
-    tUINT32        dwDay;             //day
-    tUINT32        dwHour;            //hour
-    tUINT32        dwMinutes;         //minute
-    tUINT32        dwSeconds;         //seconds
-    tUINT32        dwMilliseconds;    //milliseconds
-    tUINT32        dwMicroseconds;    //microseconds
-    tUINT32        dwNanoseconds;     //nanoseconds
+    short        dwYear;            //year
+    short        dwMonth;           //month
+    short        dwDay;             //day
+    short        dwHour;            //hour
+    short        dwMinutes;         //minute
+    short        dwSeconds;         //seconds
+    short        dwMilliseconds;    //milliseconds
+    //    tUINT32        dwMicroseconds;    //microseconds
+    //    tUINT32        dwNanoseconds;     //nanoseconds
 };
 
-struct GUIData{
-    tUINT32 sequence;
-    QString trace;
-    tUINT32 wID;
-    tUINT32 bLevel;
-    QList<ArgsPosition> argsPosition;
-    p7Time time;
-    tINT32 positionInMap;
-    tUINT32 rowsToShow = 1;
-};
+
 class TraceWindow;
 #pragma pack(push,2)
 struct sP7Trace_Info
@@ -119,19 +110,6 @@ struct sP7Trace_Data
     tUINT64 qwTimer;
 };
 
-
-
-struct TraceToGUI
-{
-    QString trace;
-    tUINT32 sequence;
-    p7Time traceTime;
-    tUINT32 wID;
-    tUINT32 bLevel;
-    QList<ArgsPosition> argsPositionAfterFormatting;
-};
-
-
 struct UniqueTraceData
 {
     sP7Trace_Format traceFormat;
@@ -141,8 +119,15 @@ struct UniqueTraceData
     std::vector<Args_ID> argsID;
     QString traceLineForEnumWindow;
     tUINT32 moduleId;
+    tUINT32 rowsToShow = 1;
 };
 
+struct GUIData{
+    sP7Trace_Data uniqueData; //24 байта
+    tINT32 positionInMap; //4 байта
+    short linesInsideTrace; //2 байта
+    std::vector<tUINT64> argsValue; //многа, но некоторые аргументы хранятся по много байт
+};
 
 #pragma pack(pop)
 
@@ -160,20 +145,30 @@ private:
     std::vector<tUINT64> argsValue;
 
     QMap<tUINT32, bool> needToShow;
-    QMap<tUINT32,sP7Trace_Data> traceToShow;
     QMap<tUINT32,sP7Trace_Module> modules;
     tINT64 arguments = 0;
     Args_ID argumentsData;
 
     SYSTEMTIME traceTime;
 
-    QString formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition>* argsPosition);
+
     tINT8* readTraceText(tINT8* chunkCursor, UniqueTraceData* trace);
-    p7Time countTraceTime();
+    QMap<tUINT32,UniqueTraceData> uniqueTraces;
+
+    void UnpackLocalTime(tUINT64  i_qwTime,
+                         short &o_rYear,
+                         short &o_rMonth,
+                         short &o_rDay,
+                         short &o_rHour,
+                         short &o_rMinutes,
+                         short &o_rSeconds,
+                         short &o_rMilliseconds
+                         );
 public:
     //TraceLineData traceDataPerLine;
-    QMap<tUINT32,UniqueTraceData> uniqueTraces;
-    sP7Trace_Data getTraceData(tUINT32 sequence);
+    p7Time countTraceTime(sP7Trace_Data data);
+    QString formatVector(UniqueTraceData* uniqueTrace, std::vector<tUINT64> args, QList<ArgsPosition>* argsPosition);
+
     UniqueTraceData getTraceFormat(tUINT32 wID);
 
     void setTraceInfo(tINT8* chunkPointer);
@@ -183,8 +178,11 @@ public:
     void setTraceThreadStop(tINT8* chunkCursor);
     UniqueTraceData setTraceFormat(tINT8* chunkCursor);
 
-    TraceToGUI setTraceData(tINT8* chunkCursor);
+    GUIData setTraceData(tINT8* chunkCursor);
 
     QString getModule(tUINT32 moduleID);
+    const QMap<tUINT32, UniqueTraceData> &getUniqueTraces() const;
+    const QMap<tUINT32, sP7Trace_Data> &getAllTracesData() const;
+
 };
 #endif // TRACE_H

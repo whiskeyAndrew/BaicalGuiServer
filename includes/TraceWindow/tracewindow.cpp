@@ -21,6 +21,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
 {
     ui->setupUi(this);
 
+    ui->textBrowser->setUndoRedoEnabled(false);
     mainWindow = mw;
     guiData = new QList<GUIData>;
     clientName = newClientName;
@@ -31,25 +32,36 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
     ui->actionsStatusLabel->setText("Connected");
 }
 
-void TraceWindow::getTrace(TraceToGUI trace)
+void TraceWindow::getTrace(GUIData uniqueTrace)
 {
     //слишком большая чсть хранить кучу данных в traceTime
     //оптимизировать чуть позже
-    tUINT32 rowsToShow = trace.trace.count("\n")+1;
-    GUIData currentGuiData = {trace.sequence,trace.trace,trace.wID,trace.bLevel,trace.argsPositionAfterFormatting,trace.traceTime,ui->verticalScrollBar->maximum(),rowsToShow};
+    uniqueTrace.positionInMap = ui->verticalScrollBar->maximum();
+    QString traceRow = getGuiRow(&uniqueTrace);
 
-    guiData->append(currentGuiData);
+    guiData->append(uniqueTrace);
 
-    if(isRowNeedToBeShown(currentGuiData)){
-        for(tUINT32 i = 1;i<=rowsToShow;i++){
+
+    if(isRowNeedToBeShown(uniqueTrace)){
+        for(tUINT32 i = 1;i<=uniqueTrace.linesInsideTrace;i++){
             listOfRowsThatWeNeedToShow.append({static_cast<tUINT32>(guiData->size()-1),i});
         }
         ui->verticalScrollBar->setMaximum(ui->verticalScrollBar->maximum()+1);
     }
     if((ui->verticalScrollBar->maximum()<numberOfRowsToShow || ui->textBrowser->document()->blockCount()<numberOfRowsToShow || ui->Autoscroll->isChecked())
-            &&isRowNeedToBeShown(currentGuiData)){
-        ui->textBrowser->append(getGuiRow(currentGuiData));
-
+            &&isRowNeedToBeShown(uniqueTrace)){
+        ui->textBrowser->append(traceRow);
+        tracesToReloadCounter++;
+        if(tracesToReloadCounter >= TRACES_UNTIL_RELOAD_PAGE){
+            //Внутри QTextEdit хранятся какие-то кэшированные данные, которые при работе с ОГРОМНЫМ количеством строк
+            //Срут в оперативную память
+            //Кажждые TRACES_UNTIL_RELOAD_PAGE чистим и заполняем по новой
+            QString text = ui->textBrowser->toPlainText();
+            ui->textBrowser->clear();
+            ui->textBrowser->append(text);
+            std::cout<<"reloaded"<<std::endl;
+            tracesToReloadCounter = 0;
+        }
         ui->verticalScrollBar->blockSignals(true);
         if(ui->Autoscroll->isChecked()){
             if(ui->textBrowser->document()->blockCount()>numberOfRowsToShow){
@@ -84,7 +96,7 @@ void TraceWindow::on_verticalScrollBar_valueChanged(int value)
     //Если нам надо перестроить все окно, нам надо знать с какой точки его перестраивать, чтобы не переходить в самый ноль
     //Надо запомнить sequence строки и ориентируясь по нему мы поймем когда сделано то, что надо
     if(value<guiData->size() && value<listOfRowsThatWeNeedToShow.size()){
-        sequenceToRememberForReloadingAtProperPlace = guiData->at(listOfRowsThatWeNeedToShow.at(value).traceNumber).sequence;
+        sequenceToRememberForReloadingAtProperPlace = guiData->at(listOfRowsThatWeNeedToShow.at(value).traceNumber).uniqueData.dwSequence;
     }
     reloadTracesInsideWindow();
 }
@@ -155,7 +167,7 @@ void TraceWindow::reloadTracesFromBelow(int value)
         }
 
         GUIData g = guiData->at(positionOfTraceInsideGuiDataMap);
-        QString row = getGuiRow(g);
+        QString row = getGuiRow(&g);
         ui->textBrowser->append(row);
         value++;
         if(!firstTraceGenerated){
@@ -180,7 +192,7 @@ void TraceWindow::reloadTracesFromAbove(int value)
         }
         tUINT32 positionOfTraceInsideGuiDataMap = listOfRowsThatWeNeedToShow.at(value).traceNumber;
         GUIData g = guiData->at(positionOfTraceInsideGuiDataMap);
-        QString row = getGuiRow(g);
+        QString row = getGuiRow(&g);
         ui->textBrowser->append(row);
         value--;
     }
@@ -204,10 +216,11 @@ void TraceWindow::openHyperlink(const QUrl &link)
     QStringList sl = link.path().split(" _splt_ ");
     tUINT32 sequence = sl.at(0).toInt();
     QString rawTraceWithEnums = sl.at(1);
+    tUINT32 positionInGuiDataMap = sl.at(2).toInt();
     lastSelected = sequence;
 
-    sP7Trace_Data traceData = traceThread->getTraceData(sequence);
-    UniqueTraceData traceFormat = traceThread->getTraceFormat(traceData.wID);
+    sP7Trace_Data traceData = guiData->value(positionInGuiDataMap).uniqueData;
+    UniqueTraceData traceFormat = traceThread->getUniqueTraces().value(traceData.wID);
 
     ui->selectedLabel->setText("Selected row: "+ QString::number(lastSelected));
 
@@ -378,10 +391,6 @@ tBOOL TraceWindow::isInitialized() const
     return initEnded;
 }
 
-void TraceWindow::getTraceFromFile(std::queue<TraceToGUI> data)
-{
-
-}
 
 void TraceWindow::setTraceAsObject(Trace* trace)
 {
@@ -489,8 +498,8 @@ void TraceWindow::initWindow(){
 
     //По неведомым причинам перехват скролла верх не работает, он все равно скроллит само окно, а не переопределенный слайдер
     //Отключаем
-    ui->textBrowser->verticalScrollBar()->setDisabled(true);
-    ui->textBrowser->verticalScrollBar()->setVisible(false);
+//    ui->textBrowser->verticalScrollBar()->setDisabled(true);
+//    ui->textBrowser->verticalScrollBar()->setVisible(false);
     ui->infinite_line->setChecked(true);
     //    ui->traceText->viewport()->setAutoFillBackground(false);
 }
@@ -579,15 +588,15 @@ void TraceWindow::on_infinite_line_stateChanged(int arg1)
 
 }
 
-QString TraceWindow::getGuiRow(GUIData g){
-    if(!isRowNeedToBeShown(g)){
+QString TraceWindow::getGuiRow(GUIData* g){
+    if(!isRowNeedToBeShown(*g)){
         return "";
     }
 
     //"style=\"background-color:#33475b\""
     QString color= "color:#C0C0C0\">";
 
-    switch(g.bLevel){
+    switch(g->uniqueData.bLevel){
     case EP7TRACE_LEVEL_TRACE:
         if(traceColor!=emptyColor&& traceColor.isValid()){
             color = "color:"+traceColor.name()+"\">";
@@ -661,18 +670,20 @@ QString TraceWindow::getGuiRow(GUIData g){
         break;
     }
 
-    QString sequenceToGUI = QString::number(g.sequence);
-    QString traceToGUI = g.trace;
+    QString sequenceToGUI = QString::number(g->uniqueData.dwSequence);
+    UniqueTraceData uniqueTraceData = traceThread->getUniqueTraces().value(g->uniqueData.wID);
+    QList<ArgsPosition> argsPosition;
+    QString traceToGUI = traceThread->formatVector(&uniqueTraceData,g->argsValue, &argsPosition);
     QString timeToGUI = "";
-    QString traceToRightPanel = g.trace;
+    QString traceToRightPanel = traceToGUI;
 
-    if(argsThatNeedToBeChangedByEnum.contains(g.wID)){
-        QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g.wID);
+    if(argsThatNeedToBeChangedByEnum.contains(g->uniqueData.wID)){
+        QList<ArgsThatNeedToBeChangedByEnum> args = argsThatNeedToBeChangedByEnum.value(g->uniqueData.wID);
         for(int i =args.size()-1;i>=0;i--){
 
             //0 - ничего ставить не надо (судя по всему это значение аргумента)
-            tUINT32 number = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart)).toInt();
-            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId==0){
+            tUINT32 number = traceToGUI.mid(argsPosition.value(i).argStart,(argsPosition.value(i).argEnd-argsPosition.value(i).argStart)).toInt();
+            if(argsThatNeedToBeChangedByEnum.value(g->uniqueData.wID).at(i).enumId==0){
                 continue;
             }
 
@@ -682,7 +693,7 @@ QString TraceWindow::getGuiRow(GUIData g){
 
 
             //если енамайди больше ста, ты мы используем сгенерированные из файла енамы и надо проверять, есть ли нужный нам енам внутри
-            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(number) && argsThatNeedToBeChangedByEnum.value(g.wID).value(i).enumId>100){
+            if(!traceSettings->getEnumParser()->enums.at(args.at(i).enumId).enums.contains(number) && argsThatNeedToBeChangedByEnum.value(g->uniqueData.wID).value(i).enumId>100){
                 continue;
             }
 
@@ -711,10 +722,10 @@ QString TraceWindow::getGuiRow(GUIData g){
             //Дальше приложение само сделает нужные подстановки, так что, по сути, от разработчика самое главное
             //Просто обработать аргумент в значении digitToGUI
 
-            QString digitToGUI = traceToGUI.mid(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart));
+            QString digitToGUI = traceToGUI.mid(argsPosition.value(i).argStart,(argsPosition.value(i).argEnd-argsPosition.value(i).argStart));
 
             //получаем ID енама и смотрим по свичу куда его применить
-            switch(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).enumId){
+            switch(argsThatNeedToBeChangedByEnum.value(g->uniqueData.wID).at(i).enumId){
             case(1):{
                 //АЛГОРИТМ ОБРАБОТКИ СТРОКИ
                 tUINT32 step = 0;
@@ -751,17 +762,17 @@ QString TraceWindow::getGuiRow(GUIData g){
                 break;
             }
             }
-            if(argsThatNeedToBeChangedByEnum.value(g.wID).at(i).needToShow==Qt::Checked){
-                traceToGUI.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),
+            if(argsThatNeedToBeChangedByEnum.value(g->uniqueData.wID).at(i).needToShow==Qt::Checked){
+                traceToGUI.replace(argsPosition.value(i).argStart,(argsPosition.value(i).argEnd-argsPosition.value(i).argStart),
                                    boldEnumStart+italicEnumStart+digitToGUI+italicEnumEnd+boldEnumEnd);
             }
-            traceToRightPanel.replace(g.argsPosition.value(i).argStart,(g.argsPosition.value(i).argEnd-g.argsPosition.value(i).argStart),digitToGUI);
+            traceToRightPanel.replace(argsPosition.value(i).argStart,(argsPosition.value(i).argEnd-argsPosition.value(i).argStart),digitToGUI);
         }
     }
 
     QString formattedWithEnumGUI = traceToGUI;
 
-    QString sequenceHref = sequenceToGUI+" _splt_ "+traceToRightPanel+" _splt_ "+QString::number(g.positionInMap);
+    QString sequenceHref = sequenceToGUI+" _splt_ "+traceToRightPanel+" _splt_ "+QString::number(g->positionInMap);
     sequenceHref = sequenceHref.trimmed();
 
     traceToGUI.insert(0," ");
@@ -771,24 +782,26 @@ QString TraceWindow::getGuiRow(GUIData g){
     }
 
     if(traceSettings->isTimeColumnNeedToShow()==Qt::Checked){
-        QString seconds = QString::number(g.time.dwSeconds);
+        p7Time rawTime = traceThread->countTraceTime(g->uniqueData);
+        QString seconds = QString::number(rawTime.dwSeconds);
         if(seconds.length()<2){
             seconds.insert(0,"0");
         }
 
-        QString minutes = QString::number(g.time.dwMinutes);
+        QString minutes = QString::number(rawTime.dwMinutes);
         if(minutes.length()<2){
             minutes.insert(0,"0");
         }
 
-        QString hour = QString::number(g.time.dwHour);
+        QString hour = QString::number(rawTime.dwHour);
         if(hour.length()<2){
             hour.insert(0,"0");
         }
+
         timeToGUI = " " + hour+":"+minutes+":"+seconds;
 
         if(traceSettings->isMillisecondsChecked()==Qt::Checked){
-            QString milisec = QString::number(g.time.dwMilliseconds);
+            QString milisec = QString::number(rawTime.dwMilliseconds);
             while(milisec.length()!=3){
                 milisec.insert(0,"0");
             }
@@ -1020,21 +1033,21 @@ void TraceWindow::on_traceToTxt_clicked()
     //Надо что-нибудь придумать
     //Получается маленький меморилик
     QString fileName;
-    if(guiData->size()>1){
-        p7Time time = guiData->at(1).time;
-        fileName = clientName.ip+"."+clientName.port+"-"+QString::number(time.dwHour)+"."+QString::number(time.dwMinutes)+"."+QString::number(time.dwSeconds);
-    }
-    else{
-        fileName = clientName.ip+"."+clientName.port;
-    }
+//    if(guiData->size()>1){
+//        p7Time time = guiData->at(1).time;
+//        fileName = clientName.ip+"."+clientName.port+"-"+QString::number(time.dwHour)+"."+QString::number(time.dwMinutes)+"."+QString::number(time.dwSeconds);
+//    }
+//    else{
+//        fileName = clientName.ip+"."+clientName.port;
+//    }
 
-    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileName,tr("Text files(*.txt"));
-    if(filePath==""){
-        return;
-    }
+//    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileName,tr("Text files(*.txt"));
+//    if(filePath==""){
+//        return;
+//    }
 
-    TracesToText* traces = new TracesToText(new QList(*guiData),filePath,this);
-    traces->start();
+//    TracesToText* traces = new TracesToText(new QList(*guiData),filePath,this);
+//    traces->start();
 }
 
 
@@ -1113,18 +1126,18 @@ void TraceWindow::on_clearSelected_clicked()
 
 bool TraceWindow::isRowNeedToBeShown(GUIData g)
 {
-    tUINT32 moduleId = traceThread->uniqueTraces.value(g.wID).moduleId;
+    tUINT32 moduleId = traceThread->getUniqueTraces().value(g.uniqueData.wID).moduleId;
 
     if(traceSettings->needToShowModules.value(moduleId)!=Qt::Checked){
         return false;
     }
 
-    if(traceSettings->needToShowTraceByID.value(g.wID)!=Qt::Checked){
+    if(traceSettings->needToShowTraceByID.value(g.uniqueData.wID)!=Qt::Checked){
         return false;
     }
 
 
-    if(isNeedToShowByTraceLevel.value(g.bLevel)!=Qt::Checked){
+    if(isNeedToShowByTraceLevel.value(g.uniqueData.bLevel)!=Qt::Checked){
         return false;
     }
     return true;
@@ -1150,16 +1163,16 @@ void TraceWindow::recountNubmerOfTracesToShow()
 
     for(int i =0;i<guiData->size();i++){
         if(isRowNeedToBeShown(guiData->at(i))){
-            for(tUINT32 j =1;j<=guiData->at(i).rowsToShow;j++)
+            for(tUINT32 j =1;j<=guiData->at(i).linesInsideTrace;j++)
                 listOfRowsThatWeNeedToShow.append({static_cast<tUINT32>(i),j});
         }
 
         //ищем если у нас была выбрана строка до этого
-        if(!isRowWhereWeNeedToStartUpdatingFound && guiData->at(i).sequence>=lastSelected){
+        if(!isRowWhereWeNeedToStartUpdatingFound && guiData->at(i).uniqueData.dwSequence>=lastSelected){
             selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
             isRowWhereWeNeedToStartUpdatingFound = true;
             //если строки не было выбрано ищем строку которая была в последний раз перед переделкой страницы
-        } else if(!isRowWhereWeNeedToStartUpdatingFound &&lastSelected==-1 && guiData->at(i).sequence>=sequenceToRememberForReloadingAtProperPlace){
+        } else if(!isRowWhereWeNeedToStartUpdatingFound &&lastSelected==-1 && guiData->at(i).uniqueData.dwSequence>=sequenceToRememberForReloadingAtProperPlace){
             selectedRowPositionInScrollbar = listOfRowsThatWeNeedToShow.size()-1;
             isRowWhereWeNeedToStartUpdatingFound = true;
 
