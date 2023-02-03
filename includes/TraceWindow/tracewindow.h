@@ -177,7 +177,7 @@ private:
     tUINT32 lastRenderedRow = -1;
 
     QString getGuiRow(GUIData* g);
-    bool event(QEvent* event);
+//    bool event(QEvent* event);
     void reloadTracesFromBelow(int value);
     tUINT32 sliderAction = 0;
     void reloadTracesFromAbove(int value);

@@ -25,6 +25,7 @@ void TraceWindowSettings::initWindow()
 {
     setWindowTitle(connectionName.ip+":"+connectionName.port +" settings");
     ui->traceIDforEnums->addItem("");
+    traceIDforEnumsListForFastChanging.append(0);
 
     ui->rawTracesTable->insertColumn(0);
     ui->rawTracesTable->setColumnWidth(0, ui->rawTracesTable->width()/10);
@@ -123,6 +124,7 @@ void TraceWindowSettings::appendUniqueTracesList(QString text, tUINT32 wID)
     ui->listWidget->addItem(listItem);
 
     ui->traceIDforEnums->addItem(QString::number(wID));
+    traceIDforEnumsListForFastChanging.append(wID);
 }
 
 void TraceWindowSettings::appendModules(sP7Trace_Module module)
@@ -755,6 +757,11 @@ void TraceWindowSettings::on_applyEnumToTraceById_clicked(){
 
     traceWindow->appendArgsThatNeedToBeChangedByEnum(ui->traceIDforEnums->currentText().toInt(),args);
     ui->enumsStatus->setText("Applied");
+}
+
+void TraceWindowSettings::changeTraceIDforEnumsValue(tUINT32 wID)
+{
+    ui->traceIDforEnums->setCurrentIndex( traceIDforEnumsListForFastChanging.indexOf(wID));
 }
 
 EnumParser* TraceWindowSettings::getEnumParser() const

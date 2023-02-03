@@ -20,7 +20,7 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
     ui(new Ui::TraceWindow)
 {
     ui->setupUi(this);
-
+    this->setWindowFlags(Qt::Window);
     ui->textBrowser->setUndoRedoEnabled(false);
     mainWindow = mw;
     guiData = new QList<GUIData>;
@@ -232,6 +232,8 @@ void TraceWindow::openHyperlink(const QUrl &link)
     }
 
     ui->wID->setText(QString::number(traceFormat.traceFormat.wID));
+    traceSettings->changeTraceIDforEnumsValue(traceFormat.traceFormat.wID);
+
     if(traceFormat.traceFormat.line){
         ui->line->setText(QString::number(traceFormat.traceFormat.line));
     }
@@ -355,8 +357,8 @@ TraceWindow::~TraceWindow()
     //Память не очищается не смотря на то, что мы чистим за собой лист. Зато удаление листа сжирает всю производиловку.
     //Надо будет обязательно исправить
     //    qDebug()<<QDateTime::currentDateTime();
-    //    guiData->clear();
-    //    listOfRowsThatWeNeedToShow.clear();
+        guiData->clear();
+        listOfRowsThatWeNeedToShow.clear();
     qDebug()<<QDateTime::currentDateTime();
     delete ui;
 }
@@ -369,17 +371,17 @@ void TraceWindow::mousePressEvent(QMouseEvent* eventPress)
     ui->Autoscroll->setChecked(false);
 }
 
-bool TraceWindow::event(QEvent* event)
-{
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent* ke = static_cast<QKeyEvent* >(event);
-        if (ke->key() == Qt::Key_F11) {
-            ui->groupBox_2->setVisible(!ui->groupBox_2->isVisible());
-            return true;
-        }
-    }
-    return QWidget::event(event);
-}
+//bool TraceWindow::event(QEvent* event)
+//{
+//    if (event->type() == QEvent::KeyPress) {
+//        QKeyEvent* ke = static_cast<QKeyEvent* >(event);
+//        if (ke->key() == Qt::Key_F11) {
+//            ui->groupBox_2->setVisible(!ui->groupBox_2->isVisible());
+//            return true;
+//        }
+//    }
+//    return QWidget::event(event);
+//}
 
 Qt::CheckState TraceWindow::isAutoscrollChecked()
 {
@@ -498,8 +500,8 @@ void TraceWindow::initWindow(){
 
     //По неведомым причинам перехват скролла верх не работает, он все равно скроллит само окно, а не переопределенный слайдер
     //Отключаем
-//    ui->textBrowser->verticalScrollBar()->setDisabled(true);
-//    ui->textBrowser->verticalScrollBar()->setVisible(false);
+    ui->textBrowser->verticalScrollBar()->setDisabled(true);
+    ui->textBrowser->verticalScrollBar()->setVisible(false);
     ui->infinite_line->setChecked(true);
     //    ui->traceText->viewport()->setAutoFillBackground(false);
 }
@@ -589,6 +591,9 @@ void TraceWindow::on_infinite_line_stateChanged(int arg1)
 }
 
 QString TraceWindow::getGuiRow(GUIData* g){
+    //генерируем строку, которую хотим отобразить на экране
+    //в некоторых местах немного неоптимизированный бутерброд
+
     if(!isRowNeedToBeShown(*g)){
         return "";
     }
@@ -674,6 +679,7 @@ QString TraceWindow::getGuiRow(GUIData* g){
     UniqueTraceData uniqueTraceData = traceThread->getUniqueTraces().value(g->uniqueData.wID);
     QList<ArgsPosition> argsPosition;
     QString traceToGUI = traceThread->formatVector(&uniqueTraceData,g->argsValue, &argsPosition);
+    g->linesInsideTrace = traceToGUI.count("\n")+1;
     QString timeToGUI = "";
     QString traceToRightPanel = traceToGUI;
 
@@ -769,8 +775,6 @@ QString TraceWindow::getGuiRow(GUIData* g){
             traceToRightPanel.replace(argsPosition.value(i).argStart,(argsPosition.value(i).argEnd-argsPosition.value(i).argStart),digitToGUI);
         }
     }
-
-    QString formattedWithEnumGUI = traceToGUI;
 
     QString sequenceHref = sequenceToGUI+" _splt_ "+traceToRightPanel+" _splt_ "+QString::number(g->positionInMap);
     sequenceHref = sequenceHref.trimmed();
@@ -1033,21 +1037,21 @@ void TraceWindow::on_traceToTxt_clicked()
     //Надо что-нибудь придумать
     //Получается маленький меморилик
     QString fileName;
-//    if(guiData->size()>1){
-//        p7Time time = guiData->at(1).time;
-//        fileName = clientName.ip+"."+clientName.port+"-"+QString::number(time.dwHour)+"."+QString::number(time.dwMinutes)+"."+QString::number(time.dwSeconds);
-//    }
-//    else{
-//        fileName = clientName.ip+"."+clientName.port;
-//    }
+    if(guiData->size()>1){
+        p7Time time = traceThread->countTraceTime(guiData->at(1).uniqueData);
+        fileName = clientName.ip+"."+clientName.port+"-"+QString::number(time.dwHour)+"."+QString::number(time.dwMinutes)+"."+QString::number(time.dwSeconds);
+    }
+    else{
+        fileName = clientName.ip+"."+clientName.port;
+    }
 
-//    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileName,tr("Text files(*.txt"));
-//    if(filePath==""){
-//        return;
-//    }
+    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileName,tr("Text files(*.txt"));
+    if(filePath==""){
+        return;
+    }
 
-//    TracesToText* traces = new TracesToText(new QList(*guiData),filePath,this);
-//    traces->start();
+    TracesToText* traces = new TracesToText(new QList(*guiData),filePath,this,traceThread);
+    traces->start();
 }
 
 

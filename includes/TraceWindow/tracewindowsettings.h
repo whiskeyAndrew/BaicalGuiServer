@@ -73,8 +73,9 @@ public:
     tUINT32 getWheelScrollStep();
 
     Qt::CheckState isMillisecondsChecked();
-public slots:
+    void changeTraceIDforEnumsValue(tUINT32 wID);
 
+    QList<tUINT32> traceIDforEnumsListForFastChanging;
 private slots:
     //Trace Colors
 

@@ -13,9 +13,10 @@
 class TraceWindow;
 class TracesToText:public QThread{
 public:
-    TracesToText(QList<GUIData>* traces, QString filePath, TraceWindow* newTraceWindow);
+    TracesToText(QList<GUIData>* traces, QString filePath, TraceWindow* newTraceWindow, Trace* traceThread);
     QList<GUIData>* data;
 private:
+    Trace* tracesThread;
     QString fileDirectory;
     TraceWindow* traceWindow;
     void run();
