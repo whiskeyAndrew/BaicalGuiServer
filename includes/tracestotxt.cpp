@@ -30,11 +30,34 @@ void TracesToText::run()
 
         GUIData dataToFile = data->at(i);
         UniqueTraceData uniqueTraceData = tracesThread->getUniqueTraces().value(dataToFile.uniqueData.wID);
+
         QList<ArgsPosition> argsPosition;
 
         p7Time rawTime = tracesThread->countTraceTime(dataToFile.uniqueData);
         QString traceRow = tracesThread->formatVector(&uniqueTraceData,dataToFile.argsValue, &argsPosition);
-        out<<QString::number(dataToFile.uniqueData.dwSequence)+" " + QString::number(rawTime.dwHour)+":"+QString::number(rawTime.dwMinutes)+":"+QString::number(rawTime.dwSeconds)+"."+QString::number(rawTime.dwMilliseconds)+" " + traceRow+"\n";
+
+        QString hour = QString::number(rawTime.dwHour);
+        QString minutes = QString::number(rawTime.dwMinutes);
+        QString seconds = QString::number(rawTime.dwSeconds);
+        QString milisecs = QString::number(rawTime.dwMilliseconds);
+
+        if(hour.length()==1){
+            hour.insert(0,"0");
+        }
+
+        if(minutes.length()==1){
+            minutes.insert(0,"0");
+        }
+
+        if(seconds.length()==1){
+            seconds.insert(0,"0");
+        }
+
+        while(milisecs.length()!=3){
+            milisecs.insert(0,"0");
+        }
+
+        out<<QString::number(dataToFile.uniqueData.dwSequence)+" " + hour+":"+minutes+":"+seconds+"."+milisecs+" " + traceRow+"\n";
     }
     traceWindow->setActionStatusText("Traces has been written to a file");
     file.close();

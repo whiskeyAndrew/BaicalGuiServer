@@ -23,8 +23,7 @@ int main(int argc, char* argv[])
     qRegisterMetaType<UniqueTraceData>("UniqueTraceData");
     qRegisterMetaType<PacketHandler*>("PacketHandler*");
     qRegisterMetaType<sP7Trace_Module>("sP7Trace_Module");
-    QApplication a(argc, argv);
-
+    QApplication a(argc, argv);    
     //Использование русских символов
     QTextCodec * codec;
     codec = QTextCodec::codecForName("UTF-8");

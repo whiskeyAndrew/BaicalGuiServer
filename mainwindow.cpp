@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui->connectionsTable->horizontalHeader()->hide();
     ui->connectionsTable->verticalHeader()->hide();
     ui->connectionsTable->horizontalHeader()->setStretchLastSection(true);
+    this->setWindowIcon(QIcon(":/baical_icon.png"));
 }
 
 void MainWindow::showContextMenu(const QPoint &pos)

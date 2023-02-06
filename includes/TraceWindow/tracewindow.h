@@ -179,7 +179,6 @@ private:
     QString getGuiRow(GUIData* g);
 //    bool event(QEvent* event);
     void reloadTracesFromBelow(int value);
-    tUINT32 sliderAction = 0;
     void reloadTracesFromAbove(int value);
 
     void closeEvent(QCloseEvent *event);

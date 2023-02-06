@@ -20,13 +20,13 @@ TraceWindow::TraceWindow(ConnectionName newClientName, ConfigHandler* newConfig,
     ui(new Ui::TraceWindow)
 {
     ui->setupUi(this);
+    this->setWindowIcon(QIcon(":/baical_icon.png"));
     this->setWindowFlags(Qt::Window);
     ui->textBrowser->setUndoRedoEnabled(false);
     mainWindow = mw;
     guiData = new QList<GUIData>;
     clientName = newClientName;
     config = newConfig;
-
     initWindow();
     initEnded = true;
     ui->actionsStatusLabel->setText("Connected");
@@ -357,8 +357,8 @@ TraceWindow::~TraceWindow()
     //Память не очищается не смотря на то, что мы чистим за собой лист. Зато удаление листа сжирает всю производиловку.
     //Надо будет обязательно исправить
     //    qDebug()<<QDateTime::currentDateTime();
-        guiData->clear();
-        listOfRowsThatWeNeedToShow.clear();
+    guiData->clear();
+    listOfRowsThatWeNeedToShow.clear();
     qDebug()<<QDateTime::currentDateTime();
     delete ui;
 }
@@ -520,7 +520,6 @@ void TraceWindow::wheelEvent(QWheelEvent* event)
     }
     else */if(numDegrees.ry()<0){
         //Это для скролла лишних данных
-        sliderAction = 2;
 
         ui->Autoscroll->setChecked(false);
         ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-traceSettings->getWheelScrollStep());
@@ -1045,7 +1044,7 @@ void TraceWindow::on_traceToTxt_clicked()
         fileName = clientName.ip+"."+clientName.port;
     }
 
-    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileName,tr("Text files(*.txt"));
+    QString filePath = QFileDialog::getSaveFileName(this, "Save As",fileName,tr("Text files (*.txt);;All files (*)"));
     if(filePath==""){
         return;
     }
@@ -1151,7 +1150,12 @@ void TraceWindow::on_verticalScrollBar_actionTriggered(int action)
 {
     ui->selectedLabel->clear();
     lastSelected=-1;
-    sliderAction = action;
+    if(action==QAbstractSlider::SliderPageStepAdd){
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()+numberOfRowsToShow);
+    } else if(action==QAbstractSlider::SliderPageStepSub){
+        ui->verticalScrollBar->setValue(ui->verticalScrollBar->value()-numberOfRowsToShow);
+    }
+
 }
 
 void TraceWindow::recountNubmerOfTracesToShow()

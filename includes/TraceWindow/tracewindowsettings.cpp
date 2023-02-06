@@ -7,6 +7,7 @@
 TraceWindowSettings::TraceWindowSettings(TraceWindow* newTraceWindow, ConnectionName* clientName):ui(new Ui::TraceWindowSettings)
 {
     ui->setupUi(this);
+    this->setWindowIcon(QIcon(":/baical_icon.png"));
     traceWindow = newTraceWindow;
     enumParser = new EnumParser();
 
